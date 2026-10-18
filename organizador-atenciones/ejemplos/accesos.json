@@ -1,0 +1,39 @@
+{
+  "grupos": [
+    {
+      "nombre": "Gestion",
+      "enlaces": [
+        { "nombre": "ServiceNow", "url": "https://servicenow.ejemplo.com" },
+        { "nombre": "Jira", "url": "https://jira.ejemplo.com" }
+      ]
+    },
+    {
+      "nombre": "Codigo",
+      "enlaces": [
+        { "nombre": "Repo Terraform", "url": "https://github.com/ejemplo/terraform" },
+        { "nombre": "Repo Flux", "url": "https://github.com/ejemplo/flux" }
+      ]
+    },
+    {
+      "nombre": "Plataforma",
+      "enlaces": [
+        { "nombre": "HerramientaA", "url": "https://herramientaa.ejemplo.com" },
+        { "nombre": "HerramientaB", "url": "https://herramientab.ejemplo.com" },
+        { "nombre": "Monitoreo", "url": "https://monitoreo.ejemplo.com" }
+      ]
+    },
+    {
+      "nombre": "AWS",
+      "enlaces": [
+        { "nombre": "Consola", "url": "https://console.aws.amazon.com" }
+      ]
+    },
+    {
+      "nombre": "Diagramas",
+      "enlaces": [
+        { "nombre": "draw.io", "url": "https://app.diagrams.net" },
+        { "nombre": "Lucidchart", "url": "https://lucid.app" }
+      ]
+    }
+  ]
+}

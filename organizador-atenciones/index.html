@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Organizador</title>
+<style>
+  :root {
+    --texto: #1f2328;
+    --suave: #656d76;
+    --borde: #d0d7de;
+    --fondo: #ffffff;
+    --fondo2: #f6f8fa;
+    --activo: #0969da;
+    --aviso: #fff8c5;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.45 system-ui, "Segoe UI", sans-serif; color: var(--texto); background: var(--fondo); }
+  header { position: sticky; top: 0; z-index: 5; display: flex; gap: 16px; align-items: center;
+           padding: 8px 16px; background: var(--fondo2); border-bottom: 1px solid var(--borde); }
+  header strong { font-size: 15px; }
+  #foco-actual { color: var(--suave); }
+  #foco-actual b { color: var(--texto); }
+  main { max-width: 1100px; margin: 0 auto; padding: 8px 16px 48px; }
+  section { padding: 12px 0; border-bottom: 1px solid var(--borde); }
+  h2 { font-size: 15px; margin: 0 0 8px; }
+  h3 { font-size: 14px; margin: 16px 0 8px; }
+  button { font: inherit; padding: 4px 10px; border: 1px solid var(--borde); border-radius: 6px;
+           background: var(--fondo2); color: var(--texto); cursor: pointer; }
+  button:hover { border-color: var(--suave); }
+  button.principal { background: var(--activo); border-color: var(--activo); color: #fff; }
+  input, select, textarea { font: inherit; padding: 4px 6px; border: 1px solid var(--borde); border-radius: 6px; }
+  textarea { width: 100%; min-height: 90px; resize: vertical; }
+  label { display: inline-flex; gap: 4px; align-items: center; margin-right: 12px; }
+  .fila { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 6px 0; }
+  .grupo-accesos { margin-bottom: 6px; }
+  .grupo-accesos span { display: inline-block; min-width: 120px; color: var(--suave); }
+  .grupo-accesos a { display: inline-block; margin: 2px 4px 2px 0; padding: 3px 10px; border: 1px solid var(--borde);
+                     border-radius: 6px; color: var(--texto); text-decoration: none; background: var(--fondo2); }
+  .grupo-accesos a:hover { border-color: var(--activo); }
+  .chip { max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip.activo { background: var(--activo); border-color: var(--activo); color: #fff; }
+  .aviso { background: var(--aviso); border: 1px solid #d4a72c; border-radius: 6px; padding: 8px; margin: 8px 0; }
+  .suave { color: var(--suave); }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 5px 6px; border-bottom: 1px solid var(--borde); vertical-align: top; }
+  th { font-weight: 600; color: var(--suave); }
+  tr.clic { cursor: pointer; }
+  tr.clic:hover { background: var(--fondo2); }
+  .formulario { background: var(--fondo2); border: 1px solid var(--borde); border-radius: 6px; padding: 8px 12px; margin: 8px 0; }
+  .formulario .campo { display: flex; gap: 8px; align-items: center; margin: 6px 0; }
+  .formulario .campo > span:first-child { min-width: 130px; color: var(--suave); }
+  .formulario input[type=text], .formulario select { min-width: 280px; }
+  .entrada { border: 1px solid var(--borde); border-radius: 6px; padding: 8px 10px; margin: 8px 0; }
+  .entrada .cabecera { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; color: var(--suave); }
+  .entrada .texto { white-space: pre-wrap; margin: 6px 0; }
+  .etiqueta { font-size: 12px; padding: 0 6px; border: 1px solid var(--borde); border-radius: 10px; }
+  .capturas { display: flex; flex-wrap: wrap; gap: 8px; }
+  .capturas figure { margin: 0; width: 200px; }
+  .capturas img { width: 200px; max-height: 140px; object-fit: contain; border: 1px solid var(--borde); background: var(--fondo2); }
+  .capturas figcaption { font-size: 12px; color: var(--suave); }
+  .zona { border: 2px dashed var(--borde); border-radius: 6px; padding: 14px; text-align: center; color: var(--suave); margin: 8px 0; }
+  .zona.encima { border-color: var(--activo); color: var(--activo); }
+  .pendiente { display: flex; gap: 8px; align-items: center; margin: 6px 0; }
+  .pendiente img { width: 120px; max-height: 80px; object-fit: contain; border: 1px solid var(--borde); }
+  .pendiente input[type=text] { flex: 1; }
+  a { color: var(--activo); }
+  .derecha { margin-left: auto; }
+</style>
+</head>
+<body>
+
+<header>
+  <strong>Organizador de atenciones</strong>
+  <span id="foco-actual">Sin foco</span>
+</header>
+
+<!-- ===================== VISTA INICIO ===================== -->
+<main id="vista-inicio">
+
+  <div id="aviso-config" class="aviso" hidden></div>
+
+  <section>
+    <h2>Accesos</h2>
+    <div id="accesos"></div>
+  </section>
+
+  <section>
+    <h2>Foco</h2>
+    <div id="aviso-anterior" class="aviso" hidden>
+      Quedo abierto el foco <b id="anterior-etiqueta"></b> desde <span id="anterior-inicio"></span>.
+      A que hora terminaste?
+      <input type="time" id="anterior-hora">
+      <button onclick="cerrarAnterior()">Guardar</button>
+    </div>
+    <div id="foco-chips" class="fila"></div>
+    <div class="fila">
+      <button onclick="focoPausa()">Pausa</button>
+      <button onclick="focoIdea()">Idea</button>
+      <button onclick="focoReunion()">Nueva reunion</button>
+      <button onclick="terminarDia()">Terminar dia</button>
+      <button class="derecha" onclick="alternar('resumen-dia')">Ver mi dia</button>
+    </div>
+    <div id="resumen-dia" hidden></div>
+  </section>
+
+  <section>
+    <h2>Atenciones</h2>
+    <div class="fila">
+      <button class="principal" onclick="mostrarNueva()">Nueva atencion</button>
+      <input type="text" id="buscar" placeholder="Buscar por ID, proyecto o titulo" oninput="pintarAtenciones()" style="min-width:280px">
+      <select id="filtro" onchange="pintarAtenciones()">
+        <option value="abiertas">Abiertas o con pendientes</option>
+        <option value="todas">Todas</option>
+      </select>
+    </div>
+
+    <div id="form-nueva" class="formulario" hidden>
+      <div class="campo"><span>Tipo</span>
+        <select id="n-tipo" onchange="ajustarNueva()">
+          <option value="ticket">Ticket</option>
+          <option value="int">Interno (INT)</option>
+          <option value="doc">Documentacion (DOC)</option>
+          <option value="con">Consulta o reunion (CON)</option>
+        </select>
+      </div>
+      <div class="campo"><span>Titulo</span><input type="text" id="n-titulo"></div>
+      <div class="campo"><span>Proyecto</span>
+        <select id="n-proyecto" onchange="mostrarNuevoCodigo('n')"></select>
+        <input type="text" id="n-proyecto-nuevo" placeholder="6 letras" maxlength="6" hidden>
+      </div>
+      <div class="campo" id="n-campo-ticket"><span>Numero de ticket</span>
+        <input type="text" id="n-tracking-id" placeholder="Vacio si aun no llega la asignacion">
+      </div>
+      <div class="campo" id="n-campo-entornos"><span>Entornos</span>
+        <label><input type="checkbox" name="n-entorno" value="DEV">DEV</label>
+        <label><input type="checkbox" name="n-entorno" value="PRE">PRE</label>
+        <label><input type="checkbox" name="n-entorno" value="PRO">PRO</label>
+      </div>
+      <div class="campo"><span>HU</span>
+        <select id="n-hu"><option value="semanal">Semanal</option><option value="independiente">Independiente</option></select>
+      </div>
+      <div class="campo" id="n-campo-url"><span>URL ServiceNow</span><input type="text" id="n-url"></div>
+      <div class="campo"><span>Area de trabajo Edge</span><input type="text" id="n-workspace"></div>
+      <p class="suave" id="n-nota"></p>
+      <div class="fila">
+        <button class="principal" onclick="crearAtencion()">Crear</button>
+        <button onclick="ocultarNueva()">Cancelar</button>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr><th>Tipo</th><th>ID</th><th>Proyecto</th><th>Titulo</th><th>Estado</th><th>Pend. Jira</th><th>Actualizado</th></tr></thead>
+      <tbody id="lista-atenciones"></tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Ideas pendientes</h2>
+    <div id="ideas"></div>
+  </section>
+</main>
+
+<!-- ===================== VISTA ATENCION ===================== -->
+<main id="vista-atencion" hidden>
+  <div class="fila" style="margin-top:8px">
+    <button onclick="volver()">Volver</button>
+    <h2 id="d-titulo" style="margin:0"></h2>
+  </div>
+  <div id="d-aviso-temporal" class="aviso" hidden>
+    Esta atencion aun no tiene proyecto o ID. Sus archivos esperan en una carpeta temporal privada.
+    Completa los datos en "Proyecto, ID y entornos" para crear sus carpetas definitivas.
+  </div>
+  <div class="fila">
+    <button onclick="ponerFocoActual()">Poner foco</button>
+    <button onclick="terminarAtencion()">Terminar</button>
+    <button onclick="abrirCarpeta('trabajo')">Carpeta de trabajo</button>
+    <button onclick="abrirCarpeta('proceso')">Carpeta de proceso</button>
+    <a id="d-url" target="_blank" rel="noopener" hidden>Abrir en ServiceNow</a>
+  </div>
+  <p id="d-info" class="suave"></p>
+
+  <details>
+    <summary>Datos</summary>
+    <div class="formulario">
+      <div class="campo"><span>Titulo</span><input type="text" id="e-titulo"></div>
+      <div class="campo"><span>URL ServiceNow</span><input type="text" id="e-url"></div>
+      <div class="campo"><span>Area de trabajo Edge</span><input type="text" id="e-workspace"></div>
+      <div class="campo"><span>HU</span>
+        <select id="e-hu"><option value="semanal">Semanal</option><option value="independiente">Independiente</option></select>
+      </div>
+      <div class="campo"><span>Estado</span>
+        <select id="e-estado">
+          <option value="en_curso">En curso</option>
+          <option value="en_espera">En espera</option>
+          <option value="atendido">Atendido</option>
+          <option value="descartado">Descartado</option>
+        </select>
+      </div>
+      <button class="principal" onclick="guardarDatos()">Guardar datos</button>
+    </div>
+  </details>
+
+  <details id="d-identidad">
+    <summary>Proyecto, ID y entornos</summary>
+    <div class="formulario">
+      <div class="campo"><span>Proyecto</span>
+        <select id="i-proyecto" onchange="mostrarNuevoCodigo('i')"></select>
+        <input type="text" id="i-proyecto-nuevo" placeholder="6 letras" maxlength="6" hidden>
+      </div>
+      <div class="campo" id="i-campo-ticket"><span>Numero de ticket</span><input type="text" id="i-tracking-id"></div>
+      <div class="campo" id="i-campo-entornos"><span>Entornos</span>
+        <label><input type="checkbox" name="i-entorno" value="DEV">DEV</label>
+        <label><input type="checkbox" name="i-entorno" value="PRE">PRE</label>
+        <label><input type="checkbox" name="i-entorno" value="PRO">PRO</label>
+      </div>
+      <p class="suave" id="i-nota"></p>
+      <button class="principal" onclick="guardarIdentidad()">Guardar y mover carpetas</button>
+    </div>
+  </details>
+
+  <h3>Bitacora</h3>
+  <div id="d-entradas"></div>
+
+  <h3 id="r-titulo">Nueva entrada</h3>
+  <div class="formulario">
+    <div class="fila">
+      <select id="r-tipo" onchange="pintarPendientes()">
+        <option value="avance">Avance</option>
+        <option value="solicitud">Solicitud (correo del solicitante)</option>
+        <option value="asignacion">Asignacion (correo de asignacion)</option>
+        <option value="cierre">Cierre (correo atendido)</option>
+      </select>
+      <label><input type="checkbox" id="r-jira" checked>Para Jira</label>
+    </div>
+    <textarea id="r-texto" placeholder="Que hiciste, que paso, que falta..."></textarea>
+    <div id="r-existentes"></div>
+    <div id="r-zona" class="zona" tabindex="0">
+      Pega capturas aqui con Ctrl+V, o arrastra archivos y correos .eml
+      <div><input type="file" id="r-selector" multiple onchange="agregarArchivosSeleccionados(this)"></div>
+    </div>
+    <div id="r-pendientes"></div>
+    <div class="fila">
+      <button class="principal" onclick="guardarEntrada()">Guardar entrada</button>
+      <button onclick="limpiarRedactor()">Limpiar</button>
+    </div>
+  </div>
+</main>
+
+<script>
+// ------------------------------------------------------------------
+// Estado de la pagina
+// ------------------------------------------------------------------
+let proyectos = [];
+let atenciones = [];
+let foco = { actual: null, anterior_abierto: null, hoy: [], totales: [] };
+let ideas = [];
+let detalle = null;                 // atencion abierta en la vista de detalle
+let nuevasCapturas = [];            // { datos, descripcion, de_correo }
+let nuevosArchivos = [];            // { nombre, datos }
+let edicion = null;                 // entrada que se esta editando
+let ideaEnConversion = null;
+
+const NOMBRES_TIPO = { ticket: "Ticket", int: "INT", doc: "DOC", con: "CON" };
+const NOMBRES_ESTADO = { en_curso: "En curso", en_espera: "En espera", atendido: "Atendido", descartado: "Descartado" };
+const NOMBRES_ENTRADA = { solicitud: "Solicitud", asignacion: "Asignacion", avance: "Avance", cierre: "Cierre" };
+
+// ------------------------------------------------------------------
+// Utilidades
+// ------------------------------------------------------------------
+function esc(texto) {
+  return String(texto ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+async function leer(ruta) {
+  const respuesta = await fetch(ruta);
+  const datos = await respuesta.json();
+  if (!respuesta.ok) throw new Error(datos.error || "Error");
+  return datos;
+}
+
+async function enviar(ruta, datos) {
+  const respuesta = await fetch(ruta, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos || {})
+  });
+  const resultado = await respuesta.json();
+  if (!respuesta.ok) throw new Error(resultado.error || "Error");
+  return resultado;
+}
+
+function mostrarError(error) {
+  alert(error.message || String(error));
+}
+
+function duracion(segundos) {
+  const minutos = Math.floor(segundos / 60);
+  const h = Math.floor(minutos / 60);
+  const m = minutos % 60;
+  return h + "h " + String(m).padStart(2, "0") + "m";
+}
+
+function segundosDesde(textoFecha) {
+  const inicio = new Date(textoFecha.replace(" ", "T"));
+  return Math.max(0, Math.floor((Date.now() - inicio.getTime()) / 1000));
+}
+
+function alternar(id) {
+  const elemento = document.getElementById(id);
+  elemento.hidden = !elemento.hidden;
+}
+
+function urlArchivo(raiz, ruta) {
+  return "/archivo?id=" + encodeURIComponent(detalle.id) + "&raiz=" + raiz + "&ruta=" + encodeURIComponent(ruta);
+}
+
+function leerComoDataUrl(archivo) {
+  return new Promise((resolver, rechazar) => {
+    const lector = new FileReader();
+    lector.onload = () => resolver(lector.result);
+    lector.onerror = () => rechazar(new Error("No se pudo leer " + archivo.name));
+    lector.readAsDataURL(archivo);
+  });
+}
+
+function nombreAtencion(a) {
+  return (a.tracking_id || "Sin ID") + " - " + a.titulo;
+}
+
+// ------------------------------------------------------------------
+// Carga general
+// ------------------------------------------------------------------
+async function cargarTodo() {
+  try {
+    const inicio = await leer("/api/inicio");
+    const aviso = document.getElementById("aviso-config");
+    aviso.hidden = inicio.correo_configurado;
+    aviso.textContent = "Falta la variable AT_CORREO: todos los correos se tomaran como 'asignado'.";
+    const accesos = await leer("/api/accesos");
+    pintarAccesos(accesos);
+    proyectos = await leer("/api/proyectos");
+    await cargarAtenciones();
+    await cargarFoco();
+    await cargarIdeas();
+  } catch (error) {
+    mostrarError(error);
+  }
+}
+
+async function cargarAtenciones() {
+  atenciones = await leer("/api/atenciones");
+  pintarAtenciones();
+  pintarChips();
+}
+
+// ------------------------------------------------------------------
+// Accesos
+// ------------------------------------------------------------------
+function pintarAccesos(datos) {
+  const contenedor = document.getElementById("accesos");
+  const grupos = datos.grupos || [];
+  if (!grupos.length) {
+    contenedor.innerHTML = '<span class="suave">Sin accesos. Edita accesos.json en la raiz de proceso.</span>';
+    return;
+  }
+  contenedor.innerHTML = grupos.map(g =>
+    '<div class="grupo-accesos"><span>' + esc(g.nombre) + "</span>" +
+    (g.enlaces || []).map(e => '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.nombre) + "</a>").join("") +
+    "</div>").join("");
+}
+
+// ------------------------------------------------------------------
+// Foco
+// ------------------------------------------------------------------
+async function cargarFoco() {
+  foco = await leer("/api/foco");
+  pintarFoco();
+}
+
+function pintarFoco() {
+  const cabecera = document.getElementById("foco-actual");
+  if (foco.actual) {
+    cabecera.innerHTML = "Foco: <b>" + esc(foco.actual.etiqueta) + "</b> (" + duracion(segundosDesde(foco.actual.inicio)) + ")";
+  } else {
+    cabecera.textContent = "Sin foco";
+  }
+
+  const aviso = document.getElementById("aviso-anterior");
+  if (foco.anterior_abierto) {
+    aviso.hidden = false;
+    document.getElementById("anterior-etiqueta").textContent = foco.anterior_abierto.etiqueta;
+    document.getElementById("anterior-inicio").textContent = foco.anterior_abierto.inicio;
+  } else {
+    aviso.hidden = true;
+  }
+
+  const resumen = document.getElementById("resumen-dia");
+  if (!foco.hoy.length) {
+    resumen.innerHTML = '<p class="suave">Hoy aun no hay tramos de foco.</p>';
+  } else {
+    resumen.innerHTML =
+      "<h3>Totales de hoy</h3><table><tr><th>En que</th><th>Tiempo</th></tr>" +
+      foco.totales.map(t => "<tr><td>" + esc(t.etiqueta) + "</td><td>" + duracion(t.segundos) + "</td></tr>").join("") +
+      "</table><h3>Tramos</h3><table><tr><th>Inicio</th><th>Fin</th><th>En que</th><th>Tiempo</th></tr>" +
+      foco.hoy.map(t => "<tr><td>" + esc(t.inicio.slice(11, 16)) + "</td><td>" + esc(t.fin ? t.fin.slice(11, 16) : "en curso") +
+        "</td><td>" + esc(t.etiqueta) + "</td><td>" + duracion(t.segundos) + "</td></tr>").join("") +
+      "</table>";
+  }
+  pintarChips();
+}
+
+function pintarChips() {
+  const contenedor = document.getElementById("foco-chips");
+  const abiertas = atenciones.filter(a => a.estado === "en_curso" || a.estado === "en_espera");
+  const idActual = foco.actual ? foco.actual.atencion_id : "";
+  if (!abiertas.length) {
+    contenedor.innerHTML = '<span class="suave">No hay atenciones en curso.</span>';
+    return;
+  }
+  contenedor.innerHTML = abiertas.map(a =>
+    '<button class="chip' + (a.id === idActual ? " activo" : "") + '" title="' + esc(nombreAtencion(a)) +
+    '" onclick="focoAtencion(\'' + a.id + '\')">' + esc(nombreAtencion(a)) + "</button>").join("");
+}
+
+async function cambiarFoco(datos) {
+  try {
+    const resultado = await enviar("/api/foco/cambiar", datos);
+    await cargarAtenciones();
+    await cargarFoco();
+    await cargarIdeas();
+    return resultado;
+  } catch (error) {
+    mostrarError(error);
+    return null;
+  }
+}
+
+function focoAtencion(id) { return cambiarFoco({ tipo: "atencion", atencion_id: id }); }
+function focoPausa() { return cambiarFoco({ tipo: "pausa" }); }
+
+function focoIdea() {
+  const texto = prompt("Que idea te vino a la mente?");
+  if (texto && texto.trim()) cambiarFoco({ tipo: "idea", texto: texto });
+}
+
+async function focoReunion() {
+  const titulo = prompt("Titulo de la reunion (el proyecto lo asignas al terminar)");
+  if (!titulo || !titulo.trim()) return;
+  const resultado = await cambiarFoco({ tipo: "reunion", texto: titulo });
+  if (resultado && resultado.atencion_id) abrirAtencion(resultado.atencion_id);
+}
+
+async function terminarDia() {
+  if (!confirm("Terminar el dia y cerrar el foco actual?")) return;
+  try {
+    await enviar("/api/foco/terminar_dia");
+    await cargarFoco();
+  } catch (error) { mostrarError(error); }
+}
+
+async function cerrarAnterior() {
+  try {
+    await enviar("/api/foco/cerrar_anterior", { hora: document.getElementById("anterior-hora").value });
+    await cargarFoco();
+  } catch (error) { mostrarError(error); }
+}
+
+// ------------------------------------------------------------------
+// Lista de atenciones
+// ------------------------------------------------------------------
+function pintarAtenciones() {
+  const texto = document.getElementById("buscar").value.trim().toLowerCase();
+  const filtro = document.getElementById("filtro").value;
+  const lista = atenciones.filter(a => {
+    if (filtro === "abiertas" && !(a.estado === "en_curso" || a.estado === "en_espera" || a.temporal || a.pendientes > 0)) return false;
+    if (!texto) return true;
+    return (a.tracking_id + " " + a.tracking_code + " " + a.titulo).toLowerCase().includes(texto);
+  });
+  const cuerpo = document.getElementById("lista-atenciones");
+  if (!lista.length) {
+    cuerpo.innerHTML = '<tr><td colspan="7" class="suave">No hay atenciones para mostrar.</td></tr>';
+    return;
+  }
+  cuerpo.innerHTML = lista.map(a =>
+    '<tr class="clic" onclick="abrirAtencion(\'' + a.id + '\')">' +
+    "<td>" + esc(NOMBRES_TIPO[a.tipo] || a.tipo) + "</td>" +
+    "<td>" + esc(a.tracking_id || "Sin ID") + "</td>" +
+    "<td>" + esc(a.tracking_code || "Sin asignar") + "</td>" +
+    "<td>" + esc(a.titulo) + "</td>" +
+    "<td>" + esc(NOMBRES_ESTADO[a.estado] || a.estado) + "</td>" +
+    "<td>" + (a.pendientes || "") + "</td>" +
+    "<td>" + esc(a.actualizado) + "</td></tr>").join("");
+}
+
+// ------------------------------------------------------------------
+// Proyectos (selector compartido)
+// ------------------------------------------------------------------
+function llenarProyectos(prefijo, valor, permitirVacio) {
+  const selector = document.getElementById(prefijo + "-proyecto");
+  let opciones = permitirVacio ? '<option value="">(sin asignar)</option>' : "";
+  opciones += proyectos.map(p => '<option value="' + esc(p.codigo) + '">' + esc(p.codigo) + "</option>").join("");
+  opciones += '<option value="__nuevo">+ Nuevo proyecto</option>';
+  selector.innerHTML = opciones;
+  selector.value = valor || "";
+  if (selector.value !== (valor || "")) selector.value = permitirVacio ? "" : (proyectos[0] ? proyectos[0].codigo : "");
+  mostrarNuevoCodigo(prefijo);
+}
+
+function mostrarNuevoCodigo(prefijo) {
+  const nuevo = document.getElementById(prefijo + "-proyecto").value === "__nuevo";
+  document.getElementById(prefijo + "-proyecto-nuevo").hidden = !nuevo;
+}
+
+function leerProyecto(prefijo) {
+  const valor = document.getElementById(prefijo + "-proyecto").value;
+  if (valor === "__nuevo") return document.getElementById(prefijo + "-proyecto-nuevo").value.trim().toUpperCase();
+  return valor;
+}
+
+function leerEntornos(nombre) {
+  return Array.from(document.querySelectorAll('input[name="' + nombre + '"]:checked')).map(c => c.value);
+}
+
+function marcarEntornos(nombre, valores) {
+  document.querySelectorAll('input[name="' + nombre + '"]').forEach(c => { c.checked = valores.includes(c.value); });
+}
+
+// ------------------------------------------------------------------
+// Nueva atencion
+// ------------------------------------------------------------------
+function mostrarNueva(titulo) {
+  document.getElementById("form-nueva").hidden = false;
+  document.getElementById("n-titulo").value = titulo || "";
+  document.getElementById("n-tracking-id").value = "";
+  document.getElementById("n-url").value = "";
+  document.getElementById("n-workspace").value = "";
+  marcarEntornos("n-entorno", []);
+  ajustarNueva();
+  document.getElementById("n-titulo").focus();
+}
+
+function ocultarNueva() {
+  document.getElementById("form-nueva").hidden = true;
+  ideaEnConversion = null;
+}
+
+function ajustarNueva() {
+  const tipo = document.getElementById("n-tipo").value;
+  const defecto = { ticket: "", int: "INFRAS", doc: "DOCINF", con: "" }[tipo];
+  llenarProyectos("n", defecto, tipo === "ticket" || tipo === "con");
+  document.getElementById("n-campo-ticket").hidden = tipo !== "ticket";
+  document.getElementById("n-campo-entornos").hidden = !(tipo === "ticket" || tipo === "int");
+  document.getElementById("n-campo-url").hidden = tipo !== "ticket";
+  const notas = {
+    ticket: "Si aun no tienes el numero o el proyecto, dejalo vacio: se guarda en una carpeta temporal hasta completarlo.",
+    int: "El codigo INT se asigna automaticamente.",
+    doc: "Documentacion propia. Si es de un ticket, registrala como entrada en la bitacora de ese ticket.",
+    con: "El codigo CON se asigna automaticamente. El proyecto puedes asignarlo despues."
+  };
+  document.getElementById("n-nota").textContent = notas[tipo];
+}
+
+async function crearAtencion() {
+  const tipo = document.getElementById("n-tipo").value;
+  const datos = {
+    tipo: tipo,
+    titulo: document.getElementById("n-titulo").value,
+    tracking_code: leerProyecto("n"),
+    tracking_id: document.getElementById("n-tracking-id").value,
+    entornos: leerEntornos("n-entorno"),
+    hu_tipo: document.getElementById("n-hu").value,
+    url_servicenow: document.getElementById("n-url").value,
+    workspace_edge: document.getElementById("n-workspace").value
+  };
+  try {
+    const resultado = await enviar("/api/atencion/crear", datos);
+    if (ideaEnConversion) {
+      await enviar("/api/ideas/estado", { id: ideaEnConversion, estado: "convertida", atencion_id: resultado.id });
+    }
+    ocultarNueva();
+    proyectos = await leer("/api/proyectos");
+    await cargarAtenciones();
+    await cargarIdeas();
+    abrirAtencion(resultado.id);
+  } catch (error) { mostrarError(error); }
+}
+
+// ------------------------------------------------------------------
+// Ideas
+// ------------------------------------------------------------------
+async function cargarIdeas() {
+  const datos = await leer("/api/ideas");
+  ideas = (datos.ideas || []).filter(i => i.estado === "pendiente");
+  const contenedor = document.getElementById("ideas");
+  if (!ideas.length) {
+    contenedor.innerHTML = '<span class="suave">No hay ideas pendientes.</span>';
+    return;
+  }
+  const opciones = atenciones.filter(a => a.estado === "en_curso" || a.estado === "en_espera")
+    .map(a => '<option value="' + a.id + '">' + esc(nombreAtencion(a)) + "</option>").join("");
+  contenedor.innerHTML = '<table><tr><th>Fecha</th><th>Idea</th><th>Que hacer</th></tr>' + ideas.map(i =>
+    "<tr><td>" + esc(i.fecha) + "</td><td>" + esc(i.texto) + "</td><td>" +
+    '<select id="idea-destino-' + i.id + '">' + opciones + "</select> " +
+    '<button onclick="ideaABitacora(\'' + i.id + '\')">Agregar a bitacora</button> ' +
+    '<button onclick="ideaAAtencion(\'' + i.id + '\')">Crear atencion</button> ' +
+    '<button onclick="ideaDescartar(\'' + i.id + '\')">Descartar</button></td></tr>').join("") + "</table>";
+}
+
+async function ideaABitacora(id) {
+  const idea = ideas.find(i => i.id === id);
+  const destino = document.getElementById("idea-destino-" + id).value;
+  if (!destino) { alert("No hay atenciones en curso para elegir."); return; }
+  try {
+    await enviar("/api/entrada/crear", { id: destino, tipo: "avance", texto: idea.texto, para_jira: false });
+    await enviar("/api/ideas/estado", { id: id, estado: "convertida", atencion_id: destino });
+    await cargarAtenciones();
+    await cargarIdeas();
+  } catch (error) { mostrarError(error); }
+}
+
+function ideaAAtencion(id) {
+  const idea = ideas.find(i => i.id === id);
+  mostrarNueva(idea.texto);
+  ideaEnConversion = id;
+  document.getElementById("form-nueva").scrollIntoView();
+}
+
+async function ideaDescartar(id) {
+  if (!confirm("Descartar esta idea?")) return;
+  try {
+    await enviar("/api/ideas/estado", { id: id, estado: "descartada" });
+    await cargarIdeas();
+  } catch (error) { mostrarError(error); }
+}
+
+// ------------------------------------------------------------------
+// Detalle de una atencion
+// ------------------------------------------------------------------
+async function abrirAtencion(id) {
+  try {
+    detalle = await leer("/api/atencion?id=" + encodeURIComponent(id));
+  } catch (error) { mostrarError(error); return; }
+  document.getElementById("vista-inicio").hidden = true;
+  document.getElementById("vista-atencion").hidden = false;
+  limpiarRedactor();
+  pintarDetalle();
+  window.scrollTo(0, 0);
+}
+
+async function recargarDetalle() {
+  detalle = await leer("/api/atencion?id=" + encodeURIComponent(detalle.id));
+  pintarDetalle();
+}
+
+async function volver() {
+  if ((nuevasCapturas.length || nuevosArchivos.length || document.getElementById("r-texto").value.trim()) &&
+      !confirm("Hay una entrada sin guardar. Salir de todos modos?")) return;
+  detalle = null;
+  limpiarRedactor();
+  document.getElementById("vista-atencion").hidden = true;
+  document.getElementById("vista-inicio").hidden = false;
+  await cargarAtenciones();
+  await cargarFoco();
+  await cargarIdeas();
+}
+
+function pintarDetalle() {
+  const d = detalle.datos;
+  document.getElementById("d-titulo").textContent =
+    (NOMBRES_TIPO[d.tipo] || d.tipo) + " " + (d.tracking_id || "Sin ID") + " - " + d.titulo;
+  document.getElementById("d-aviso-temporal").hidden = !detalle.temporal;
+
+  const enlace = document.getElementById("d-url");
+  enlace.hidden = !d.url_servicenow;
+  enlace.href = d.url_servicenow || "#";
+
+  const partes = [
+    "Proyecto: " + (d.tracking_code || "sin asignar"),
+    "Entornos: " + ((d.entornos || []).join(", ") || "sin definir"),
+    "Estado: " + (NOMBRES_ESTADO[d.estado] || d.estado),
+    "HU: " + d.hu_tipo,
+    "Tiempo dedicado: " + duracion(detalle.segundos),
+    "Pendientes para Jira: " + detalle.pendientes
+  ];
+  if (d.workspace_edge) partes.push("Area de trabajo: " + d.workspace_edge);
+  if (d.listo_para_jira) partes.push("Terminada el " + d.listo_para_jira);
+  document.getElementById("d-info").innerHTML = esc(partes.join(" | ")) +
+    '<br><span title="Carpeta de trabajo">' + esc(detalle.carpeta_trabajo) + "</span>";
+
+  document.getElementById("e-titulo").value = d.titulo || "";
+  document.getElementById("e-url").value = d.url_servicenow || "";
+  document.getElementById("e-workspace").value = d.workspace_edge || "";
+  document.getElementById("e-hu").value = d.hu_tipo || "semanal";
+  document.getElementById("e-estado").value = d.estado || "en_curso";
+
+  // Identidad
+  llenarProyectos("i", d.tracking_code, detalle.temporal);
+  document.getElementById("i-proyecto").disabled = !detalle.temporal;
+  document.getElementById("i-campo-ticket").hidden = !(d.tipo === "ticket" && detalle.temporal);
+  document.getElementById("i-tracking-id").value = d.tracking_id || "";
+  document.getElementById("i-campo-entornos").hidden = !(d.tipo === "ticket" || d.tipo === "int");
+  marcarEntornos("i-entorno", d.entornos || []);
+  document.getElementById("i-nota").textContent = detalle.temporal
+    ? "Al completar los datos se crean las carpetas definitivas en ambas raices y se mueve todo."
+    : "Si cambias los entornos, la atencion se mueve a la carpeta de entorno nueva en ambas raices.";
+  document.getElementById("d-identidad").open = detalle.temporal;
+
+  pintarEntradas();
+}
+
+function pintarEntradas() {
+  const contenedor = document.getElementById("d-entradas");
+  if (!detalle.entradas.length) {
+    contenedor.innerHTML = '<p class="suave">Aun no hay entradas.</p>';
+    return;
+  }
+  contenedor.innerHTML = detalle.entradas.map(e => {
+    let html = '<div class="entrada"><div class="cabecera"><b>#' + e.n + " " + esc(NOMBRES_ENTRADA[e.tipo] || e.tipo) +
+      "</b><span>" + esc(e.fecha) + "</span>";
+    if (!e.para_jira) html += '<span class="etiqueta">Privada</span>';
+    if (e.enviada) html += '<span class="etiqueta">Enviada a Jira</span>';
+    if (e.editado) html += '<span class="etiqueta">Editada ' + esc(e.editado) + "</span>";
+    if (!e.enviada) html += '<button class="derecha" onclick="editarEntrada(\'' + e.id + '\')">Editar</button>';
+    html += "</div>";
+    if (e.texto) html += '<div class="texto">' + esc(e.texto) + "</div>";
+    (e.correos || []).forEach(c => {
+      html += '<div>Correo ' + esc(c.tipo) + ': <a href="' + urlArchivo("trabajo", c.archivo) + '">' + esc(c.asunto || c.archivo) +
+        "</a> <span class=\"suave\">" + esc(c.fecha) + " - " + esc(c.de) + "</span>";
+      if (c.adjuntos && c.adjuntos.length) {
+        html += "<div>Adjuntos: " + c.adjuntos.map(a =>
+          '<a href="' + urlArchivo("trabajo", a) + '" target="_blank">' + esc(a.split("/").pop()) + "</a>").join(", ") + "</div>";
+      }
+      html += "</div>";
+    });
+    if (e.archivos && e.archivos.length) {
+      html += "<div>Archivos: " + e.archivos.map(a =>
+        '<a href="' + urlArchivo(a.raiz, a.ruta) + '" target="_blank">' + esc(a.ruta.split("/").pop()) + "</a>").join(", ") + "</div>";
+    }
+    if (e.capturas && e.capturas.length) {
+      html += '<div class="capturas">' + e.capturas.map(c =>
+        '<figure><a href="' + urlArchivo(c.raiz, c.ruta) + '" target="_blank"><img src="' + urlArchivo(c.raiz, c.ruta) +
+        '" alt=""></a><figcaption>' + esc(c.descripcion) + "</figcaption></figure>").join("") + "</div>";
+    }
+    return html + "</div>";
+  }).join("");
+}
+
+async function guardarDatos() {
+  try {
+    await enviar("/api/atencion/datos", {
+      id: detalle.id,
+      titulo: document.getElementById("e-titulo").value,
+      url_servicenow: document.getElementById("e-url").value,
+      workspace_edge: document.getElementById("e-workspace").value,
+      hu_tipo: document.getElementById("e-hu").value,
+      estado: document.getElementById("e-estado").value
+    });
+    await recargarDetalle();
+  } catch (error) { mostrarError(error); }
+}
+
+async function guardarIdentidad() {
+  try {
+    await enviar("/api/atencion/identidad", {
+      id: detalle.id,
+      tracking_code: leerProyecto("i"),
+      tracking_id: document.getElementById("i-tracking-id").value,
+      entornos: leerEntornos("i-entorno")
+    });
+    proyectos = await leer("/api/proyectos");
+    await recargarDetalle();
+  } catch (error) { mostrarError(error); }
+}
+
+async function terminarAtencion() {
+  if (!confirm("Marcar como atendida y lista para enviar a Jira?")) return;
+  try {
+    await enviar("/api/atencion/terminar", { id: detalle.id });
+    await recargarDetalle();
+  } catch (error) { mostrarError(error); }
+}
+
+async function abrirCarpeta(raiz) {
+  try { await enviar("/api/atencion/abrir_carpeta", { id: detalle.id, raiz: raiz }); }
+  catch (error) { mostrarError(error); }
+}
+
+function ponerFocoActual() { focoAtencion(detalle.id); }
+
+// ------------------------------------------------------------------
+// Redactor de entradas (nueva o edicion)
+// ------------------------------------------------------------------
+function limpiarRedactor() {
+  edicion = null;
+  nuevasCapturas = [];
+  nuevosArchivos = [];
+  document.getElementById("r-titulo").textContent = "Nueva entrada";
+  document.getElementById("r-tipo").disabled = false;
+  document.getElementById("r-tipo").value = "avance";
+  document.getElementById("r-texto").value = "";
+  document.getElementById("r-jira").checked = true;
+  document.getElementById("r-existentes").innerHTML = "";
+  document.getElementById("r-selector").value = "";
+  pintarPendientes();
+}
+
+function editarEntrada(id) {
+  const entrada = detalle.entradas.find(e => e.id === id);
+  limpiarRedactor();
+  edicion = entrada;
+  document.getElementById("r-titulo").textContent = "Editando entrada #" + entrada.n;
+  document.getElementById("r-tipo").value = entrada.tipo;
+  document.getElementById("r-tipo").disabled = true;
+  document.getElementById("r-texto").value = entrada.texto || "";
+  document.getElementById("r-jira").checked = !!entrada.para_jira;
+  document.getElementById("r-existentes").innerHTML = (entrada.capturas || []).map((c, i) =>
+    '<div class="pendiente"><img src="' + urlArchivo(c.raiz, c.ruta) + '" alt="">' +
+    '<input type="text" id="r-existente-desc-' + i + '" value="' + esc(c.descripcion) + '">' +
+    '<label><input type="checkbox" id="r-existente-quitar-' + i + '">Quitar</label></div>').join("");
+  pintarPendientes();
+  document.getElementById("r-titulo").scrollIntoView();
+}
+
+function pintarPendientes() {
+  const tipo = document.getElementById("r-tipo").value;
+  const contenedor = document.getElementById("r-pendientes");
+  let html = nuevasCapturas.map((c, i) =>
+    '<div class="pendiente"><img src="' + c.datos + '" alt="">' +
+    '<input type="text" placeholder="Que muestra esta captura (obligatorio)" value="' + esc(c.descripcion) +
+    '" oninput="nuevasCapturas[' + i + '].descripcion = this.value">' +
+    (tipo !== "avance" ? '<label><input type="checkbox"' + (c.de_correo ? " checked" : "") +
+      ' onchange="nuevasCapturas[' + i + '].de_correo = this.checked">Captura del correo</label>' : "") +
+    '<button onclick="nuevasCapturas.splice(' + i + ', 1); pintarPendientes()">Quitar</button></div>').join("");
+  html += nuevosArchivos.map((a, i) =>
+    '<div class="pendiente"><span>' + (a.nombre.toLowerCase().endsWith(".eml") ? "Correo: " : "Archivo: ") + esc(a.nombre) + "</span>" +
+    '<button onclick="nuevosArchivos.splice(' + i + ', 1); pintarPendientes()">Quitar</button></div>').join("");
+  contenedor.innerHTML = html;
+}
+
+async function agregarCaptura(archivo) {
+  const tipo = document.getElementById("r-tipo").value;
+  nuevasCapturas.push({ datos: await leerComoDataUrl(archivo), descripcion: "", de_correo: tipo !== "avance" });
+  pintarPendientes();
+}
+
+async function agregarArchivo(archivo) {
+  nuevosArchivos.push({ nombre: archivo.name, datos: await leerComoDataUrl(archivo) });
+  pintarPendientes();
+}
+
+async function agregarArchivosSeleccionados(selector) {
+  for (const archivo of selector.files) await agregarArchivo(archivo);
+  selector.value = "";
+}
+
+async function guardarEntrada() {
+  const texto = document.getElementById("r-texto").value;
+  if (nuevasCapturas.some(c => !c.descripcion.trim())) {
+    alert("Cada captura necesita una descripcion: Copilot solo lee texto.");
+    return;
+  }
+  const capturas = nuevasCapturas.map(c => ({ datos: c.datos, descripcion: c.descripcion, de_correo: c.de_correo }));
+  try {
+    if (edicion) {
+      const descripciones = {};
+      const quitar = [];
+      (edicion.capturas || []).forEach((c, i) => {
+        descripciones[c.ruta] = document.getElementById("r-existente-desc-" + i).value;
+        if (document.getElementById("r-existente-quitar-" + i).checked) quitar.push(c.ruta);
+      });
+      await enviar("/api/entrada/editar", {
+        id: detalle.id, entrada_id: edicion.id, texto: texto,
+        para_jira: document.getElementById("r-jira").checked,
+        descripciones: descripciones, quitar_capturas: quitar,
+        capturas: capturas, archivos: nuevosArchivos
+      });
+    } else {
+      const idActual = foco.actual ? foco.actual.atencion_id : "";
+      if (idActual !== detalle.id && confirm("Esta atencion no es tu foco actual. Cambiar el foco a esta?")) {
+        await enviar("/api/foco/cambiar", { tipo: "atencion", atencion_id: detalle.id });
+        await cargarFoco();
+      }
+      await enviar("/api/entrada/crear", {
+        id: detalle.id, tipo: document.getElementById("r-tipo").value, texto: texto,
+        para_jira: document.getElementById("r-jira").checked,
+        capturas: capturas, archivos: nuevosArchivos
+      });
+    }
+    limpiarRedactor();
+    await recargarDetalle();
+  } catch (error) { mostrarError(error); }
+}
+
+// Pegar capturas con Ctrl+V mientras se ve una atencion
+document.addEventListener("paste", async evento => {
+  if (document.getElementById("vista-atencion").hidden) return;
+  const imagenes = Array.from(evento.clipboardData.items)
+    .filter(item => item.kind === "file" && item.type.startsWith("image/"))
+    .map(item => item.getAsFile());
+  if (!imagenes.length) return;
+  evento.preventDefault();
+  for (const imagen of imagenes) await agregarCaptura(imagen);
+});
+
+// Arrastrar archivos a la zona
+const zona = document.getElementById("r-zona");
+zona.addEventListener("dragover", evento => { evento.preventDefault(); zona.classList.add("encima"); });
+zona.addEventListener("dragleave", () => zona.classList.remove("encima"));
+zona.addEventListener("drop", async evento => {
+  evento.preventDefault();
+  zona.classList.remove("encima");
+  for (const archivo of evento.dataTransfer.files) {
+    if (archivo.type.startsWith("image/") && confirm("Agregar " + archivo.name + " como captura? (Cancelar = adjuntarlo como archivo)")) {
+      await agregarCaptura(archivo);
+    } else {
+      await agregarArchivo(archivo);
+    }
+  }
+});
+
+// Evita que soltar un archivo fuera de la zona abra el archivo en el navegador
+window.addEventListener("dragover", evento => evento.preventDefault());
+window.addEventListener("drop", evento => evento.preventDefault());
+
+// Actualiza el reloj del foco cada 30 segundos y los datos cada 2 minutos
+setInterval(pintarFoco, 30000);
+setInterval(() => { if (!detalle) cargarFoco().catch(() => {}); }, 120000);
+
+cargarTodo();
+</script>
+</body>
+</html>

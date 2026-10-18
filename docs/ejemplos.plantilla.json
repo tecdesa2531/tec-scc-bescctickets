@@ -1,0 +1,45 @@
+{
+  "_descripcion": "Plantilla de ejemplos ficticios usados en el repositorio. Pares valor-real / valor-ejemplo para no exponer datos del banco. Este archivo se versiona en git y SOLO contiene valores inventados (campo 'real' vacio).",
+  "_uso": "1) En el repo (codigo y docs) siempre se usa el valor del campo 'ejemplo'. 2) Para dar los valores reales a GitHub Copilot, duplicar esta plantilla fuera de git (por ejemplo docs/_privado/ejemplos.real.json, ya ignorado), llenar el campo 'real' y compartirla por otros medios. 3) El mapa de control real<->ejemplo que mantiene Claude vive en docs/_privado/ejemplos-mapeo.privado.json y tampoco se sube.",
+  "_regla": "Nada del banco en el repositorio: este archivo versionado nunca debe llevar valores reales en 'real'.",
+  "version": 1,
+  "categorias": {
+    "proyectos": [
+      { "real": "", "ejemplo": "PROYAA", "carpeta_ejemplo": "010_Proyaa", "tipo": "proyecto", "formato": "Tracking Code: 6 letras mayusculas; carpeta NNN_Nombre, numeracion de 10 en 10", "notas": "Proyecto principal de Jhans" },
+      { "real": "", "ejemplo": "PROYBB", "carpeta_ejemplo": "020_Proybb", "tipo": "proyecto", "formato": "Tracking Code: 6 letras mayusculas", "notas": "Otro proyecto atendido" },
+      { "real": "", "ejemplo": "PROYCC", "carpeta_ejemplo": "030_Proycc", "tipo": "proyecto", "formato": "Tracking Code: 6 letras mayusculas", "notas": "Otro proyecto atendido" },
+      { "real": "INFRAS", "ejemplo": "INFRAS", "carpeta_ejemplo": "040_Infras", "tipo": "proyecto_transversal", "formato": "6 letras", "notas": "Proyecto transversal para atenciones INT. Nombre no sensible; se mantiene igual" },
+      { "real": "DOCINF", "ejemplo": "DOCINF", "carpeta_ejemplo": "050_Docinf", "tipo": "proyecto_doc", "formato": "6 letras", "notas": "Documentacion propia, atenciones DOC. Nombre no sensible; se mantiene igual" }
+    ],
+    "tickets_servicenow": [
+      { "real": "", "ejemplo": "PTSK0000123", "tipo": "ticket", "formato": "PTSK + 7 digitos", "notas": "Numero de ticket de ServiceNow" },
+      { "real": "", "ejemplo": "PTSK0000456", "tipo": "ticket", "formato": "PTSK + 7 digitos", "notas": "Numero de ticket de ServiceNow" }
+    ],
+    "codigos_internos": [
+      { "real": "INT001", "ejemplo": "INT001", "tipo": "int", "formato": "INT + correlativo global", "notas": "Correlativo automatico, no sensible; se mantiene igual" },
+      { "real": "DOC001", "ejemplo": "DOC001", "tipo": "doc", "formato": "DOC + correlativo global", "notas": "Correlativo automatico, no sensible; se mantiene igual" },
+      { "real": "CON001", "ejemplo": "CON001", "tipo": "con", "formato": "CON + correlativo global", "notas": "Correlativo automatico, no sensible; se mantiene igual" }
+    ],
+    "claves_jira": [
+      { "real": "", "ejemplo": "PRYA", "tipo": "clave_proyecto_jira", "formato": "Clave de proyecto Jira (letras mayusculas)", "notas": "Clave Jira del proyecto PROYAA" },
+      { "real": "", "ejemplo": "INF", "tipo": "clave_proyecto_jira", "formato": "Clave de proyecto Jira", "notas": "Clave Jira destino de INFRAS/DOCINF" }
+    ],
+    "herramientas_internas": [
+      { "real": "", "ejemplo": "HerramientaDespliegue", "tipo": "herramienta", "formato": "nombre interno", "notas": "Herramienta interna de despliegue manual (Terraform); Jhans aun sin acceso" },
+      { "real": "", "ejemplo": "InstanciaServiceNow", "tipo": "herramienta", "formato": "nombre/host interno", "notas": "Instancia de ServiceNow del banco" }
+    ],
+    "equipos_y_personas": [
+      { "real": "", "ejemplo": "Equipo Plataforma", "tipo": "equipo", "formato": "nombre de equipo", "notas": "Equipo que puede llamar a reuniones (atenciones CON)" },
+      { "real": "", "ejemplo": "Equipo Redes", "tipo": "equipo", "formato": "nombre de equipo", "notas": "Equipo que solicita cambios" },
+      { "real": "", "ejemplo": "Autorizador Uno", "tipo": "persona", "formato": "nombre de persona", "notas": "Aprueba PRs/despliegues por correo o Teams" }
+    ],
+    "correos": [
+      { "real": "", "ejemplo": "yo@empresa.com", "tipo": "correo_usuario", "formato": "correo", "notas": "Correo de Jhans (variable de entorno AT_CORREO)" },
+      { "real": "", "ejemplo": "solicitante@empresa.com", "tipo": "correo", "formato": "correo", "notas": "Correo de un solicitante de ejemplo" },
+      { "real": "", "ejemplo": "empresa.com", "tipo": "dominio", "formato": "dominio de correo", "notas": "Dominio de correo del banco" }
+    ],
+    "urls_servicenow": [
+      { "real": "", "ejemplo": "https://servicenow.ejemplo.com/ticket/PTSK0000123", "tipo": "url", "formato": "URL por ticket, sin patron fijo", "notas": "Las URL de ServiceNow cambian por ticket; se guardan a mano" }
+    ]
+  }
+}

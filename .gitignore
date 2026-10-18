@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+*.tmp
+
+# Mapeo privado real<->ejemplo y valores reales para Copilot: nunca al repositorio
+docs/_privado/
+*.real.json
+
+# Datos y configuracion con informacion de la empresa: nunca al repositorio
+#config-jira.json
+#accesos.json
+!organizador-atenciones/ejemplos/accesos.json
+*.eml
