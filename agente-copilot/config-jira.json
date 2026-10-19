@@ -1,0 +1,45 @@
+{
+    "destinos": {
+        "acmebank": {
+            "url_var": "JIRA_ACMEBANK_URL",
+            "email_var": "JIRA_ACMEBANK_EMAIL",
+            "token_var": "JIRA_ACMEBANK_TOKEN",
+            "proyecto_key": "PRYA",
+            "tipo_subtarea_id": "10001",
+            "tipo_historia_id": "10002",
+            "asignado_account_id": "000000:aaaaaaaa-0000-0000-0000-000000000001",
+            "epica": "PRYA-1000",
+            "sprint": {
+                "nombre": "Sprint 01/01 al 31/01",
+                "inicio": "2026-01-01",
+                "fin": "2026-01-31"
+            },
+            "hu_semanales": [
+                {
+                    "inicio": "2026-01-05",
+                    "fin": "2026-01-09",
+                    "key": "PRYA-999"
+                }
+            ],
+            "prioridad": "",
+            "etiquetas": []
+        }
+    },
+    "proyectos": {
+        "PROYAA": [
+            "acmebank"
+        ],
+        "PROYBB": [
+            "acmebank"
+        ],
+        "PROYCC": [
+            "acmebank"
+        ],
+        "INFRAS": [
+            "acmebank"
+        ],
+        "DOCINF": [
+            "acmebank"
+        ]
+    }
+}

@@ -6,7 +6,7 @@ Repositorio personal de Jhans (infraestructura/DevOps) para organizar su día de
 /
 ├── CLAUDE.md                 este archivo
 ├── docs/diseno.md            decisiones y acuerdos completos: LEER antes de proponer cambios de diseño
-├── organizador-atenciones/   herramienta local (Python + HTML): bitácora, foco, accesos
+├── mi-dia/                   herramienta local (Python + HTML): bitácora, foco, accesos
 └── agente-copilot/           agente y skills de GitHub Copilot (carpeta .github) que preparan Jira
 ```
 
@@ -67,7 +67,7 @@ Los nombres de proyectos, tickets, claves de Jira y herramientas internas que ap
 
 ```bash
 mkdir -p /tmp/at/trabajo /tmp/at/proceso
-cd organizador-atenciones
+cd mi-dia
 AT_RAIZ_TRABAJO=/tmp/at/trabajo AT_RAIZ_PROCESO=/tmp/at/proceso AT_CORREO=yo@empresa.com python3 servidor.py
 ```
 

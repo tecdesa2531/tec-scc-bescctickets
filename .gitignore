@@ -10,5 +10,7 @@ docs/_privado/
 # Datos y configuracion con informacion de la empresa: nunca al repositorio
 #config-jira.json
 #accesos.json
-!organizador-atenciones/ejemplos/accesos.json
+!mi-dia/ejemplos/accesos.json
 *.eml
+TempFiles/
+.DS_Store

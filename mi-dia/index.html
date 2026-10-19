@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mi dia</title>
+<!-- Aplica el tema antes de que cargue el CSS para evitar parpadeo -->
+<script>
+(function () {
+  try {
+    var t = localStorage.getItem("mi-dia-tema");
+    if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro";
+    document.documentElement.setAttribute("data-tema", t);
+  } catch (e) {}
+})();
+</script>
+<link rel="stylesheet" href="/static/estilos.css">
+</head>
+<body>
+
+<header>
+  <span class="logo" onclick="volver()" style="cursor:pointer">Mi dia</span>
+  <span id="foco-actual" class="foco-label">Sin foco</span>
+  <div id="buscar-zona" class="buscar-zona">
+    <input type="text" id="buscador-global" placeholder="Buscar ticket o proyecto..." autocomplete="off" oninput="onBuscarInput()">
+    <div id="buscar-dropdown" hidden class="buscar-dropdown"></div>
+  </div>
+  <button id="btn-tema" class="btn-tema" onclick="alternarTema()">Modo oscuro</button>
+</header>
+
+<!-- =============== VISTA INICIO =============== -->
+<main id="vista-inicio" class="contenedor">
+
+  <div id="aviso-config" class="aviso" hidden></div>
+
+  <!-- Accesos -->
+  <div class="card" id="card-accesos">
+    <div class="card-titulo card-titulo-clic" onclick="toggleAccesos()">Accesos</div>
+    <div id="accesos"></div>
+  </div>
+
+  <!-- Foco -->
+  <div class="card">
+    <div class="card-titulo">Foco</div>
+    <div class="foco-header">
+      <button class="principal" onclick="terminarDia()">Terminar dia</button>
+      <div class="foco-acciones">
+        <button id="btn-pausa" onclick="focoPausa()" title="Pausa"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="2" width="4" height="10" rx="1"/></svg></button>
+        <button onclick="focoIdea()">Idea</button>
+        <button onclick="focoReunion()">Nueva reunion</button>
+      </div>
+    </div>
+    <div id="aviso-anterior" class="aviso" hidden>
+      Quedo abierto el foco <b id="anterior-etiqueta"></b> desde <span id="anterior-inicio"></span>.
+      A que hora terminaste?
+      <input type="time" id="anterior-hora">
+      <button onclick="cerrarAnterior()">Guardar</button>
+    </div>
+    <div id="foco-chips" class="foco-columnas"></div>
+    <div class="seccion-colapsable">
+      <div class="seccion-titulo" onclick="alternar('resumen-dia')">Ver mi dia</div>
+      <div id="resumen-dia" hidden style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- Atenciones -->
+  <div class="card">
+    <div class="card-titulo">Atenciones</div>
+    <div class="fila">
+      <button class="principal" onclick="mostrarNueva()">Nueva atencion</button>
+      <input type="text" id="buscar" placeholder="Buscar por ID, proyecto o titulo" oninput="pintarAtenciones()" style="min-width:260px">
+<select id="filtro" onchange="pintarAtenciones()">
+        <option value="abiertas">Abiertas o con pendientes</option>
+        <option value="todas">Todas</option>
+      </select>
+    </div>
+
+    <div id="form-nueva" class="formulario" hidden>
+
+      <!-- Tipo -->
+      <div class="campo" style="margin-bottom:14px">
+        <span>Tipo</span>
+        <select id="n-tipo" onchange="ajustarNueva()">
+          <option value="ticket">Ticket</option>
+          <option value="int">Iniciativa interna</option>
+          <option value="doc">Documentacion</option>
+          <option value="con">Consulta o Reunion</option>
+        </select>
+      </div>
+
+      <!-- Numero interno + Titulo -->
+      <div class="form-fila">
+        <div class="form-campo" style="flex:0 0 auto;min-width:180px">
+          <span id="n-label-numero">Numero interno</span>
+          <input type="text" id="n-numero-preview" class="num-id" disabled>
+          <input type="text" id="n-tracking-id" hidden oninput="sugerirWorkspace()">
+        </div>
+        <div class="form-campo" style="flex:3">
+          <span>Titulo</span>
+          <input type="text" id="n-titulo">
+        </div>
+      </div>
+
+      <!-- Proyecto + Entornos -->
+      <div class="form-fila">
+        <div id="n-campo-proyecto" class="form-campo">
+          <span>Proyecto</span>
+          <input type="text" id="n-proyecto" list="n-proyecto-lista" placeholder="Codigo del proyecto" maxlength="6" autocomplete="off" oninput="sugerirWorkspace()">
+          <datalist id="n-proyecto-lista"></datalist>
+        </div>
+        <div class="form-campo" id="n-campo-entornos">
+          <span>Entornos</span>
+          <div class="checkboxes">
+            <label><input type="checkbox" name="n-entorno" value="DEV">DEV</label>
+            <label><input type="checkbox" name="n-entorno" value="PRE">PRE</label>
+            <label><input type="checkbox" name="n-entorno" value="PRO">PRO</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- URL ServiceNow + Area Edge (solo ticket) -->
+      <div class="form-fila" id="n-campo-url">
+        <div class="form-campo">
+          <span>URL ServiceNow</span>
+          <input type="text" id="n-url">
+        </div>
+        <div class="form-campo">
+          <span>Area de trabajo Edge</span>
+          <input type="text" id="n-workspace">
+        </div>
+      </div>
+
+      <!-- HU + Padre -->
+      <div class="form-fila">
+        <div id="n-campo-hu" class="campo">
+          <span>HU</span>
+          <select id="n-hu">
+            <option value="semanal">Semanal</option>
+            <option value="independiente">Independiente</option>
+          </select>
+        </div>
+        <div class="campo">
+          <span>Atencion padre (opcional)</span>
+          <select id="n-padre" onchange="ajustarNueva()"></select>
+        </div>
+      </div>
+
+      <p class="suave" id="n-nota" style="margin:8px 0"></p>
+      <div class="fila">
+        <button class="principal" onclick="crearAtencion()">Crear</button>
+        <button onclick="ocultarNueva()">Cancelar</button>
+      </div>
+    </div>
+
+    <table class="tabla-atenciones">
+      <colgroup>
+        <col style="width:170px">
+        <col style="width:88px">
+        <col>
+        <col style="width:108px">
+        <col style="width:52px">
+        <col style="width:128px">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>ID</th><th>Proyecto</th><th>Titulo</th>
+          <th>Estado</th><th>Pend.</th><th>Actualizado</th>
+        </tr>
+      </thead>
+      <tbody id="lista-atenciones"></tbody>
+    </table>
+  </div>
+
+  <!-- Ideas pendientes -->
+  <div class="card">
+    <div class="card-titulo">Ideas pendientes</div>
+    <div id="ideas"></div>
+  </div>
+
+</main>
+
+<!-- =============== VISTA ATENCION =============== -->
+<main id="vista-atencion" hidden class="contenedor">
+
+  <!-- Cabecera de la atencion -->
+  <div class="card">
+    <div class="fila" style="margin-bottom:10px">
+      <button onclick="volver()">Volver</button>
+      <span id="d-titulo" style="font-size:15px;font-weight:700"></span>
+    </div>
+    <div id="d-aviso-temporal" class="aviso" hidden>
+      Esta atencion aun no tiene proyecto o ID. Sus archivos esperan en una carpeta temporal privada.
+      Completa los datos en "Proyecto, ID y entornos" para crear sus carpetas definitivas.
+    </div>
+    <div class="fila">
+      <button onclick="ponerFocoActual()">Poner foco</button>
+      <button id="d-btn-terminar" onclick="terminarAtencion()">Terminar</button>
+      <button id="d-btn-conforme" onclick="darConforme()" hidden>Dar conforme</button>
+      <button onclick="abrirCarpeta('trabajo')">Carpeta trabajo</button>
+      <button onclick="abrirCarpeta('proceso')">Carpeta proceso</button>
+      <a id="d-url" class="btn-enlace" target="_blank" rel="noopener" hidden>Abrir en ServiceNow</a>
+    </div>
+    <p id="d-info" class="info-atencion"></p>
+    <details id="d-identidad">
+      <summary>Datos</summary>
+      <div class="formulario">
+        <div class="campo"><span>Titulo</span><input type="text" id="e-titulo"></div>
+        <div class="campo">
+          <span>Estado</span>
+          <select id="e-estado">
+            <option value="en_curso">En curso</option>
+            <option value="en_espera">En espera</option>
+            <option value="atendido">Atendido</option>
+            <option value="reabierto">Reabierto</option>
+            <option value="descartado">Descartado</option>
+          </select>
+        </div>
+        <div id="e-campo-hu" class="campo">
+          <span>HU</span>
+          <select id="e-hu">
+            <option value="semanal">Semanal</option>
+            <option value="independiente">Independiente</option>
+          </select>
+        </div>
+        <div class="campo">
+          <span>Atencion padre</span>
+          <select id="e-padre" onchange="ajustarDetalle()"></select>
+        </div>
+        <div class="campo"><span>URL ServiceNow</span><input type="text" id="e-url"></div>
+        <div class="campo"><span>Area de trabajo Edge</span><input type="text" id="e-workspace"></div>
+        <div id="i-campo-proyecto" class="campo">
+          <span>Proyecto</span>
+          <input type="text" id="i-proyecto" list="i-proyecto-lista" placeholder="Codigo del proyecto" maxlength="6" autocomplete="off">
+          <datalist id="i-proyecto-lista"></datalist>
+        </div>
+        <div class="campo" id="i-campo-ticket"><span>Numero de ticket</span><input type="text" id="i-tracking-id"></div>
+        <div class="campo" id="i-campo-entornos">
+          <span>Entornos</span>
+          <label><input type="checkbox" name="i-entorno" value="DEV">DEV</label>
+          <label><input type="checkbox" name="i-entorno" value="PRE">PRE</label>
+          <label><input type="checkbox" name="i-entorno" value="PRO">PRO</label>
+        </div>
+        <p class="suave" id="i-nota" style="margin:8px 0"></p>
+        <button class="principal" onclick="guardarDatos()">Guardar</button>
+      </div>
+    </details>
+    <details id="d-jira">
+      <summary>Jira</summary>
+      <div id="d-jira-contenido"></div>
+    </details>
+    <details id="d-descripcion">
+      <summary>Descripcion</summary>
+      <div id="d-descripcion-contenido"></div>
+    </details>
+  </div>
+
+  <!-- Bitacora -->
+  <div class="card">
+    <div class="card-titulo">Bitacora</div>
+    <div id="d-bitacora-toggle" class="fila" hidden style="margin-bottom:10px">
+      <span class="suave">Texto:</span>
+      <button id="d-btn-original" onclick="verTextoBitacora('original')">Original</button>
+      <button id="d-btn-corregido" onclick="verTextoBitacora('corregido')">Corregido por el agente</button>
+    </div>
+    <div id="d-entradas"></div>
+
+    <div class="card-titulo" id="r-titulo" style="margin-top:20px">Nueva entrada</div>
+    <div class="formulario" id="r-redactor">
+      <div class="fila">
+        <select id="r-tipo" onchange="pintarPendientes()">
+          <option value="avance">Avance</option>
+          <option value="solicitud">Solicitud (correo del solicitante)</option>
+          <option value="asignacion">Asignacion (correo de asignacion)</option>
+          <option value="cierre">Cierre (correo atendido)</option>
+        </select>
+        <label><input type="checkbox" id="r-jira" checked>Para Jira</label>
+      </div>
+      <textarea id="r-texto" placeholder="Que hiciste, que paso, que falta... (admite Markdown: **negrita**, *cursiva*, - lista, ## titulo, `codigo`)"></textarea>
+      <div id="r-existentes"></div>
+      <div id="r-zona" class="zona" tabindex="0">
+        Pega capturas aqui con Ctrl+V, o arrastra archivos y correos .eml
+        <div style="margin-top:6px">
+          <input type="file" id="r-selector" multiple onchange="agregarArchivosSeleccionados(this)">
+        </div>
+      </div>
+      <div id="r-pendientes"></div>
+      <div class="fila">
+        <button class="principal" onclick="guardarEntrada()">Guardar entrada</button>
+        <button id="r-btn-limpiar" onclick="limpiarRedactor()">Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script src="/static/util.js"></script>
+<script src="/static/buscar.js"></script>
+<script src="/static/accesos.js"></script>
+<script src="/static/foco.js"></script>
+<script src="/static/atenciones.js"></script>
+<script src="/static/bitacora.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

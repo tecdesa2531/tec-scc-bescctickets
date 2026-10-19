@@ -97,13 +97,17 @@ Si aún no tienes el número de ticket o el proyecto, déjalo vacío. La atenci�
 | Solicitud | Correo del solicitante, cuando empiezas antes de tener el ticket. |
 | Asignación | Correo de asignación del ticket. Si no trae los adjuntos, arrástralos a mano o arrastra también el correo original. |
 | Avance | Lo normal: qué hiciste, qué pasó, qué falta. |
-| Cierre | Correo atendido. Marca la atención como atendida y lista para Jira. |
+| Cierre | Correo atendido. Marca la atención como atendida (paso 1 de abajo). |
 
 - **Capturas:** pégalas con `Ctrl+V`. Cada una necesita una descripción, porque Copilot solo lee texto. En Solicitud, Asignación y Cierre puedes marcarla como *captura del correo*.
 - **Correos:** arrastra el `.eml`. Se guarda con tu convención (`AAAAMMDD_correo_asignado.eml`) y sus adjuntos se extraen solos a `010_CorreoAsignadoAdjuntos` o `020_CorreoAtendidoAdjuntos`.
 - **Para Jira o privada:** desmarca *Para Jira* en notas que son solo para ti.
 - **Editar:** puedes editar cualquier entrada que aún no se haya subido a Jira.
-- **Terminar:** botón *Terminar* en la atención (o una entrada de Cierre). Si después agregas más entradas, vuelve a presionar *Terminar* y solo se procesan las nuevas.
+
+**Terminar en dos pasos.** El cierre de una atención se hace en dos tiempos:
+
+1. **Terminar** (botón *Terminar*, o una entrada de Cierre): marca la atención como *atendida*. El agente puede entonces limpiar el texto de la bitácora (corrige la redacción sin unir ni reordenar), escribir la descripción y proponer un título corto para Jira. Tú no pierdes nada: el texto original se conserva y en la bitácora hay un selector *Original / Corregido por el agente*.
+2. **Dar conforme** (botón *Dar conforme*): cuando revisaste el texto corregido y estás de acuerdo, lo marcas listo para Jira. Recién aquí el agente sube los comentarios. Si después agregas más entradas (reabres), vuelves a terminar y dar conforme, y solo se procesan las nuevas.
 
 **Foco.** En la portada, un clic en una atención la marca como tu foco. Al cambiar de foco se cierra el tramo anterior.
 
@@ -136,12 +140,14 @@ NNN_Proyecto\060_PrePro\NNN_PTSK0000000\
 003_Herramienta\
     accesos.json
     ideas.json
+    agente-cola.json              pendientes del agente, para que no escanee
     010_Focos\AAAAMMDD_focos.json
 004_SinAsignar\                   atenciones sin proyecto o ID todavía
 NNN_Proyecto\060_PrePro\NNN_PTSK0000000\
     ticket-datos.json
     bitacora.json
     040_ProcesoJira\              capturas de correo y archivos de Copilot y Jira
+        bitacora-correccion.json  texto corregido por el agente
 ```
 
 Los proyectos nuevos toman el siguiente número de 10 en 10 (`040_Infras`), con el mismo nombre en ambas raíces.
@@ -152,11 +158,15 @@ Los proyectos nuevos toman el siguiente número de 10 en 10 (`040_Infras`), con 
 
 | Archivo | Lo escribe | Notas |
 |---|---|---|
-| `ticket-datos.json` | La herramienta | Copilot solo completa `correos[].resumen` y `subtareas`. La herramienta nunca toca esos campos. |
-| `bitacora.json` | La herramienta | Copilot solo lo lee. |
+| `ticket-datos.json` | La herramienta | Copilot completa `correos[].resumen`, `subtareas`, `descripcion`, `titulo_jira` y las `key`/`url` de los issues. La herramienta nunca toca esos campos. |
+| `bitacora.json` | La herramienta | Copilot solo lo lee; el texto original nunca se modifica. |
+| `040_ProcesoJira\bitacora-correccion.json` | Copilot | Texto corregido de la bitácora por `bitacora_id`. La herramienta lo lee para mostrar original / corregido. |
 | `040_ProcesoJira\jira-*.json` | Copilot | La herramienta solo los lee para saber qué entradas ya se subieron. |
+| `003_Herramienta\agente-cola.json` | La herramienta | Cola de pendientes del agente (`pendiente_inicio`, `pendiente_limpieza`, `pendiente_jira`), para que no escanee. |
 
-**Campos que la herramienta agrega a `ticket-datos.json`:** `id_herramienta`, `tipo` (`ticket`, `int`, `doc`, `con`), `url_servicenow`, `workspace_edge` y `listo_para_jira` (fecha del último *Terminar*).
+**Campos que la herramienta agrega a `ticket-datos.json`:** `id_herramienta`, `tipo` (`ticket`, `int`, `doc`, `con`), `url_servicenow`, `workspace_edge`, `listo_para_limpieza` (fecha del *Terminar*, paso 1) y `listo_para_jira` (fecha del *Dar conforme*, paso 2).
+
+**Campos que agrega el agente a `ticket-datos.json`:** `titulo_jira` (titulo corto para el issue), `descripcion`, y un objeto `jira` con el padre creado: `{ "padre_key": "...", "padre_url": "...", "tipo_padre": "hu" | "subtarea" }`. En `subtareas[]`, cada una lleva su `key` y `url`. La herramienta nunca pisa estos campos.
 
 **`bitacora.json`:**
 
@@ -186,7 +196,7 @@ Los proyectos nuevos toman el siguiente número de 10 en 10 (`040_Infras`), con 
 
 **Cómo marca Copilot lo que ya subió:** en cada comentario de `jira-comentarios_*.json` agrega `"bitacora_id"` (o `"bitacora_ids"` si un comentario junta varias entradas). Cuando ese comentario queda con `"subido": true`, la entrada se muestra como *Enviada a Jira* y se bloquea su edición.
 
-**Qué debe procesar Copilot:** atenciones con `listo_para_jira` y entradas con `para_jira: true` que aún no figuran como subidas.
+**Qué debe procesar Copilot:** no necesita escanear las carpetas. Lee `003_Herramienta/agente-cola.json`, que lista cada atención pendiente con su `accion`: `pendiente_inicio` (crear el padre en Jira), `pendiente_limpieza` (corregir el texto, escribir descripción y título) o `pendiente_jira` (subir los comentarios de las entradas `para_jira: true` aún no subidas). Cada fila trae su `relativa` para ubicar los archivos en ambas raíces.
 
 ## 8. Limitaciones conocidas
 

@@ -1,0 +1,30 @@
+{
+  // Workspace para trabajar con el agente de Copilot y los datos a la vez.
+  // Copilot lee .github (instrucciones, skills, prompts, agente) desde la
+  // carpeta "agente-copilot". Las otras dos carpetas son tus raices de datos.
+  //
+  // PASO UNICO: reemplaza las dos rutas de abajo por tus carpetas reales de
+  // OneDrive (las mismas de AT_RAIZ_TRABAJO y AT_RAIZ_PROCESO). En Windows
+  // puedes usar barras normales, por ejemplo:
+  //   "C:/Users/tu_usuario/OneDrive - Empresa/Atenciones_Trabajo"
+  "folders": [
+    {
+      "name": "Agente (atencion-tickets)",
+      "path": "agente-copilot"
+    },
+    {
+      "name": "Datos - trabajo",
+      "path": "REEMPLAZA_CON_LA_RUTA_DE_TU_RAIZ_DE_TRABAJO"
+    },
+    {
+      "name": "Datos - proceso",
+      "path": "REEMPLAZA_CON_LA_RUTA_DE_TU_RAIZ_DE_PROCESO"
+    }
+  ],
+  "settings": {
+    // Habilita los comandos de barra (/inicia, /limpia, /procede) y las
+    // instrucciones del repositorio para Copilot Chat.
+    "chat.promptFiles": true,
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true
+  }
+}

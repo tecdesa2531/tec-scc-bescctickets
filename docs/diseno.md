@@ -50,16 +50,29 @@ También hay **documentación** (de un ticket o propia) y **llamadas o reuniones
 
 ## 5. Modelo de datos
 
+### Relación padre-hijo
+
+Una atención puede tener un padre. Reglas:
+
+- El padre se asigna al crear o al editar una atención **temporal** (sin ubicación definitiva); una vez ubicada, el padre no se puede cambiar. El frontend omite el campo `padre_id` del payload si la atención ya está ubicada, para no disparar el error del backend.
+- En la lista, los hijos aparecen indentados bajo su padre con el ID alineado a la derecha. El padre muestra un badge con el número de hijos **antes del ID**; si algún hijo está en foco, el badge cambia a verde.
+- Clic en el badge o en la celda ID del padre: expande o contrae los hijos.
+- Clic en la celda Proyecto (padre o hijo): copia `tracking_id-tracking_code` al portapapeles. Para hijos sin proyecto propio se usa el proyecto del padre.
+- El campo **Atencion padre** en el formulario de edición se deshabilita si ya tiene padre asignado.
+- En la lista, las líneas divisorias solo aparecen entre grupos (después del último hijo de cada padre o después de un padre sin hijos). No hay línea entre el padre y sus hijos, ni entre los hijos del mismo padre.
+
 ### Atención
 
 Unidad de trabajo. Tipos:
 
-| Tipo | ID | Proyecto | Entornos |
-|---|---|---|---|
-| `ticket` | Número de ServiceNow (`PTSK0000123`) | El del ticket | DEV, PRE, PRO o combinación |
-| `int` | `INT001`, correlativo global automático | `INFRAS` (proyecto transversal) u otro | Como un ticket |
-| `doc` | `DOC001`, automático | `DOCINF` (documentación propia) | `VARIOS` |
-| `con` | `CON001`, automático | El del equipo que llamó | `VARIOS` |
+| Tipo | Nombre en la interfaz | ID | Proyecto | Entornos |
+|---|---|---|---|---|
+| `ticket` | Ticket | Número de ServiceNow (`PTSK0000123`) | El del ticket | DEV, PRE, PRO o combinación |
+| `int` | Iniciativa interna | `INT001`, correlativo global automático | `INFRAS` (proyecto transversal) u otro | Como un ticket |
+| `doc` | Documentacion | `DOC001`, automático | `DOCINF` (documentación propia) | `000_SinEntorno` |
+| `con` | Consulta o Reunion | `CON001`, automático | El del equipo que llamó | `000_SinEntorno` |
+
+El nombre de cada tipo aparece en los encabezados de columna de los chips de foco, en el título de la vista de detalle y en el selector del formulario de nueva atención. El tipo `ticket` usa el ID que Jhans escribe (viene de ServiceNow); los otros tres tienen un ID interno correlativo asignado automáticamente.
 
 - La documentación **de un ticket** no es una atención aparte: va como entradas en la bitácora de ese ticket y sube a Jira con él.
 - El código propio (INT, DOC, CON) ocupa el lugar del Tracking ID, así Copilot lo trata como cualquier atención.
@@ -74,7 +87,7 @@ Ambas raíces usan la estructura de la convención existente:
 NNN_<Proyecto>/NNN_<Entorno>/NNN_<TrackingID>/
 ```
 
-Entornos: `010_Dev`, `020_Pre`, `030_Pro`, `040_Varios`, `050_DevPre`, `060_PrePro`, `070_DevPrePro`. La combinación DEV + PRO sin PRE no existe y se rechaza.
+Entornos: `000_SinEntorno`, `010_Dev`, `020_Pre`, `030_Pro`, `040_DevPre`, `050_PrePro`, `060_DevPrePro`. La combinación DEV + PRO sin PRE no existe y se rechaza.
 
 Raíz de trabajo por atención: `.eml`, `010_CorreoAsignadoAdjuntos`, `020_CorreoAtendidoAdjuntos`, `030_ProcesoAtencion` (capturas de avance y archivos).
 
@@ -103,11 +116,35 @@ Línea de tiempo por atención. Las entradas **solo se agregan**, en el orden en
 - Cada entrada tiene un `id` fijo; Copilot usa ese `id`, no la posición.
 - Al arrastrar un `.eml`: se guarda como `AAAAMMDD_correo_<tipo>.eml` (fecha del correo, `_02` si se repite el día), se extraen sus adjuntos con su nombre original, se ignoran las imágenes incrustadas (firmas) y un correo adjunto dentro de otro se guarda entero. Un correo idéntico no se duplica.
 
+### Estados de una atención
+
+`en_curso` → `en_espera` → `atendido` → `reabierto` → `descartado` (cualquier transición manual, salvo las reglas de bloqueo de abajo).
+
+Efectos visuales por estado:
+
+| Estado | Lista principal | Chips de foco | Botón "Poner foco" | Botón "Terminar" |
+|---|---|---|---|---|
+| `en_curso` | Normal | Aparece | Visible | Visible |
+| `en_espera` | Normal | Aparece | Visible | Visible |
+| `reabierto` | Normal | Aparece | Visible | Visible |
+| `atendido` | Texto gris (apagado) | No aparece | Oculto | Oculto |
+| `descartado` | Texto gris (apagado) | No aparece | Oculto | Oculto |
+
+El filtro "Abiertas o con pendientes" de la lista incluye `en_curso`, `en_espera` y `reabierto`.
+
+### Reglas de bloqueo por tipo
+
+| Acción | Tipo `ticket` | Otros tipos |
+|---|---|---|
+| Agregar entrada a bitácora | Requiere al menos un correo recibido (`asignado`) | Sin restricción |
+| Terminar (marcar como atendida) | Requiere al menos un correo enviado (`atendido`) | Sin restricción |
+| Agregar entrada cuando estado es `atendido` | Bloqueado para todos los tipos; hay que cambiar el estado a `reabierto` primero | Ídem |
+
 ### Terminar y subida a Jira
 
 - La subtarea (HU semanal) o la historia de usuario (HU independiente) puede crearse en Jira **al inicio**, cuando llega la asignación.
 - Los comentarios se suben **solo al presionar Terminar** (o al guardar una entrada de cierre). Hasta entonces todo se puede editar.
-- Si después del cierre aparece algo más (por ejemplo, el solicitante avisa por Teams que una tabla era otra), se agregan entradas nuevas; la atención muestra pendientes y al presionar Terminar otra vez se procesan solo las nuevas.
+- Si después del cierre aparece algo más (por ejemplo, el solicitante avisa por Teams que una tabla era otra), se cambia el estado a `reabierto`, se agregan entradas nuevas; la atención muestra pendientes y al presionar Terminar otra vez se procesan solo las nuevas.
 - **HU semanal**: una subtarea bajo la HU semanal vigente.
 - **HU independiente**: se crea la HU sola. Al terminar, Copilot analiza la bitácora en orden, propone las fases, Jhans las aprueba, se crean las subtareas y Copilot reparte cada comentario en la fase que corresponde. El último correo marca el cierre.
 - Jhans elige semanal o independiente en la herramienta; Copilot no lo decide.
@@ -119,6 +156,8 @@ Línea de tiempo por atención. Las entradas **solo se agregan**, en el orden en
 - Si un tramo quedó abierto de un día anterior, la página pide la hora en que terminó antes de permitir otro foco.
 - Al escribir en una atención que no es el foco, la página pregunta si cambiar el foco.
 - El tiempo es **solo registro interno**; no se envía a Jira.
+- Al presionar **Terminar** en una atención que era el foco actual, el foco cambia automáticamente a **Pausa**. Así, al volver a la lista, la fila de esa atención ya no aparece resaltada en verde.
+- El botón de pausa muestra un icono SVG (dos barras). Cuando el foco está en pausa y hay al menos un tramo de atención en el historial del día, el icono cambia a un triángulo (reproducir) y al pulsarlo reanuda la última atención del día. El botón se resalta con el estilo activo (verde) mientras el foco está en pausa.
 
 ### Ideas
 
@@ -126,28 +165,96 @@ Lista aparte. Cada idea se puede agregar a la bitácora de una atención (como e
 
 ## 6. Contrato con Copilot
 
-- La herramienta agrega a `ticket-datos.json`: `id_herramienta`, `tipo`, `url_servicenow`, `workspace_edge` y `listo_para_jira`. Al escribir, relee el archivo y solo cambia sus campos, para no pisar `correos[].resumen` ni `subtareas`.
+- La herramienta agrega a `ticket-datos.json`: `id_herramienta`, `tipo`, `url_servicenow`, `workspace_edge` y `listo_para_jira`. Al escribir, relee el archivo y solo cambia sus campos, para no pisar los campos de Copilot: `correos[].resumen`, `subtareas`, `descripcion` y `titulo_jira` (ni las `key`/`url` de los issues).
+- Copilot escribe el campo `descripcion` en `ticket-datos.json`: un párrafo breve que resume la atención, con ortografía corregida y coherencia entre los comentarios de la bitácora. La herramienta lo muestra en la vista de detalle como sección colapsable en formato Markdown, solo lectura para Jhans.
 - Copilot procesa atenciones con `listo_para_jira` y entradas `para_jira: true` que aún no figuran como subidas.
 - En cada comentario de `jira-comentarios_*.json`, Copilot agrega `bitacora_id` (o `bitacora_ids` si junta varias). Con `subido: true`, la herramienta muestra la entrada como enviada y la bloquea.
-- El texto original queda en la bitácora; el texto corregido por Copilot va al JSON de comentarios, donde Jhans lo revisa antes de subir.
+- El texto original de la bitácora **nunca se modifica**. En la limpieza (estado 1), Copilot escribe el texto corregido de cada entrada en `040_ProcesoJira/bitacora-correccion.json`, enganchado por `bitacora_id`. La herramienta muestra ambos (original y corregido). Lo que sube a Jira es el texto corregido.
+- Copilot también escribe en `ticket-datos.json` el `titulo_jira` (título corto y claro para el issue) y, al crear issues, la `key` y la `url` completa de cada uno (HU y subtareas), para que la herramienta muestre el link directo.
 - Las rutas de capturas en la bitácora son `{ "raiz": "trabajo" | "proceso", "ruta": "<relativa a la carpeta de la atención>" }`.
 
-El formato completo está en `organizador-atenciones/README.md`, sección 7.
+El formato completo está en `mi-dia/README.md`, sección 7.
+
+### Navegación
+
+- El logo **Mi dia** del encabezado actúa como "Volver": desde cualquier vista de detalle regresa a la lista principal.
 
 ## 7. Etapa 5: adaptar el agente Copilot (siguiente)
 
-**Primer tema a resolver: cómo ve Copilot el agente y los datos a la vez.** Antes, `.github` estaba dentro de la carpeta de datos. Ahora vive en `agente-copilot/` y los datos en dos raíces de OneDrive. Copilot lee `.github` desde la raíz de cada carpeta abierta en VS Code, así que la opción más probable es un archivo `.code-workspace` que abra `agente-copilot/` junto con las dos raíces. Hay que probarlo en la laptop.
+Esta etapa cambia el agente **y la herramienta**, porque se agregan datos y vistas nuevas en ambos lados.
 
-Cambios por skill:
+### 7.1 El giro
+
+El agente deja de ser el punto de entrada. Ya no organiza inbox, no mueve archivos ni pregunta la clasificación: la herramienta ya dejó las carpetas y los JSON listos. El agente pasa a ser un **procesador de Jira** que:
+
+- recibe las **dos raíces por variable de entorno** y encuentra los datos ya ubicados;
+- **extrae el texto** del correo `.eml` (solo cabeceras y cuerpo) para analizar, redactar la descripción y tener contexto al armar la HU;
+- lee y escribe JSON según el contrato de la sección 6.
+
+La herramienta **sí se nombra** en las instrucciones del agente, para dar contexto de quién produce cada archivo.
+
+**Primer tema (resuelto, a falta de probar en la laptop): cómo ve Copilot el agente y los datos a la vez.** `.github` vive en `agente-copilot/` y los datos en dos raíces de OneDrive. Copilot lee `.github` desde la raíz de cada carpeta abierta en VS Code. Se creó `atencion-tickets.code-workspace` (en la raíz del repo) que abre `agente-copilot/` junto con las dos raíces de datos; Jhans solo reemplaza las dos rutas absolutas de OneDrive. Falta probarlo en la laptop.
+
+### 7.2 Comandos (entrada corta)
+
+Jhans escribe poco. Tres gatillos:
+
+| Comando | Cuándo | Qué hace |
+|---|---|---|
+| `/inicia <id>` | al llegar la asignación | crea el **padre** en Jira: la **HU** si es independiente, o una **subtarea** bajo la HU semanal vigente si es semanal. Nada más. |
+| `/limpia <id>` | estado 1 (ver 7.3) | corrige el texto de la bitácora, crea la `descripcion` y escribe el `titulo_jira`. No sube nada a Jira. |
+| `/procede` | estado 2 (ver 7.3) | recorre la **cola** y sube a Jira **todos** los terminados pendientes. |
+
+El agente **no escanea** carpetas: lee `003_Herramienta/agente-cola.json`, que la herramienta mantiene con qué acción le toca a cada atención (`pendiente_inicio`, `pendiente_limpieza`, `pendiente_jira`).
+
+### 7.3 Terminar se divide en dos estados
+
+| Estado | Señal | Qué ocurre |
+|---|---|---|
+| **1. Limpieza** | Jhans lo marca en la herramienta | Con `/limpia`, el agente corrige **solo el texto** de cada entrada de la bitácora (oraciones coherentes, para dejar el historial limpio). **No une, no reordena, no cambia la estructura ni la cantidad** de entradas. Corrige **todas** las entradas, no solo las `para_jira`. Además crea la `descripcion` y el `titulo_jira`. El original nunca se toca: lo corregido va a `bitacora-correccion.json`. |
+| **2. Terminado** | Jhans revisa lo corregido y da el conforme | Habilita `/procede`. El agente analiza los terminados y sube a Jira. |
+
+### 7.4 Mapeo a Jira
+
+- **Independiente** (flujo con el que arrancamos): el padre es la **HU**. Al `/procede`, el agente analiza la bitácora en orden, **propone las fases**, Jhans las aprueba y se crean las **subtareas** bajo esa HU; luego reparte los comentarios (el agente **razona** si van agrupados o uno por subtarea).
+- **Semanal**: el padre es una **subtarea** bajo la HU semanal vigente. Si la atención **tiene hijos**, cada hijo es **otra subtarea** bajo la misma HU semanal (planas, hermanas; los hijos nunca suben a HU).
+- **Selección con criterio**: entre las entradas `para_jira: true`, el agente no sube todas; descarta lo incoherente o redundante y deja solo lo que tiene sentido como comentario.
+
+### 7.4b Sprint y HU semanales
+
+- La **épica representa el trimestre** (p. ej. Q4 2026) y contiene **varios sprints** (unos tres, de ~5 semanas, aproximadamente mensuales). La épica solo la cambia Jhans, al cambiar de trimestre.
+- Jhans **crea el sprint** y le da al agente su duración. El agente crea las **HU semanales** del sprint: una por semana de **lunes a viernes** dentro del rango. Se guardan en `config-jira.json` en `hu_semanales` (lista de `{ inicio, fin, key }`), que **reemplaza** a `hu_padre` + `hu_semana`.
+- Cada atención semanal se ubica, por su **fecha**, bajo la HU de la semana que le corresponde (dentro del sprint activo). Una fecha de fin de semana va a la semana que acaba de terminar.
+- Las **HU independientes** no van en el config: viven en `jira.padre_key` de cada atención. Ambos tipos conviven en el sprint.
+- **Cierre de semana** (mismo sprint): las subtareas abiertas **cambian de padre** a la HU de la semana siguiente (PUT del `parent`), sin duplicar. Queda historial (comentario de continuidad).
+- **Cierre de sprint** (al siguiente, misma épica dentro del trimestre): lo que sigue abierto pasa como **Parte 02**; el agente crea las nuevas HU padre (semanales e independientes abiertas). Jhans crea el sprint y, al cambiar de trimestre, la épica nueva.
+
+### 7.5 Archivos y dueños nuevos
+
+| Archivo | Dueño | Contenido |
+|---|---|---|
+| `bitacora.json` | herramienta | texto original, intacto |
+| `040_ProcesoJira/bitacora-correccion.json` | agente | texto corregido por `bitacora_id` (se escribe en `/limpia`) |
+| `003_Herramienta/agente-cola.json` | herramienta | cola de pendientes del agente, para no escanear |
+| `ticket-datos.json` (campos nuevos del agente) | agente | `descripcion`, `titulo_jira`, y `key` + `url` de cada issue creado |
+
+### 7.6 Cambios en la herramienta (`mi-dia`)
+
+- **Botón/estado nuevo** para el estado 1 (limpieza), separado de Terminado.
+- Escribir y mantener `agente-cola.json`.
+- Vista de detalle: la bitácora muestra cada entrada tipo **chat con toggle** original / corregido (lee `bitacora-correccion.json`).
+- Vista de detalle: **sección "Jira" después de Datos**, con el `titulo_jira` y el **link clickeable** al issue (`url` guardada por el agente). La herramienta no toca config ni credenciales de Jira: solo renderiza la `url`.
+
+### 7.7 Cambios por skill
 
 | Skill | Cambio |
 |---|---|
-| `correo-procesar` | Ya no organiza el inbox, no mueve archivos ni pregunta la clasificación (la herramienta lo hace). Parte de la carpeta y del `ticket-datos.json` creados, resume los correos y prepara los registros de Jira. |
-| `jira-comentarios` | Nueva fuente: `bitacora.json`. Registrar `bitacora_id`. Admitir **varias capturas por comentario** (ajustar el script) y buscar las capturas de avance en la raíz de trabajo. |
-| `jira-subtareas` / `jira-historia-usuario` | Crear la subtarea o la HU al llegar la asignación; fases de la HU independiente al terminar, a partir de la bitácora. |
-| `indice-atenciones` | Candidata a eliminarse: el índice lo puede generar la herramienta. |
-| `sprint-cierre` | Revisar que use las rutas nuevas. |
-| `copilot-instructions.md` | Rutas de las dos raíces (variables de entorno), quién escribe qué archivo, quitar ejemplos PowerShell heredados y reglas duplicadas (credenciales, `jira-ejecuciones.log` y la definición de HU semanal aparecen dos veces). |
+| `correo-procesar` | Ya no organiza inbox ni mueve archivos. Parte de la carpeta y el `ticket-datos.json` ya creados; extrae el texto del `.eml`, resume los correos y prepara los registros. Es la base de `/limpia`. |
+| `jira-comentarios` | Fuente nueva: `bitacora.json` + `bitacora-correccion.json`. Registrar `bitacora_id`, aplicar criterio de selección, admitir **varias capturas por comentario** y buscar las capturas de avance en la raíz de trabajo. |
+| `jira-subtareas` / `jira-historia-usuario` | `/inicia` crea el padre (HU o subtarea). `/procede` crea las fases de la independiente desde la bitácora, y las subtareas de hijos en la semanal. Guardar `key` y `url` en `ticket-datos.json`. |
+| `indice-atenciones` | Eliminada del agente: el índice lo generará la herramienta. |
+| `sprint-cierre` | Revisar que use las rutas nuevas (dos raíces). |
+| `copilot-instructions.md` | Rutas de las dos raíces (variables de entorno), nombrar la herramienta y quién escribe qué, quitar ejemplos PowerShell heredados y reglas duplicadas (credenciales, `jira-ejecuciones.log` y la definición de HU semanal aparecen dos veces). |
 
 Proyectos que no son de un proyecto real (`INFRAS`, `DOCINF`) deben agregarse a `proyectos` en `config-jira.json` con su destino de Jira.
 
