@@ -55,6 +55,8 @@ def ids_enviados(registro):
             datos = leer_json(os.path.join(carpeta, nombre), {})
         except (ValueError, OSError):
             continue
+        for id_entrada in datos.get("omitidos") or []:
+            enviados.add(id_entrada)
         for comentario in datos.get("comentarios", []):
             if not comentario.get("subido"):
                 continue

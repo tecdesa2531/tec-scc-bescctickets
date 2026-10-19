@@ -18,3 +18,12 @@ Usa el texto corregido de `bitacora-correccion.json`. Entre las entradas `para_j
 - **Semanal** (skills `jira-subtareas`, `jira-comentarios`): sube los comentarios de la subtarea; si la atencion tiene hijos, crea una subtarea por hijo bajo la HU de la semana que corresponde.
 
 Genera los scripts `.py` en `040_ProcesoJira`, corre primero un `--dry-run` y muestrame el resumen. Tras mi **"crear"**, ejecutalos tu en la terminal; guarda las `key` y `url` en `ticket-datos.json` y marca lo subido con `bitacora_id` y `subido: true` en los `jira-comentarios_*.json`. No subas nada a Jira sin mi "crear".
+
+## Cierre de subtareas al terminar
+
+Una vez subidos todos los comentarios de una atencion (incluido el comentario de cierre), **transiciona cada subtarea a `FINALIZADO`** usando el skill `jira-subtareas` (seccion "Cambio de estado"). El comentario de cierre debe quedar subido **antes** de cambiar el estado. Actualiza tambien el campo `estado` de cada entrada en `subtareas[]` de `ticket-datos.json` a `"FINALIZADO"`.
+
+- **Semanal**: cierra cada subtarea de entorno (y las de hijos si los hay).
+- **Independiente**: cierra cada subtarea de fase.
+- Si una subtarea no tiene transicion directa a `FINALIZADO` desde su estado actual, avisame para moverla a mano; no la saltes.
+- Si la subtarea ya esta en `FINALIZADO` (segunda vuelta de una atencion reabierta) y hay trabajo nuevo real, sigue la regla de reapertura del `copilot-instructions.md`.

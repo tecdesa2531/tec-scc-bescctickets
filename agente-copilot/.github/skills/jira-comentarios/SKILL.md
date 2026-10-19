@@ -27,6 +27,7 @@ Uno por subtarea en `040_ProcesoJira`, con la `key` de su subtarea. Nombre segun
 ```json
 {
   "key": "PRYA-1002",
+  "omitidos": ["e20261018163626abc"],
   "comentarios": [
     {
       "n": 1,
@@ -45,6 +46,7 @@ Uno por subtarea en `040_ProcesoJira`, con la `key` de su subtarea. Nombre segun
 }
 ```
 
+- `omitidos`: lista de `bitacora_id` de entradas que revisaste y decidiste **no subir** (por criterio: redundantes, incoherentes o ya cubiertas por otra entrada). La herramienta las deja de contar como pendientes. Si no hay ninguna omitida, omite el campo o deja `[]`.
 - `bitacora_ids`: lista de los `id` de las entradas que resume ese comentario (asi la herramienta marca esas entradas como enviadas y las bloquea).
 - `texto` en espanol con tildes, en formato wiki de Jira si hace falta (`*negrita*`, `* vineta`, `\n`).
 - `capturas`: puede haber **varias** por comentario. `raiz` es `trabajo` o `proceso`; `ruta` es relativa a la carpeta de la atencion en esa raiz. Las de avance estan en la raiz de trabajo (`030_ProcesoAtencion`); las de correo en la raiz de proceso (`040_ProcesoJira`). Se suben como adjunto y se referencian con `!archivo|thumbnail!`.
