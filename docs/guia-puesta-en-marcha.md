@@ -60,10 +60,12 @@ $env:AT_RAIZ_PROCESO
 
 ```powershell
 cd <ruta-del-repo>\tec-scc-bescctickets\mi-dia
-python .\servidor.py
+python servidor.py
 ```
 
 Luego abre en Edge: **http://127.0.0.1:8765**. Para detenerla, `Ctrl + C` en la terminal.
+
+> Nota: usa `python servidor.py` **sin `.\`**. En PowerShell el `.\` funciona, pero en **Git Bash** rompe el nombre del archivo. Sin `.\` funciona en ambos.
 
 (Opcional, para cambiar el puerto: `$env:AT_PUERTO = "8799"` antes de iniciar.)
 
@@ -81,8 +83,8 @@ Para que funcione, las variables `JIRA_*` deben estar definidas a nivel **usuari
 Si prefieres correr un script a mano, puedes hacerlo igual desde su carpeta `040_ProcesoJira`:
 
 ```powershell
-python .\nombre_script.py --dry-run   # simula, no toca Jira
-python .\nombre_script.py             # ejecuta de verdad
+python nombre_script.py --dry-run   # simula, no toca Jira
+python nombre_script.py             # ejecuta de verdad
 ```
 
 ## Resumen del orden
@@ -90,5 +92,5 @@ python .\nombre_script.py             # ejecuta de verdad
 1. `git pull`.
 2. Editar `config-jira.json` (en la raíz de proceso) y `atencion-tickets.code-workspace`.
 3. Definir las variables de entorno en PowerShell.
-4. `python .\servidor.py` y abrir el navegador.
+4. `python servidor.py` y abrir el navegador.
 5. Abrir el workspace en VS Code y usar los comandos del agente.

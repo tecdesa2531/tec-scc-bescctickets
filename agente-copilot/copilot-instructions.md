@@ -143,7 +143,7 @@ Una atención multi-entorno vive en su carpeta combinada (p. ej. `040_DevPre`), 
 
 ## Reglas de ejecución de Jira
 
-- Toda operación de Jira es un script `.py`. **Lo ejecutas tú** (el agente) en la terminal de VS Code, desde la carpeta `040_ProcesoJira` de la atención, tras la confirmación **"crear"** de Jhans en el chat. Tú manejas la ruta; Jhans no copia comandos ni busca carpetas.
+- Toda operación de Jira es un script `.py`. **Lo ejecutas tú** (el agente) en la terminal de VS Code, desde la carpeta `040_ProcesoJira` de la atención, tras la confirmación **"crear"** de Jhans en el chat. Tú manejas la ruta; Jhans no copia comandos ni busca carpetas. Invoca el script como `python nombre_script.py` (**sin `.\`**, para que funcione igual en PowerShell y en Git Bash).
 - **Flujo de confirmación:** primero corres el script con `--dry-run` (o le resumes a Jhans qué hará) y esperas su **"crear"**; recién entonces lo ejecutas de verdad (sin `--dry-run`). La compuerta es el "crear" del chat, así que **no** pongas un `input()` interactivo en los scripts.
 - Solo biblioteca estándar de Python. No instalar paquetes, no crear entornos virtuales, no cambiar el intérprete. No crear scripts `.ps1`.
 - Para HTTPS, `curl.exe --ssl-no-revoke` desde `subprocess`; no usar `urllib` ni desactivar la validación del certificado.
