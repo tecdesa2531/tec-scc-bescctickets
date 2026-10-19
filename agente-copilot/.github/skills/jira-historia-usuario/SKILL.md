@@ -29,26 +29,29 @@ DOCINF: JDOC0000000005 - titulo
 
 Con todos los entornos de la atencion separados por coma; sin parentesis si la atencion no tiene entorno.
 
-**Descripcion** (formato wiki de Jira, saltos de linea como `\n` en el JSON):
+**Descripcion** (formato wiki de Jira, saltos como `\n` en el JSON). Contenido **breve, sin rodeos**. Saca el OBJETIVO y el ALCANCE de tu analisis de la bitacora:
 
 ```
 *COMO* <rol de Jhans, nunca un nombre: p. ej. DevOps del equipo de nube o miembro del equipo de infraestructura>, *QUIERO* <lo que pide>, *PARA* <para que lo necesita>.
 
 *OBJETIVO:*
-<resultado concreto de la atencion>
+<resultado concreto, breve>
 
 *ALCANCE:*
-<que abarca; menciona los entornos>
+<que abarca; menciona los entornos, breve>
 
-*CRITERIOS DE ACEPTACION:*
-<resultado verificable>
+*DATOS:*
+* Tracking ID: [PTSK0000123|https://.../PTSK0000123]
+* Proyecto: PROYAA
+* Entornos: PRE, PRO
+* Solicitante: Nombre del solicitante
 
-*DOD:*
-* Subtareas en FINALIZADO con su evidencia.
-
-*SUBTAREAS*
-El trabajo se divide en las tareas secuenciales de esta historia.
+*CAPTURA DEL CORREO DE ASIGNACION:*
+!20261005_captura_correo_asignado.png|thumbnail!
 ```
+
+- Mismas reglas que las subtareas: `*COMO*` es el rol (sin nombres); el **Solicitante** (con nombre) sale del **correo de solicitud**, no del de asignacion; el Tracking ID como enlace si hay `url_servicenow`.
+- La **captura del correo de asignacion** se sube como adjunto y se referencia con `!archivo.png|thumbnail!`. El `.eml` y la captura de cierre van en el comentario final (ver `jira-comentarios`).
 
 **Mostrar el titulo y la descripcion a Jhans antes de generar el script** y aplicar los ajustes que pida.
 

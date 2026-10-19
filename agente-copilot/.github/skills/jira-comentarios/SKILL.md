@@ -36,6 +36,7 @@ Uno por subtarea en `040_ProcesoJira`, con la `key` de su subtarea. Nombre segun
       "capturas": [
         { "raiz": "trabajo", "ruta": "030_ProcesoAtencion/20261018_163626_captura.png" }
       ],
+      "adjuntos": [],
       "subido": false,
       "jira_id": "",
       "error": ""
@@ -46,7 +47,9 @@ Uno por subtarea en `040_ProcesoJira`, con la `key` de su subtarea. Nombre segun
 
 - `bitacora_ids`: lista de los `id` de las entradas que resume ese comentario (asi la herramienta marca esas entradas como enviadas y las bloquea).
 - `texto` en espanol con tildes, en formato wiki de Jira si hace falta (`*negrita*`, `* vineta`, `\n`).
-- `capturas`: puede haber **varias** por comentario. `raiz` es `trabajo` o `proceso`; `ruta` es relativa a la carpeta de la atencion en esa raiz. Las de avance estan en la raiz de trabajo (`030_ProcesoAtencion`); las de correo en la raiz de proceso (`040_ProcesoJira`).
+- `capturas`: puede haber **varias** por comentario. `raiz` es `trabajo` o `proceso`; `ruta` es relativa a la carpeta de la atencion en esa raiz. Las de avance estan en la raiz de trabajo (`030_ProcesoAtencion`); las de correo en la raiz de proceso (`040_ProcesoJira`). Se suben como adjunto y se referencian con `!archivo|thumbnail!`.
+- `adjuntos`: archivos que se adjuntan al issue **sin** embeberlos como imagen (p. ej. un `.eml`). Mismo formato `{raiz, ruta}`.
+- **Comentario final (cierre/entrega):** es donde se dice que se entregaron los datos solicitados. Lleva la **captura del correo de cierre** (en `capturas`) **y el `.eml` del correo de cierre** (en `adjuntos`, desde la raiz de trabajo).
 - Nunca modifiques comentarios con `subido: true`.
 
 ## 5. Script de subida (referencia)
@@ -91,6 +94,14 @@ def subir(datos):
                      "-H", "X-Atlassian-Token: no-check", "-F", "file=@" + ruta],
                     capture_output=True, text=True)
                 texto += "\n\n!" + os.path.basename(ruta) + "|thumbnail!"
+        for adjunto in com.get("adjuntos", []):
+            ruta = ruta_captura(adjunto)
+            if os.path.isfile(ruta):
+                subprocess.run(
+                    ["curl.exe", "-sS", "--ssl-no-revoke", "-u", AUTH, "-X", "POST",
+                     URL + "/issue/" + clave + "/attachments",
+                     "-H", "X-Atlassian-Token: no-check", "-F", "file=@" + ruta],
+                    capture_output=True, text=True)
         tmp = os.path.join(CARPETA, "_comentario.json")
         with open(tmp, "w", encoding="utf-8") as archivo:
             json.dump({"body": texto}, archivo, ensure_ascii=False)

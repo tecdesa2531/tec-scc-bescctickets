@@ -148,10 +148,11 @@ Formato wiki de Jira. Reglas (ver ejemplos en `jira-historia-usuario` y `jira-su
 
 - **No** pongas un título `*DESCRIPCIÓN*` dentro: el campo de Jira ya se llama Descripción, sería redundante.
 - Las palabras **COMO**, **QUIERO** y **PARA** van en **negrita y mayúsculas** (`*COMO*`, `*QUIERO*`, `*PARA*`).
-- **COMO** es el **rol** desde el que Jhans atiende, **nunca un nombre de persona** (ni del solicitante ni de Jhans). Por ejemplo: `*COMO* DevOps del equipo de nube` (proyectos de nube como NEXHUB) o `*COMO* miembro del equipo de infraestructura`. Si no está claro el rol, pregunta.
-- **Nunca** escribas nombres de personas en los issues (sin "Solicitante: <nombre>").
-- En **DATOS**, el Tracking ID va como enlace si la atención tiene `url_servicenow`: `* Tracking ID: [PTSK0050145|https://.../...]`; si no, solo el ID. No incluyas solicitante.
-- **Adjunta el `.eml` del correo de asignación** al issue (además de nombrarlo en DATOS).
+- **COMO** es el **rol** desde el que Jhans atiende, **nunca un nombre de persona** en esa línea. Por ejemplo: `*COMO* DevOps del equipo de nube` (proyectos de nube como NEXHUB) o `*COMO* miembro del equipo de infraestructura`. Si no está claro el rol, pregunta. (El nombre del solicitante sí va en DATOS, abajo.)
+- En **DATOS**: `Tracking ID` (como enlace `[ID|URL]` si la atención tiene `url_servicenow`; si no, solo el ID), `Proyecto`, `Entorno` y `Solicitante: <nombre>`. El **Solicitante es quien pidió** la atención: su nombre sale del **correo de solicitud** (entrada tipo `solicitud`), **no** del correo de asignación (ese remitente es otra persona, quien asignó). Si no hay correo de solicitud, usa el campo `solicitante` de `ticket-datos.json` o pregunta. No pongas una línea "Correo de asignación".
+- **La captura del correo de asignación** (imagen) va **embebida en la descripción** (súbela como adjunto y referénciala con `!captura_correo_asignado.png|thumbnail!`). No adjuntes el `.eml` de asignación.
+- El **`.eml` y la captura del correo de cierre** van en el **comentario final** (el de entrega), no en la descripción (ver `jira-comentarios`).
+- Mantén el contenido **breve**, sin rodeos.
 
 ## Reglas de ejecución de Jira
 
@@ -169,7 +170,7 @@ Formato wiki de Jira. Reglas (ver ejemplos en `jira-historia-usuario` y `jira-su
 ## Reglas generales
 
 - Si falta un dato (Tracking ID, entorno, proyecto, destino), pregunta antes de crear o subir nada.
-- **Nunca escribas nombres de personas en Jira** (ni del solicitante ni de Jhans): usa el rol. Jhans es a la vez de infraestructura y DevOps de nube; para proyectos de nube (p. ej. NEXHUB) el rol es "DevOps del equipo de nube".
+- En la línea `*COMO*` usa el **rol**, nunca un nombre; Jhans es a la vez de infraestructura y DevOps de nube, y para proyectos de nube (p. ej. NEXHUB) el rol es "DevOps del equipo de nube". El **nombre del solicitante** sí va en DATOS, y sale del **correo de solicitud**, no del de asignación.
 - No cambies el estado de historias de usuario ni cierres sprints en Jira: eso lo hace Jhans en el tablero. Tú solo creas issues y cambias el estado de subtareas.
 - No borres correos, adjuntos ni capturas. No toques el texto original de la bitácora ni el contenido de `030_ProcesoAtencion`.
 - Responde en español, breve: qué hiciste, qué mostró el dry-run y qué queda pendiente de tu "crear".

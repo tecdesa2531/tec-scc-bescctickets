@@ -33,12 +33,17 @@ Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el pro
 * Tracking ID: [PTSK0000123|https://.../PTSK0000123]
 * Proyecto: PROYAA
 * Entorno: PRE
-* Correo de asignacion: 20261005_correo_asignado.eml
+* Solicitante: Nombre del solicitante
+
+*CAPTURA DEL CORREO DE ASIGNACION:*
+!20261005_captura_correo_asignado.png|thumbnail!
 ```
 
-- `*COMO*` es el rol de Jhans segun el proyecto (nube/infra), **nunca** un nombre; no pongas "Solicitante".
+- `*COMO*` es el rol de Jhans segun el proyecto (nube/infra), **nunca** un nombre.
 - Tracking ID como enlace `[ID|URL]` solo si la atencion tiene `url_servicenow`; si no, deja solo el ID.
-- **Adjunta el `.eml`** del correo de asignacion al issue (`POST /issue/<key>/attachments`, como las capturas).
+- **Solicitante** = quien pidio la atencion; su nombre sale del **correo de solicitud** (entrada tipo `solicitud`), **no** del de asignacion (ese es quien asigno, otra persona). Si no hay correo de solicitud, usa `solicitante` de `ticket-datos.json` o pregunta.
+- La **captura del correo de asignacion** va embebida en la descripcion: subela como adjunto (`POST /issue/<key>/attachments`) y referenciala con `!archivo.png|thumbnail!`. No se adjunta el `.eml` de asignacion.
+- El `.eml` y la captura del **correo de cierre** van en el comentario final, no aqui (ver `jira-comentarios`).
 
 **Tarea de una HU independiente:**
 
@@ -53,7 +58,7 @@ Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el pro
 <resultado verificable>
 ```
 
-La captura del correo no va en el JSON; la agrega el script despues de subirla (ver `jira-comentarios`).
+La captura de asignacion se sube como adjunto y se referencia en la descripcion con `!archivo.png|thumbnail!`. La captura y el `.eml` del correo de cierre van en el comentario final (ver `jira-comentarios`).
 
 ## Payload
 
