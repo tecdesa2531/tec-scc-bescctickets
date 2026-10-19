@@ -206,14 +206,18 @@ function verTextoBitacora(modo) {
   pintarEntradas();
 }
 
+function toggleCorreccion() {
+  verTextoBitacora(vistaBitacora === "corregido" ? "original" : "corregido");
+}
+
 function pintarEntradas() {
   var contenedor = document.getElementById("d-entradas");
   var hayCorreccion = detalle.entradas.some(function (e) { return e.texto_corregido; });
-  var toggle = document.getElementById("d-bitacora-toggle");
-  toggle.hidden = !hayCorreccion;
+  var btn = document.getElementById("d-btn-toggle-corregido");
+  btn.hidden = !hayCorreccion;
   if (hayCorreccion) {
-    document.getElementById("d-btn-original").classList.toggle("seg-activo", vistaBitacora === "original");
-    document.getElementById("d-btn-corregido").classList.toggle("seg-activo", vistaBitacora === "corregido");
+    btn.style.opacity = vistaBitacora === "corregido" ? "0.85" : "0.4";
+    btn.title = vistaBitacora === "corregido" ? "Ver texto original" : "Ver texto corregido por el agente";
   }
   if (!detalle.entradas.length) {
     contenedor.innerHTML = '<p class="suave">Aun no hay entradas.</p>';

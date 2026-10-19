@@ -256,12 +256,7 @@
 
   <!-- Bitacora -->
   <div class="card">
-    <div class="card-titulo">Bitacora</div>
-    <div id="d-bitacora-toggle" class="fila" hidden style="margin-bottom:10px">
-      <span class="suave">Texto:</span>
-      <button id="d-btn-original" onclick="verTextoBitacora('original')">Original</button>
-      <button id="d-btn-corregido" onclick="verTextoBitacora('corregido')">Corregido por el agente</button>
-    </div>
+    <div class="card-titulo" style="display:flex;align-items:center;justify-content:space-between">Bitacora<button id="d-btn-toggle-corregido" hidden onclick="toggleCorreccion()" title="Ver texto corregido por el agente" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0;opacity:0.4;line-height:1">&#x21BB;</button></div>
     <div id="d-entradas"></div>
 
     <div class="card-titulo" id="r-titulo" style="margin-top:20px">Nueva entrada</div>
