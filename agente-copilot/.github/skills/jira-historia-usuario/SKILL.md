@@ -32,8 +32,7 @@ Con todos los entornos de la atencion separados por coma; sin parentesis si la a
 **Descripcion** (formato wiki de Jira, saltos de linea como `\n` en el JSON):
 
 ```
-*DESCRIPCION*
-COMO <area o persona solicitante>, QUIERO <lo que pide>, PARA <para que lo necesita>.
+*COMO* <rol de Jhans, nunca un nombre: p. ej. DevOps del equipo de nube o miembro del equipo de infraestructura>, *QUIERO* <lo que pide>, *PARA* <para que lo necesita>.
 
 *OBJETIVO:*
 <resultado concreto de la atencion>
@@ -62,7 +61,7 @@ El trabajo se divide en las tareas secuenciales de esta historia.
     "issuetype": { "id": "10002" },
     "assignee": { "accountId": "000000:aaaaaaaa-0000-0000-0000-000000000001" },
     "summary": "INFRAS(DEV,PRE): JINT0000000001 - titulo",
-    "description": "*DESCRIPCION*\nCOMO ..."
+    "description": "*COMO* DevOps del equipo de nube, *QUIERO* ..."
   }
 }
 ```
@@ -79,7 +78,7 @@ Para calcular las semanas: parte del lunes de la semana del inicio del sprint y 
 
 **Titulo** (uno por semana): `[INFRA] Atencion de tickets multiproyecto - Semana DD/MM al DD/MM`. No se nombran proyectos: siempre multiproyecto.
 
-**Descripcion** (wiki): COMO equipo de infraestructura multiproyecto, QUIERO atender y registrar las solicitudes, PARA dar soporte y trazabilidad; con OBJETIVO de esa semana, ALCANCE (atencion en DEV/PRE/PRO y solicitudes sin Tracking ID), CRITERIOS (cada solicitud tiene su subtarea con avances y cierre) y DOD.
+**Descripcion** (wiki, sin titulo DESCRIPCION; COMO/QUIERO/PARA en negrita): `*COMO* equipo de infraestructura multiproyecto, *QUIERO* atender y registrar las solicitudes, *PARA* dar soporte y trazabilidad`; con OBJETIVO de esa semana, ALCANCE (atencion en DEV/PRE/PRO y solicitudes sin Tracking ID), CRITERIOS (cada solicitud tiene su subtarea con avances y cierre) y DOD.
 
 **Archivos** para las HU semanales (en la carpeta que use Jhans): un payload por semana, `AAAAMMDD_hu_semana.json` (fecha del lunes), y su `AAAAMMDD_hu_respuesta.json`. Si hay varios destinos, una por destino.
 

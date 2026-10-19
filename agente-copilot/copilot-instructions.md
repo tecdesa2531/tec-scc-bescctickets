@@ -84,6 +84,7 @@ Se invocan como comandos de barra. Cada uno acepta un ID opcional:
 | `/inicia` | al llegar la asignación, para crear el padre temprano. **Es opcional** (`accion: pendiente_inicio` en la cola) | Creas el **padre** en Jira **si aún no existe**. Independiente → la **HU** (guardas `jira.padre_key`, `jira.padre_url`, `jira.tipo_padre: "hu"`). Semanal → una **subtarea por entorno** bajo la HU de la semana que corresponde por fecha (de `hu_semanales`); las guardas en `subtareas[]` con su `entorno`, `key` y `url`. Nada más. Con un ID actúas sobre esa atención aunque ya esté en otra etapa (p. ej. si se trabajó y terminó toda de una vez sin `/inicia`); si el padre ya existe, avisa que no hay nada que crear. Skills: `jira-historia-usuario`, `jira-subtareas`. |
 | `/limpia` | cuando Jhans marca *atendida* (`accion: pendiente_limpieza`) | Lees los correos y la bitácora; corriges el texto de cada entrada (redacción coherente, **sin unir ni reordenar ni cambiar la cantidad**) en `bitacora-correccion.json`; completas `correos[].resumen`. **Propones** a Jhans la `descripcion` y un `titulo_jira` corto y claro, y recién tras su visto bueno (con los ajustes que pida) los guardas en `ticket-datos.json`. No subes nada a Jira. Skill: `correo-procesar`. |
 | `/procede` | cuando Jhans da el conforme (`accion: pendiente_jira`) | Subes a Jira. **Si el padre aún no existe (no se corrió `/inicia`), créalo primero** (la HU independiente o las subtareas semanales). En una **independiente**: creas la HU si falta, analizas la bitácora en orden, **propones las fases**, Jhans las aprueba, creas las subtareas bajo la HU y repartes los comentarios (razonas si van agrupados o uno por subtarea). En una **semanal**: creas las subtareas que falten (una por entorno) y subes sus comentarios (también las subtareas de los hijos si los hay). Skills: `jira-subtareas`, `jira-comentarios`, `sprint-cierre`. |
+| `/corrige <id>` | cuando un issue ya creado necesita ajuste | Actualizas en Jira los issues ya creados de la atención (los que tienen `key`): corriges su **título** (a `titulo_jira`) y su **descripción** con el formato vigente, vía `PUT /issue/<key>`. No creas issues nuevos ni tocas comentarios ya subidos. Skills: `jira-subtareas`, `jira-historia-usuario`. |
 
 En `/procede`, entre las entradas marcadas `para_jira: true` aplica criterio: no subas todas, descarta lo incoherente o redundante y deja solo lo que tiene sentido como comentario.
 
@@ -139,7 +140,18 @@ El `titulo_jira` siempre lo **propone el agente** y Jhans lo aprueba o ajusta; e
   - Sin entorno: `PROYAA: PTSK0000123 - Exportar data de tablas`
 - **Subtareas de una HU independiente**: solo el nombre de la tarea (el campo `fase`); no repiten proyecto ni Tracking ID porque ya están en la HU padre.
 
-Una atención multi-entorno vive en su carpeta combinada (p. ej. `040_DevPre`), pero como subtarea semanal se divide en una subtarea por entorno. En independiente no se divide: la HU lleva todos los entornos y sus tareas pueden abarcar varios. La descripción de cada issue va en formato wiki de Jira (ver los skills `jira-historia-usuario` y `jira-subtareas`).
+Una atención multi-entorno vive en su carpeta combinada (p. ej. `040_DevPre`), pero como subtarea semanal se divide en una subtarea por entorno. En independiente no se divide: la HU lleva todos los entornos y sus tareas pueden abarcar varios.
+
+## Formato de la descripción del issue
+
+Formato wiki de Jira. Reglas (ver ejemplos en `jira-historia-usuario` y `jira-subtareas`):
+
+- **No** pongas un título `*DESCRIPCIÓN*` dentro: el campo de Jira ya se llama Descripción, sería redundante.
+- Las palabras **COMO**, **QUIERO** y **PARA** van en **negrita y mayúsculas** (`*COMO*`, `*QUIERO*`, `*PARA*`).
+- **COMO** es el **rol** desde el que Jhans atiende, **nunca un nombre de persona** (ni del solicitante ni de Jhans). Por ejemplo: `*COMO* DevOps del equipo de nube` (proyectos de nube como NEXHUB) o `*COMO* miembro del equipo de infraestructura`. Si no está claro el rol, pregunta.
+- **Nunca** escribas nombres de personas en los issues (sin "Solicitante: <nombre>").
+- En **DATOS**, el Tracking ID va como enlace si la atención tiene `url_servicenow`: `* Tracking ID: [PTSK0050145|https://.../...]`; si no, solo el ID. No incluyas solicitante.
+- **Adjunta el `.eml` del correo de asignación** al issue (además de nombrarlo en DATOS).
 
 ## Reglas de ejecución de Jira
 
@@ -157,6 +169,7 @@ Una atención multi-entorno vive en su carpeta combinada (p. ej. `040_DevPre`), 
 ## Reglas generales
 
 - Si falta un dato (Tracking ID, entorno, proyecto, destino), pregunta antes de crear o subir nada.
+- **Nunca escribas nombres de personas en Jira** (ni del solicitante ni de Jhans): usa el rol. Jhans es a la vez de infraestructura y DevOps de nube; para proyectos de nube (p. ej. NEXHUB) el rol es "DevOps del equipo de nube".
 - No cambies el estado de historias de usuario ni cierres sprints en Jira: eso lo hace Jhans en el tablero. Tú solo creas issues y cambias el estado de subtareas.
 - No borres correos, adjuntos ni capturas. No toques el texto original de la bitácora ni el contenido de `030_ProcesoAtencion`.
 - Responde en español, breve: qué hiciste, qué mostró el dry-run y qué queda pendiente de tu "crear".

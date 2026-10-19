@@ -21,22 +21,24 @@ Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el pro
 
 ## Descripcion (formato wiki de Jira, saltos como `\n`)
 
-**Subtarea semanal:**
+**Subtarea semanal** (sin titulo DESCRIPCION; COMO/QUIERO/PARA en negrita; rol, no nombres):
 
 ```
-*DESCRIPCION*
-COMO <solicitante>, QUIERO <lo que pide>, PARA <para que>.
+*COMO* DevOps del equipo de nube, *QUIERO* <lo que pide>, *PARA* <para que>.
 
 *OBJETIVO:*
 <resultado en este entorno>
 
 *DATOS:*
-* Tracking ID: PTSK0000123
+* Tracking ID: [PTSK0000123|https://.../PTSK0000123]
 * Proyecto: PROYAA
 * Entorno: PRE
-* Solicitante: <nombre>
 * Correo de asignacion: 20261005_correo_asignado.eml
 ```
+
+- `*COMO*` es el rol de Jhans segun el proyecto (nube/infra), **nunca** un nombre; no pongas "Solicitante".
+- Tracking ID como enlace `[ID|URL]` solo si la atencion tiene `url_servicenow`; si no, deja solo el ID.
+- **Adjunta el `.eml`** del correo de asignacion al issue (`POST /issue/<key>/attachments`, como las capturas).
 
 **Tarea de una HU independiente:**
 
@@ -152,3 +154,14 @@ Despues de ejecutarse: guarda las `key` y `url` en `subtareas[]` de `ticket-dato
 | "descarta ..." | `FINALIZADO` | comentario con el motivo |
 
 El script consulta las transiciones disponibles (`GET /issue/<key>/transitions`), busca la que lleva al estado destino y la aplica (`POST /issue/<key>/transitions`). Si no hay transicion directa (el flujo exige pasar antes por otro estado), avisa a Jhans para que lo mueva a mano. Nunca cambies el estado de la HU ni cierres sprints: solo subtareas.
+
+## Corregir un issue ya creado (`/corrige`)
+
+Para ajustar un issue que ya existe (tiene `key`), actualiza su `summary` (titulo) y/o `description` con el formato vigente, sin crear nada nuevo:
+
+```python
+# PUT /issue/<key> con {"fields": {"summary": "...", "description": "..."}}
+# Lee el nuevo contenido de un archivo JSON y lo envia con curl.exe (como en el re-parent).
+```
+
+Aplica el formato vigente (sin titulo `DESCRIPCION`, `*COMO*`/`*QUIERO*`/`*PARA*` en negrita, rol sin nombres, DATOS con enlace de ServiceNow y correo). Si el `.eml` de asignacion no esta adjunto, adjuntalo. No toques los comentarios ya subidos.
