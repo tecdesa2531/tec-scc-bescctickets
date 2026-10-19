@@ -59,20 +59,59 @@ def _leer_json(ruta):
 
 
 def scan_todos():
-    """Camina todo RAIZ_PROCESO buscando ticket-datos.json sin filtros de profundidad."""
+    """
+    Camina todo RAIZ_PROCESO buscando ticket-datos.json sin filtros de profundidad.
+    Devuelve {id_herramienta: info} con el PRIMER registro encontrado (para compatibilidad),
+    y por separado expone los duplicados via scan_todos_lista().
+    """
     encontrados = {}
     for raiz_actual, dirs, archivos in os.walk(RAIZ_PROCESO):
-        # Excluir carpetas internas de cada atencion para no perderse
         dirs[:] = [d for d in dirs if d != "trabajo"]
         if "ticket-datos.json" in archivos:
             datos = _leer_json(os.path.join(raiz_actual, "ticket-datos.json"))
             if datos and datos.get("id_herramienta"):
                 rel = os.path.relpath(raiz_actual, RAIZ_PROCESO)
-                encontrados[datos["id_herramienta"]] = {
-                    "relativa_actual": rel,
-                    "datos": datos,
-                }
+                id_h = datos["id_herramienta"]
+                if id_h not in encontrados:
+                    encontrados[id_h] = {"relativa_actual": rel, "datos": datos}
     return encontrados
+
+
+def scan_todos_lista():
+    """Como scan_todos pero devuelve TODOS los registros, incluyendo duplicados."""
+    lista = []
+    for raiz_actual, dirs, archivos in os.walk(RAIZ_PROCESO):
+        dirs[:] = [d for d in dirs if d != "trabajo"]
+        if "ticket-datos.json" in archivos:
+            datos = _leer_json(os.path.join(raiz_actual, "ticket-datos.json"))
+            if datos and datos.get("id_herramienta"):
+                rel = os.path.relpath(raiz_actual, RAIZ_PROCESO)
+                lista.append({"id_h": datos["id_herramienta"], "relativa_actual": rel, "datos": datos})
+    return lista
+
+
+def detectar_duplicados(lista):
+    """
+    Devuelve los grupos con mas de una carpeta para el mismo id_herramienta.
+    Dentro de cada grupo marca cual es el huerfano (sin carpeta trabajo,
+    o el que tiene entornos distintos a los del ticket-datos.json actual).
+    """
+    grupos = {}
+    for item in lista:
+        id_h = item["id_h"]
+        grupos.setdefault(id_h, []).append(item)
+    resultado = []
+    for id_h, items in grupos.items():
+        if len(items) < 2:
+            continue
+        anotados = []
+        for item in items:
+            rel = item["relativa_actual"]
+            es_sin_asignar = rel.replace("\\", "/").startswith(CARPETA_SIN_ASIGNAR + "/")
+            tiene_trabajo = es_sin_asignar or os.path.isdir(os.path.join(RAIZ_TRABAJO, rel))
+            anotados.append(dict(item, tiene_trabajo=tiene_trabajo))
+        resultado.append(anotados)
+    return resultado
 
 
 def scan_normal():
@@ -203,6 +242,8 @@ def main():
 
     todos    = scan_todos()
     normales = scan_normal()
+    lista    = scan_todos_lista()
+    duplicados = detectar_duplicados(lista)
 
     perdidas = {id_h: info for id_h, info in todos.items() if id_h not in normales}
 
@@ -218,11 +259,26 @@ def main():
             tid = datos.get("tracking_id", "?")
             print("    " + id_h + "  " + tid + "  ->  " + rel)
 
+    # --- Duplicados (mismo id_herramienta en dos carpetas) ---
+    if duplicados:
+        print()
+        print("DUPLICADOS: id_herramienta repetido en varias carpetas (" + str(len(duplicados)) + " grupos)")
+        print("  El servidor toma el primero en orden alfabetico, ignorando el resto.")
+        print("  La carpeta huerfana (sin trabajo) se puede eliminar manualmente.")
+        print()
+        for grupo in duplicados:
+            tid = grupo[0]["datos"].get("tracking_id", "?")
+            print("  tracking_id: " + tid)
+            for item in grupo:
+                marca = "  tiene trabajo" if item["tiene_trabajo"] else "  SIN TRABAJO <- huerfana"
+                print("    " + item["relativa_actual"] + marca)
+            print()
+
     # --- Atenciones perdidas ---
     print()
     if not perdidas:
         print("No se encontraron atenciones perdidas.")
-        if not sin_trabajo:
+        if not sin_trabajo and not duplicados:
             print("Todo parece estar en orden.")
         return
 
