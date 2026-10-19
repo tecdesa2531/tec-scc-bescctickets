@@ -509,27 +509,35 @@ details[open] summary::before { content: "\25BC  "; }
   line-height: 1.6;
 }
 
-.entrada .texto .md-h {
+.entrada .texto .md-h,
+#d-descripcion-contenido .md-h {
   font-size: 13px;
   font-weight: 700;
   margin: 10px 0 4px;
   color: var(--texto);
 }
 
-.entrada .texto .md-p { margin: 4px 0; }
+.entrada .texto .md-p,
+#d-descripcion-contenido .md-p { margin: 4px 0; }
 
 .entrada .texto .md-ul,
-.entrada .texto .md-ol {
+.entrada .texto .md-ol,
+#d-descripcion-contenido .md-ul,
+#d-descripcion-contenido .md-ol {
   margin: 4px 0 4px 18px;
   padding: 0;
 }
 
 .entrada .texto .md-ul li,
-.entrada .texto .md-ol li { margin: 2px 0; }
+.entrada .texto .md-ol li,
+#d-descripcion-contenido .md-ul li,
+#d-descripcion-contenido .md-ol li { margin: 2px 0; }
 
-.entrada .texto .md-gap { height: 6px; }
+.entrada .texto .md-gap,
+#d-descripcion-contenido .md-gap { height: 6px; }
 
-.entrada .texto .md-pre {
+.entrada .texto .md-pre,
+#d-descripcion-contenido .md-pre {
   background: var(--fondo);
   border: 1.5px solid var(--borde);
   border-radius: 6px;
@@ -541,7 +549,8 @@ details[open] summary::before { content: "\25BC  "; }
   white-space: pre;
 }
 
-.entrada .texto .md-c {
+.entrada .texto .md-c,
+#d-descripcion-contenido .md-c {
   background: var(--fondo);
   border: 1px solid var(--borde);
   border-radius: 3px;
