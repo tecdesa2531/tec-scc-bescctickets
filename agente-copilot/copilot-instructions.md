@@ -35,6 +35,8 @@ VS Code abre un workspace con esta carpeta (`agente-copilot`) y las dos raíces 
 
 La carpeta de una atención es `<raiz>/<relativa>` en cada raíz. Los correos y capturas de avance están en la raíz de trabajo; `ticket-datos.json`, `bitacora.json` y `040_ProcesoJira/` en la raíz de proceso.
 
+El `config-jira.json` con los valores reales vive en la **raíz de proceso** (no en el repositorio); el que está en `agente-copilot/config-jira.json` es solo una plantilla de ejemplo.
+
 ## Quién escribe qué
 
 | Archivo | Lo escribe | Tú |
