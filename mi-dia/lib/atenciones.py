@@ -448,7 +448,7 @@ def crear_entrada(parametros):
         entradas.append(entrada)
         escribir_json(bitacora.ruta_bitacora(registro), datos_bitacora)
 
-        cambios = bitacora.registrar_correos_en_datos(registro, correos_nuevos)
+        cambios = bitacora.registrar_correos_en_datos(registro, correos_nuevos, tipo)
         if tipo == "cierre" and not registro["temporal"]:
             cambios["estado"] = "atendido"
             cambios["listo_para_limpieza"] = texto_fecha(ahora())
@@ -502,7 +502,7 @@ def editar_entrada(parametros):
             raise ErrorUsuario("La entrada quedaria vacia")
         entrada["editado"] = texto_fecha(ahora())
         escribir_json(bitacora.ruta_bitacora(registro), datos_bitacora)
-        actualizar_datos(registro, bitacora.registrar_correos_en_datos(registro, correos_nuevos))
+        actualizar_datos(registro, bitacora.registrar_correos_en_datos(registro, correos_nuevos, entrada["tipo"]))
         _regenerar_cola()
 
 

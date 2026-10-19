@@ -150,7 +150,7 @@ Formato wiki de Jira. Reglas (ver ejemplos en `jira-historia-usuario` y `jira-su
 - Las palabras **COMO**, **QUIERO** y **PARA** van en **negrita y mayúsculas** (`*COMO*`, `*QUIERO*`, `*PARA*`).
 - **COMO** es el **rol** desde el que Jhans atiende, **nunca un nombre de persona** en esa línea. Por ejemplo: `*COMO* DevOps del equipo de nube` (proyectos de nube como NEXHUB) o `*COMO* miembro del equipo de infraestructura`. Si no está claro el rol, pregunta. (El nombre del solicitante sí va en DATOS, abajo.)
 - En **DATOS**: `Tracking ID` (como enlace `[ID|URL]` si la atención tiene `url_servicenow`; si no, solo el ID), `Proyecto`, `Entorno` y `Solicitante: <nombre>`. El **Solicitante es quien pidió** la atención: su nombre sale del **correo de solicitud** (entrada tipo `solicitud`), **no** del correo de asignación (ese remitente es otra persona, quien asignó). Si no hay correo de solicitud, usa el campo `solicitante` de `ticket-datos.json` o pregunta. No pongas una línea "Correo de asignación".
-- **La captura del correo de asignación** (imagen) va **embebida en la descripción** (súbela como adjunto y referénciala con `!captura_correo_asignado.png|thumbnail!`). No adjuntes el `.eml` de asignación.
+- **La captura del correo de asignación** (imagen) va **embebida en la descripción** (súbela como adjunto y referénciala con `!captura_correo_asignado.png|thumbnail!`). No adjuntes el `.eml` de asignación. **Si no hay correo de asignación**, usa la captura del **correo de solicitud** (`captura_correo_solicitud`).
 - El **`.eml` y la captura del correo de cierre** van en el **comentario final** (el de entrega), no en la descripción (ver `jira-comentarios`).
 - Mantén el contenido **breve**, sin rodeos.
 

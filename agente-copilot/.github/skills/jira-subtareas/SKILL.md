@@ -42,7 +42,7 @@ Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el pro
 - `*COMO*` es el rol de Jhans segun el proyecto (nube/infra), **nunca** un nombre.
 - Tracking ID como enlace `[ID|URL]` solo si la atencion tiene `url_servicenow`; si no, deja solo el ID.
 - **Solicitante** = quien pidio la atencion; su nombre sale del **correo de solicitud** (entrada tipo `solicitud`), **no** del de asignacion (ese es quien asigno, otra persona). Si no hay correo de solicitud, usa `solicitante` de `ticket-datos.json` o pregunta.
-- La **captura del correo de asignacion** va embebida en la descripcion: subela como adjunto (`POST /issue/<key>/attachments`) y referenciala con `!archivo.png|thumbnail!`. No se adjunta el `.eml` de asignacion.
+- La **captura del correo de asignacion** va embebida en la descripcion: subela como adjunto (`POST /issue/<key>/attachments`) y referenciala con `!archivo.png|thumbnail!`. No se adjunta el `.eml` de asignacion. **Si no hay correo de asignacion**, usa la captura del **correo de solicitud** (`captura_correo_solicitud`).
 - El `.eml` y la captura del **correo de cierre** van en el comentario final, no aqui (ver `jira-comentarios`).
 
 **Tarea de una HU independiente:**

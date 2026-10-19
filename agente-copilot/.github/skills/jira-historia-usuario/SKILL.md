@@ -51,7 +51,7 @@ Con todos los entornos de la atencion separados por coma; sin parentesis si la a
 ```
 
 - Mismas reglas que las subtareas: `*COMO*` es el rol (sin nombres); el **Solicitante** (con nombre) sale del **correo de solicitud**, no del de asignacion; el Tracking ID como enlace si hay `url_servicenow`.
-- La **captura del correo de asignacion** se sube como adjunto y se referencia con `!archivo.png|thumbnail!`. El `.eml` y la captura de cierre van en el comentario final (ver `jira-comentarios`).
+- La **captura del correo de asignacion** se sube como adjunto y se referencia con `!archivo.png|thumbnail!`; si no hay correo de asignacion, usa la del **correo de solicitud** (`captura_correo_solicitud`). El `.eml` y la captura de cierre van en el comentario final (ver `jira-comentarios`).
 
 **Mostrar el titulo y la descripcion a Jhans antes de generar el script** y aplicar los ajustes que pida.
 

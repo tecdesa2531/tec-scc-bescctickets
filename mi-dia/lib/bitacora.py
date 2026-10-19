@@ -173,7 +173,7 @@ def agregar_archivos_a_entrada(entrada, parametros, carpeta_trabajo, carpeta_pro
         extension = extension_de_imagen(texto_datos)
         es_de_correo = bool(captura.get("de_correo")) and tipo_entrada != "avance"
         if es_de_correo:
-            tipo_correo = "atendido" if tipo_entrada == "cierre" else "asignado"
+            tipo_correo = {"cierre": "atendido", "solicitud": "solicitud"}.get(tipo_entrada, "asignado")
             fecha = ahora()
             if entrada["correos"]:
                 fecha = datetime.datetime.strptime(entrada["correos"][-1]["fecha"], config.FORMATO_FECHA)
@@ -196,7 +196,7 @@ def agregar_archivos_a_entrada(entrada, parametros, carpeta_trabajo, carpeta_pro
     return correos_nuevos
 
 
-def registrar_correos_en_datos(registro, correos_nuevos):
+def registrar_correos_en_datos(registro, correos_nuevos, tipo_entrada=""):
     if not correos_nuevos:
         return {}
     ruta = os.path.join(config.RAIZ_PROCESO, registro["relativa"], "ticket-datos.json")
@@ -215,9 +215,11 @@ def registrar_correos_en_datos(registro, correos_nuevos):
             "resumen": "",
         })
     cambios = {"correos": lista}
-    if not datos.get("solicitante"):
+    # El solicitante es quien pide la atencion: sale del correo de solicitud,
+    # no del de asignacion (ese remitente es quien asigno, otra persona).
+    if tipo_entrada == "solicitud" and not datos.get("solicitante"):
         for correo in correos_nuevos:
-            if correo["tipo"] == "asignado" and correo["de"]:
+            if correo["de"]:
                 cambios["solicitante"] = correo["de"]
                 break
     return cambios
