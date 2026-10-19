@@ -298,8 +298,14 @@ function tieneCorreoTipo(tipo) {
 
 async function terminarAtencion() {
   if (detalle.datos.tipo === "ticket" && !tieneCorreoTipo("atendido")) {
-    alert("Para terminar un ticket necesitas tener registrado al menos un correo enviado.");
-    return;
+    // Primera vez: bloqueo duro (el ticket no esta cerrado sin correo enviado).
+    // Si ya se reabrio: solo aviso, porque el cierre ya se registro antes.
+    if (detalle.datos.estado === "reabierto") {
+      if (!confirm("No registraste un correo de cierre para esta reapertura. Terminar igual?")) return;
+    } else {
+      alert("Para terminar un ticket necesitas tener registrado al menos un correo enviado.");
+      return;
+    }
   }
   if (!confirm("Marcar como atendida? El agente podra limpiar el texto de la bitacora para que lo revises.")) return;
   try {

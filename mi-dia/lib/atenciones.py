@@ -379,6 +379,12 @@ def guardar_datos_generales(parametros):
             if parametros["estado"] not in config.ESTADOS:
                 raise ErrorUsuario("Estado no valido")
             cambios["estado"] = parametros["estado"]
+            # Al reabrir, la atencion vuelve a trabajarse: nada queda listo.
+            # El texto que se agregue pasara otra vez por limpieza, conforme y
+            # luego Jira (donde el agente reabre la subtarea y sube lo nuevo).
+            if parametros["estado"] == "reabierto":
+                cambios["listo_para_limpieza"] = ""
+                cambios["listo_para_jira"] = ""
         if "padre_id" in parametros:
             if not registro["temporal"]:
                 raise ErrorUsuario("El padre no se puede cambiar en una atencion ya ubicada")
@@ -397,8 +403,12 @@ def terminar_atencion(parametros):
         registro = buscar_atencion(parametros.get("id", ""))
         if registro["temporal"]:
             raise ErrorUsuario("Completa el proyecto y el ID antes de terminar")
+        # Se reinicia listo_para_jira: si la atencion se reabrio y se vuelve a
+        # terminar, el texto nuevo debe pasar otra vez por limpieza y conforme
+        # antes de volver a Jira (no saltar directo a pendiente_jira).
         actualizar_datos(registro, {"estado": "atendido",
-                                    "listo_para_limpieza": texto_fecha(ahora())})
+                                    "listo_para_limpieza": texto_fecha(ahora()),
+                                    "listo_para_jira": ""})
         indice.indexar_atencion(registro["datos"])
         _regenerar_cola()
 

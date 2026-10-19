@@ -95,7 +95,14 @@ La herramienta separa el cierre en dos estados, visibles en `ticket-datos.json`:
 1. `estado: "atendido"` + `listo_para_limpieza` (fecha): la atención está lista para `/limpia`.
 2. `listo_para_jira` (fecha): Jhans revisó el texto corregido y dio el conforme; lista para `/procede`.
 
-Si después del conforme Jhans reabre la atención (`estado: "reabierto"`) y agrega entradas, al volver a dar conforme procesas **solo las nuevas** (las que no figuran como subidas).
+### Atención reabierta (segunda vuelta a Jira)
+
+Tras subir la primera parte, Jhans puede poner `estado: "reabierto"`, agregar entradas nuevas y volver a terminar. Al reabrir, la herramienta limpia `listo_para_limpieza` y `listo_para_jira`, así que el texto nuevo vuelve a pasar por `/limpia` → conforme → `/procede` como siempre. En ese segundo `/procede`:
+
+- La épica, la HU y las subtareas **ya existen** (tienen `key`): **no las recrees** (ver la regla de idempotencia: te guías por las keys guardadas, no por el endpoint de búsqueda).
+- Sube **solo los comentarios nuevos** (las entradas que aún no figuran como subidas), a las **mismas subtareas**.
+- Si la subtarea quedó en `FINALIZADO` y hay **trabajo nuevo real**, el agente la **reabre en Jira** (`FINALIZADO → En curso`), sube los comentarios nuevos y la **vuelve a cerrar** (`→ FINALIZADO`). Si solo agregas evidencia o una aclaración, comenta sin reabrir. Las transiciones están en `jira-subtareas`.
+- Si la reapertura trajo un **nuevo correo de cierre**, su captura y su `.eml` van en el nuevo comentario final (`jira-comentarios`).
 
 ## Contratos de archivos
 

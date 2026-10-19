@@ -160,6 +160,8 @@ Despues de ejecutarse: guarda las `key` y `url` en `subtareas[]` de `ticket-dato
 
 El script consulta las transiciones disponibles (`GET /issue/<key>/transitions`), busca la que lleva al estado destino y la aplica (`POST /issue/<key>/transitions`). Si no hay transicion directa (el flujo exige pasar antes por otro estado), avisa a Jhans para que lo mueva a mano. Nunca cambies el estado de la HU ni cierres sprints: solo subtareas.
 
+**Subtarea reabierta.** Si en un `/procede` posterior la subtarea ya esta en `FINALIZADO` y la atencion se reabrio con **trabajo nuevo** (entradas nuevas por subir), reabrela antes de comentar: `FINALIZADO → En curso`, sube los comentarios nuevos (`jira-comentarios`) y vuelve a cerrarla (`En curso → FINALIZADO`). Si lo nuevo es solo evidencia o una aclaracion, comenta sin reabrir.
+
 ## Corregir un issue ya creado (`/corrige`)
 
 Para ajustar un issue que ya existe (tiene `key`), actualiza su `summary` (titulo) y/o `description` con el formato vigente, sin crear nada nuevo:

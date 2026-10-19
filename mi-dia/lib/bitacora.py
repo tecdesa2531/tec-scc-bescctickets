@@ -217,7 +217,9 @@ def registrar_correos_en_datos(registro, correos_nuevos, tipo_entrada=""):
     cambios = {"correos": lista}
     # El solicitante es quien pide la atencion: sale del correo de solicitud,
     # no del de asignacion (ese remitente es quien asigno, otra persona).
-    if tipo_entrada == "solicitud" and not datos.get("solicitante"):
+    # Una entrada de solicitud siempre reescribe el solicitante (es la fuente
+    # autoritativa), aunque ya tuviera un valor de un flujo anterior.
+    if tipo_entrada == "solicitud":
         for correo in correos_nuevos:
             if correo["de"]:
                 cambios["solicitante"] = correo["de"]
