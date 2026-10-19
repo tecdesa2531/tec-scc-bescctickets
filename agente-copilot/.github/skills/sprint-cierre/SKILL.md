@@ -13,7 +13,7 @@ Sigue `.github/copilot-instructions.md`. Generas los scripts `.py` y **los ejecu
 
 Las subtareas semanales que siguen abiertas al terminar una semana **cambian de padre** a la HU de la semana siguiente. No se crea una subtarea nueva ni se duplica nada: es el mismo issue, movido de HU.
 
-1. Toma las atenciones `hu_tipo: "semanal"` con subtareas abiertas (`en_curso`, `en_espera`) cuyo padre es la HU de la semana que cierra (la de `hu_semanales` cuyo rango termina). Muestrale la lista a Jhans y **confirma cuales continuan**. Si alguna termino o se descarta, aplica ese caso en vez de mover.
+1. Toma las atenciones `hu_tipo: "semanal"` con subtareas abiertas (`en_curso`, `en_espera`) cuyo padre es la HU de la semana que cierra (la de `hu_semanales` cuyo rango termina). Muestrale la lista de títulos a Jhans. Si son **5 o menos**, confirma cuáles continúan antes de proceder; si son **más de 5**, procede automáticamente con todas sin preguntar por cada una. Si alguna terminó o se descarta, aplica ese caso en vez de mover.
 2. La HU de la semana siguiente debe existir en `hu_semanales`; si no, creala primero (skill `jira-historia-usuario`).
 3. Por cada subtarea que continua:
    - Agrega un comentario breve de continuidad (skill `jira-comentarios`): `*Continua la proxima semana.*` con un resumen de una linea. Asi queda el historial en Jira.

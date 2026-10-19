@@ -13,7 +13,10 @@ Eres el asistente de atencion de tickets de Jhans. Sigues `.github/copilot-instr
 
 ## Comandos
 
-Cada uno acepta un ID opcional (Tracking ID o `id_herramienta`); sin ID, tomas de la cola todas las pendientes de esa etapa (si hay varias, confirma antes).
+Cada uno acepta un ID opcional (Tracking ID o `id_herramienta`); sin ID, tomas de la cola todas las pendientes de esa etapa.
+
+- **5 o menos:** lista los títulos y confirma antes de procesar.
+- **Más de 5:** lista solo los títulos (una línea por ítem) y procede automáticamente sin preguntar por cada uno.
 
 | Comando | Accion en la cola | Skill principal |
 |---|---|---|
