@@ -57,7 +57,7 @@ if __name__ == "__main__":
 
 Un trimestre (la **epica**) tiene varios sprints (unos tres, de ~5 semanas). Jhans **crea el nuevo sprint** y te da sus fechas; tu no lo creas ni lo cierras, y no cambias el estado de las HU.
 
-1. Con las fechas del nuevo sprint, crea sus **HU semanales** (lun-vie) y agregalas a `hu_semanales` (skill `jira-historia-usuario`).
+1. Con las fechas del nuevo sprint, crea sus **HU semanales** (lun-vie) y con ellas **reemplaza** `hu_semanales` (solo se guarda el sprint activo); actualiza tambien `sprint` (skill `jira-historia-usuario`).
 2. Lo que siga abierto **pasa al nuevo sprint como Parte 02** (continuacion duplicada del trabajo):
    - **Semanal:** la subtarea abierta se cierra en FINALIZADO con un comentario de continuidad, y se crea su continuacion (Parte 02) bajo la HU de la primera semana del nuevo sprint.
    - **Independiente:** si la atencion sigue abierta, crea una **HU independiente nueva** (Parte 02) para el nuevo sprint; sus subtareas pendientes cuelgan de ella.

@@ -223,7 +223,7 @@ El agente **no escanea** carpetas: lee `003_Herramienta/agente-cola.json`, que l
 ### 7.4b Sprint y HU semanales
 
 - La **épica representa el trimestre** (p. ej. Q4 2026) y contiene **varios sprints** (unos tres, de ~5 semanas, aproximadamente mensuales). La épica solo la cambia Jhans, al cambiar de trimestre.
-- Jhans **crea el sprint** y le da al agente su duración. El agente crea las **HU semanales** del sprint: una por semana de **lunes a viernes** dentro del rango. Se guardan en `config-jira.json` en `hu_semanales` (lista de `{ inicio, fin, key }`), que **reemplaza** a `hu_padre` + `hu_semana`.
+- Jhans **crea el sprint** y le da al agente su duración. El agente crea las **HU semanales** del sprint: una por semana de **lunes a viernes** dentro del rango. Se guardan en `config-jira.json` en `hu_semanales` (lista de `{ inicio, fin, key }`), que **reemplaza** a `hu_padre` + `hu_semana`. El config guarda **solo lo activo** (épica, sprint, hu_semanales); al cambiar de sprint se reemplazan, no se acumulan. El historial vive en Jira y en el `ticket-datos.json` de cada atención.
 - Cada atención semanal se ubica, por su **fecha**, bajo la HU de la semana que le corresponde (dentro del sprint activo). Una fecha de fin de semana va a la semana que acaba de terminar.
 - Las **HU independientes** no van en el config: viven en `jira.padre_key` de cada atención. Ambos tipos conviven en el sprint.
 - **Cierre de semana** (mismo sprint): las subtareas abiertas **cambian de padre** a la HU de la semana siguiente (PUT del `parent`), sin duplicar. Queda historial (comentario de continuidad).

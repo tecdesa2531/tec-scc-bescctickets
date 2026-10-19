@@ -68,6 +68,8 @@ Un trimestre tiene varios sprints (unos tres, de ~5 semanas, aproximadamente men
 
 La **épica representa el trimestre** (por ejemplo, Q4 2026); un trimestre puede tener varios sprints, todos bajo la misma épica. La épica (`epica` en `config-jira.json`) solo la cambia Jhans, al cambiar de trimestre.
 
+`config-jira.json` guarda **solo lo activo**: `epica`, `sprint` y `hu_semanales` del sprint vigente. Al empezar un sprint nuevo, su `sprint` y sus `hu_semanales` **reemplazan** a los del anterior (no se acumulan). El historial de HU y sprints pasados vive en Jira y en el `ticket-datos.json` de cada atención (que guarda las `key`/`url` reales), así que no se pierde.
+
 Las **HU independientes** no van en el config: viven en `jira.padre_key` de cada atención. Ambos tipos conviven en el mismo sprint.
 
 ## Los tres comandos

@@ -83,7 +83,7 @@ Para calcular las semanas: parte del lunes de la semana del inicio del sprint y 
 
 **Archivos** para las HU semanales (en la carpeta que use Jhans): un payload por semana, `AAAAMMDD_hu_semana.json` (fecha del lunes), y su `AAAAMMDD_hu_respuesta.json`. Si hay varios destinos, una por destino.
 
-Cuando cada HU exista (key en la respuesta), agregala a `hu_semanales` de `config-jira.json` del destino: `{ "inicio": "AAAA-MM-DD", "fin": "AAAA-MM-DD", "key": "..." }` (lunes y viernes de esa semana). La `epica` y el `sprint` solo los cambia Jhans.
+Cuando cada HU exista (key en la respuesta), registrala en `hu_semanales` de `config-jira.json` del destino: `{ "inicio": "AAAA-MM-DD", "fin": "AAAA-MM-DD", "key": "..." }` (lunes y viernes de esa semana). `hu_semanales` guarda **solo el sprint activo**: las HU de un sprint nuevo **reemplazan** a las del anterior, no se acumulan. Actualiza tambien `sprint` con las fechas que te dio Jhans. La `epica` la cambia Jhans.
 
 ## Script de creacion (referencia)
 
