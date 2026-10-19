@@ -5,7 +5,7 @@ description: Cierre de semana y cierre de sprint. Son distintos. Cierre de seman
 
 # Cierre de semana y de sprint
 
-Sigue `.github/copilot-instructions.md`. Preparas scripts `.py` que ejecuta Jhans; tu no ejecutas nada. Jhans crea el sprint y lo cierra en el tablero; el agente crea las HU semanales y, al cerrar sprint, las HU padre de la Parte 02.
+Sigue `.github/copilot-instructions.md`. Generas los scripts `.py` y **los ejecutas tu** en la terminal tras la confirmacion "crear" de Jhans (primero un `--dry-run`). Jhans crea el sprint y lo cierra en el tablero; el agente crea las HU semanales y, al cerrar sprint, las HU padre de la Parte 02.
 
 **Son dos operaciones distintas.** La diferencia clave: la "Parte 02" (la continuacion duplicada del trabajo) **solo** nace en el cierre de sprint, nunca en el de semana, para no duplicar contenido dentro del sprint activo.
 

@@ -27,7 +27,7 @@ En `/limpia`, el agente te **propone** la descripción y el título; tú los apr
 
 - En **Mi día**: trabajas, llevas la bitácora, marcas *Terminar* (el agente limpia el texto) y, tras revisarlo, *Dar conforme* (el agente sube a Jira).
 - Revisas el texto corregido con el selector *Original / Corregido* antes de dar el conforme.
-- Ejecutas los scripts `.py` que te entrega el agente: `python .\nombre_script.py`.
+- Confirmas con **"crear"** en el chat cuando el agente te muestra el dry-run; él ejecuta el script `.py` en la terminal (no tienes que copiar comandos ni buscar carpetas).
 - Cierras la historia de usuario y el sprint en el tablero de Jira, y asocias la HU nueva a la épica y al sprint.
 
 ## Cómo se comunican la herramienta y el agente

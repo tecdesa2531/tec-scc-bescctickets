@@ -207,6 +207,8 @@ Jhans escribe poco. Tres gatillos:
 
 El agente **no escanea** carpetas: lee `003_Herramienta/agente-cola.json`, que la herramienta mantiene con qué acción le toca a cada atención (`pendiente_inicio`, `pendiente_limpieza`, `pendiente_jira`).
 
+**Ejecución de Jira (actualizado):** el agente ya no solo entrega los scripts `.py`; los **ejecuta él** en la terminal de VS Code. Primero corre un `--dry-run` y, tras la confirmación **"crear"** de Jhans en el chat, la ejecución real. Esto evita copiar comandos y buscar carpetas. Las credenciales siguen solo en variables de entorno (deben estar a nivel usuario para la terminal).
+
 ### 7.3 Terminar se divide en dos estados
 
 | Estado | Señal | Qué ocurre |

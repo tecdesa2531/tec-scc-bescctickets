@@ -22,7 +22,7 @@ Los nombres de proyectos, tickets, claves de Jira y herramientas internas que ap
 4. **Simple y legible**: código fácil de entender por una persona, sin adornos visuales (colores en consola, barras, iconos).
 5. **Solo biblioteca estándar de Python.** No instalar paquetes, no crear entornos virtuales, no cambiar el intérprete.
 6. **HTTPS desde Python**: `curl.exe --ssl-no-revoke` vía `subprocess`. No usar `urllib` para HTTPS ni desactivar la validación de certificados.
-7. **No crear scripts `.ps1`.** Las operaciones de Jira son scripts `.py` que ejecuta Jhans con `python .\nombre_script.py`.
+7. **No crear scripts `.ps1`.** Las operaciones de Jira son scripts `.py`. El agente Copilot los ejecuta en la terminal de VS Code tras la confirmacion "crear" de Jhans en el chat (primero un `--dry-run`); Jhans tambien puede correrlos a mano con `python .\nombre_script.py`.
 8. **Credenciales**: siempre en variables de entorno. Nunca leerlas, mostrarlas ni escribirlas en archivos.
 9. **Nada del banco en el repositorio**: ni `config-jira.json`, ni enlaces reales, ni datos de atenciones.
 

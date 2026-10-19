@@ -5,7 +5,7 @@ description: Crea las subtareas de Jira y cambia su estado (En curso, Espera ext
 
 # Subtareas de Jira
 
-Sigue `.github/copilot-instructions.md`. Entregas un script `.py` que ejecuta Jhans con `python .\nombre_script.py`; tu no ejecutas nada. Solo biblioteca estandar y `curl.exe --ssl-no-revoke` via `subprocess`.
+Sigue `.github/copilot-instructions.md`. Generas el script `.py` en `040_ProcesoJira` y **lo ejecutas tu** en la terminal tras la confirmacion "crear" de Jhans (primero un `--dry-run`). Solo biblioteca estandar y `curl.exe --ssl-no-revoke` via `subprocess`.
 
 Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el proyecto tiene varios destinos, se repite por cada uno.
 
@@ -84,7 +84,7 @@ Para **semanal**, una entrada por entorno con `parent.key` = la `key` de la HU d
 
 ## Script de creacion (referencia)
 
-Recorre `jira-crear_subtareas.json` en orden de `secuencia`, crea cada subtarea y guarda las keys en `jira-respuesta_subtareas.json`. Si se interrumpe, omite las que ya tengan key. Incluye `--dry-run` y una confirmacion `CREAR` antes de tocar Jira.
+Recorre `jira-crear_subtareas.json` en orden de `secuencia`, crea cada subtarea y guarda las keys en `jira-respuesta_subtareas.json`. Si se interrumpe, omite las que ya tengan key. Acepta `--dry-run` para simular sin tocar Jira: corres primero el dry-run, y tras el "crear" de Jhans lo ejecutas sin `--dry-run`. El script no pide confirmacion por teclado (la compuerta es el "crear" del chat).
 
 ```python
 import json
@@ -120,10 +120,6 @@ def main():
     if os.path.isfile(RESP):
         hechas = json.load(open(RESP, encoding="utf-8"))
     seco = "--dry-run" in sys.argv
-    if not seco:
-        if input("Escribe CREAR para subir a Jira: ").strip() != "CREAR":
-            print("Cancelado")
-            return
     for sub in sorted(datos["subtareas"], key=lambda s: s["secuencia"]):
         clave_local = str(sub["secuencia"])
         if hechas.get(clave_local, {}).get("key"):

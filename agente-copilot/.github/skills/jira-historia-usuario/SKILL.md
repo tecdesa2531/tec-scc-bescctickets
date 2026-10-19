@@ -5,7 +5,7 @@ description: Crea las historias de usuario (HU) en Jira. La independiente para u
 
 # Historias de usuario
 
-Sigue `.github/copilot-instructions.md`. Entregas un script `.py` que ejecuta Jhans con `python .\nombre_script.py`; tu no ejecutas nada. Solo biblioteca estandar y `curl.exe --ssl-no-revoke` via `subprocess`.
+Sigue `.github/copilot-instructions.md`. Generas el script `.py` en `040_ProcesoJira` y **lo ejecutas tu** en la terminal tras la confirmacion "crear" de Jhans (primero un `--dry-run`). Solo biblioteca estandar y `curl.exe --ssl-no-revoke` via `subprocess`.
 
 | Tipo | Cuando | Cuantas |
 |---|---|---|
@@ -126,4 +126,4 @@ if __name__ == "__main__":
     crear()
 ```
 
-Despues de que Jhans ejecute el script, confirma la key en `jira-hu_respuesta.json`, guardala donde corresponda (`jira.padre_key` para la independiente; un elemento en `hu_semanales` de `config-jira.json` por cada HU semanal) y registra una linea en `jira-ejecuciones.log`.
+Despues de ejecutar el script (tras el "crear" de Jhans), confirma la key en `jira-hu_respuesta.json`, guardala donde corresponda (`jira.padre_key` para la independiente; un elemento en `hu_semanales` de `config-jira.json` por cada HU semanal) y registra una linea en `jira-ejecuciones.log`.

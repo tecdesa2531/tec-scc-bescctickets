@@ -14,4 +14,4 @@ Crea **solo el padre**:
 - `hu_tipo` independiente -> crea la **historia de usuario** (skill `jira-historia-usuario`).
 - `hu_tipo` semanal -> crea una **subtarea por entorno** bajo la HU de la semana que corresponde por fecha (`hu_semanales` de `config-jira.json`) (skill `jira-subtareas`).
 
-Guarda `jira.padre_key`, `jira.padre_url` y `jira.tipo_padre` en `ticket-datos.json`. Entregame el script `.py` y el comando `python .\nombre_script.py` para ejecutarlo yo; no subas nada tu.
+Genera el script `.py` en `040_ProcesoJira`, corre un `--dry-run` y muestrame que creara. Tras mi **"crear"**, ejecutalo tu en la terminal y guarda `jira.padre_key`, `jira.padre_url` y `jira.tipo_padre` en `ticket-datos.json`. No crees nada en Jira sin mi "crear".

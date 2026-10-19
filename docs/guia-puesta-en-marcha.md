@@ -72,13 +72,17 @@ Luego abre en Edge: **http://127.0.0.1:8765**. Para detenerla, `Ctrl + C` en la 
 1. Abre `atencion-tickets.code-workspace` (Archivo → Abrir área de trabajo desde archivo).
 2. En Copilot Chat usa los comandos: `/inicia`, `/limpia`, `/procede` (con un ID, o sin ID para tomar de la cola).
 
-## 6. Ejecutar los scripts de Jira que entrega el agente
+## 6. Las operaciones de Jira
 
-El agente no llama a Jira: te entrega un script `.py` que corres tú en PowerShell, desde la carpeta `040_ProcesoJira` de la atención.
+El agente prepara el script `.py` y **lo ejecuta él mismo** en la terminal de VS Code: primero un `--dry-run` que te muestra qué hará, y cuando tú le dices **"crear"** en el chat, lo ejecuta de verdad. No tienes que copiar comandos ni buscar carpetas.
+
+Para que funcione, las variables `JIRA_*` deben estar definidas a nivel **usuario** (paso 3), así la terminal de VS Code las toma.
+
+Si prefieres correr un script a mano, puedes hacerlo igual desde su carpeta `040_ProcesoJira`:
 
 ```powershell
 python .\nombre_script.py --dry-run   # simula, no toca Jira
-python .\nombre_script.py             # ejecuta (pide escribir CREAR para confirmar)
+python .\nombre_script.py             # ejecuta de verdad
 ```
 
 ## Resumen del orden

@@ -5,7 +5,7 @@ description: Parte de /procede. Convierte las entradas corregidas de la bitacora
 
 # Comentarios de Jira (`/procede`)
 
-Sigue `.github/copilot-instructions.md`. Entregas un script `.py` que ejecuta Jhans; tu no ejecutas nada. Solo biblioteca estandar y `curl.exe --ssl-no-revoke` via `subprocess`.
+Sigue `.github/copilot-instructions.md`. Generas el script `.py` en `040_ProcesoJira` y **lo ejecutas tu** en la terminal tras la confirmacion "crear" de Jhans. Solo biblioteca estandar y `curl.exe --ssl-no-revoke` via `subprocess`.
 
 ## 1. Fuente del texto
 

@@ -17,4 +17,4 @@ Usa el texto corregido de `bitacora-correccion.json`. Entre las entradas `para_j
 - **Independiente** (skills `jira-historia-usuario`, `jira-subtareas`, `jira-comentarios`): analiza la bitacora en orden, **propon las fases** y espera mi aprobacion; luego crea las subtareas bajo la HU y reparte los comentarios (razona si van agrupados o uno por subtarea).
 - **Semanal** (skills `jira-subtareas`, `jira-comentarios`): sube los comentarios de la subtarea; si la atencion tiene hijos, crea una subtarea por hijo bajo la HU de la semana que corresponde.
 
-Guarda las `key` y `url` en `ticket-datos.json` y marca lo subido con `bitacora_id` y `subido: true` en los `jira-comentarios_*.json`. Entregame los scripts `.py` y sus comandos; no ejecutes nada tu.
+Genera los scripts `.py` en `040_ProcesoJira`, corre primero un `--dry-run` y muestrame el resumen. Tras mi **"crear"**, ejecutalos tu en la terminal; guarda las `key` y `url` en `ticket-datos.json` y marca lo subido con `bitacora_id` y `subido: true` en los `jira-comentarios_*.json`. No subas nada a Jira sin mi "crear".
