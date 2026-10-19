@@ -406,7 +406,8 @@ async function guardarEntrada() {
     alert("Esta atencion esta atendida. Cambia el estado a Reabierto para poder agregar mas entradas.");
     return;
   }
-  if (detalle.datos.tipo === "ticket" && !tieneCorreoTipo("asignado")) {
+  var tipoEntrada = document.getElementById("r-tipo").value;
+  if (detalle.datos.tipo === "ticket" && tipoEntrada !== "solicitud" && tipoEntrada !== "asignacion" && !tieneCorreoTipo("asignado")) {
     alert("Para agregar entradas a un ticket necesitas tener registrado al menos un correo recibido (del solicitante o de asignacion).");
     return;
   }
