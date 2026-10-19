@@ -379,11 +379,11 @@ function pintarPendientes() {
   var contenedor = document.getElementById("r-pendientes");
   var html = nuevasCapturas.map(function (c, i) {
     return '<div class="pendiente"><img src="' + c.datos + '" alt="">' +
-      '<input type="text" placeholder="Que muestra esta captura (obligatorio)" value="' + esc(c.descripcion) +
+      '<input type="text" id="r-cap-desc-' + i + '" placeholder="Que muestra esta captura' + (c.de_correo ? '' : ' (obligatorio)') + '" value="' + esc(c.descripcion) +
       '" oninput="nuevasCapturas[' + i + '].descripcion = this.value">' +
       (tipo !== "avance"
         ? '<label><input type="checkbox"' + (c.de_correo ? " checked" : "") +
-          ' onchange="nuevasCapturas[' + i + '].de_correo = this.checked">Captura del correo</label>'
+          ' onchange="toggleDeCorreo(' + i + ', this.checked)">Captura del correo</label>'
         : "") +
       '<button onclick="nuevasCapturas.splice(' + i + ', 1); pintarPendientes()">Quitar</button></div>';
   }).join("");
@@ -397,8 +397,23 @@ function pintarPendientes() {
 
 async function agregarCaptura(archivo) {
   var tipo = document.getElementById("r-tipo").value;
-  nuevasCapturas.push({ datos: await leerComoDataUrl(archivo), descripcion: "", de_correo: tipo !== "avance" });
+  var esTipoCorreo = tipo !== "avance";
+  nuevasCapturas.push({ datos: await leerComoDataUrl(archivo), descripcion: esTipoCorreo ? "Captura del correo" : "", de_correo: esTipoCorreo });
   pintarPendientes();
+}
+
+function toggleDeCorreo(i, checked) {
+  nuevasCapturas[i].de_correo = checked;
+  var campo = document.getElementById("r-cap-desc-" + i);
+  if (!campo) return;
+  if (checked && !campo.value.trim()) {
+    campo.value = "Captura del correo";
+    nuevasCapturas[i].descripcion = "Captura del correo";
+  }
+  if (!checked && campo.value === "Captura del correo") {
+    campo.value = "";
+    nuevasCapturas[i].descripcion = "";
+  }
 }
 
 async function agregarArchivo(archivo) {
@@ -421,7 +436,10 @@ async function guardarEntrada() {
     alert("Para agregar entradas a un ticket necesitas tener registrado al menos un correo recibido (del solicitante o de asignacion).");
     return;
   }
-  if (nuevasCapturas.some(function (c) { return !c.descripcion.trim(); })) {
+  nuevasCapturas.forEach(function (c) {
+    if (c.de_correo && !c.descripcion.trim()) c.descripcion = "Captura del correo";
+  });
+  if (nuevasCapturas.some(function (c) { return !c.de_correo && !c.descripcion.trim(); })) {
     alert("Cada captura necesita una descripcion: Copilot solo lee texto.");
     return;
   }
