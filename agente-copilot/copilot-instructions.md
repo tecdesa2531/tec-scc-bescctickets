@@ -165,11 +165,23 @@ Formato wiki de Jira. Reglas (ver ejemplos en `jira-historia-usuario` y `jira-su
 
 ## Reglas de ejecución de Jira
 
-- Toda operación de Jira es un script `.py`. **Lo ejecutas tú** (el agente) en la terminal de VS Code, desde la carpeta `040_ProcesoJira` de la atención, tras la confirmación **"crear"** de Jhans en el chat. Tú manejas la ruta; Jhans no copia comandos ni busca carpetas. Invoca el script como `python nombre_script.py` (**sin `.\`**, para que funcione igual en PowerShell y en Git Bash).
+- Toda operación de Jira es un script `.py`. **Lo ejecutas tú** (el agente) en la terminal de VS Code, desde la carpeta `040_ProcesoJira` de la atención, tras la confirmación **"crear"** de Jhans en el chat. Tú manejas la ruta; Jhans no copia comandos ni busca carpetas. Invoca el script como `python nombre_script.py` (**sin `.\`**, para que funcione igual en PowerShell y en Git Bash). **No uses `Start-Process` ni `& operador`**: PowerShell falla con rutas que tienen espacios (p. ej. "OneDrive - Santander"); usa siempre `python nombre_script.py` directamente.
+- **Antes de ejecutar cualquier script** (incluyendo el `--dry-run`), copia las variables de entorno del nivel User a la sesión actual con estos comandos en la terminal. Hazlo siempre; no asumas que ya están en la sesión:
+
+  ```powershell
+  $env:AT_RAIZ_TRABAJO     = [Environment]::GetEnvironmentVariable("AT_RAIZ_TRABAJO","User")
+  $env:AT_RAIZ_PROCESO     = [Environment]::GetEnvironmentVariable("AT_RAIZ_PROCESO","User")
+  $env:AT_CORREO           = [Environment]::GetEnvironmentVariable("AT_CORREO","User")
+  $env:JIRA_ACMEBANK_URL   = [Environment]::GetEnvironmentVariable("JIRA_ACMEBANK_URL","User")
+  $env:JIRA_ACMEBANK_EMAIL = [Environment]::GetEnvironmentVariable("JIRA_ACMEBANK_EMAIL","User")
+  $env:JIRA_ACMEBANK_TOKEN = [Environment]::GetEnvironmentVariable("JIRA_ACMEBANK_TOKEN","User")
+  ```
+
+  Los nombres de las variables (`JIRA_ACMEBANK_*`) salen de los campos `url_var`, `email_var`, `token_var` del destino en `config-jira.json`; si el destino usa otros nombres, adapta las líneas.
 - **Flujo de confirmación:** primero corres el script con `--dry-run` (o le resumes a Jhans qué hará) y esperas su **"crear"**; recién entonces lo ejecutas de verdad (sin `--dry-run`). La compuerta es el "crear" del chat, así que **no** pongas un `input()` interactivo en los scripts.
 - Solo biblioteca estándar de Python. No instalar paquetes, no crear entornos virtuales, no cambiar el intérprete. No crear scripts `.ps1`.
 - Para HTTPS, `curl.exe --ssl-no-revoke` desde `subprocess`; no usar `urllib` ni desactivar la validación del certificado.
-- Las credenciales se leen de las variables de entorno indicadas en `config-jira.json` (`url_var`, `email_var`, `token_var` del destino), que deben estar disponibles en la terminal. Nunca las leas, muestres ni escribas.
+- Las credenciales se leen de las variables de entorno indicadas en `config-jira.json` (`url_var`, `email_var`, `token_var` del destino). Nunca las leas, muestres ni escribas.
 - Los scripts leen los payloads JSON desde archivos; no incrustar credenciales ni el payload completo en la orden de terminal.
 - **No uses el endpoint de busqueda de Jira para encontrar o reutilizar issues.** Atlassian retiro `GET/POST /rest/api/2/search` y `/rest/api/3/search` (responden HTTP 410). Para saber que existe, usa las keys ya guardadas (`jira.padre_key`, `subtareas[].key`, `hu_semanales`, los `jira-*respuesta*.json`) y crea solo lo que no tenga key. Si alguna vez una operacion necesita buscar de verdad, usa `/rest/api/3/search/jql`.
 - Para crear issues, comentarios, adjuntos y transiciones, `/rest/api/2` sigue vigente.
