@@ -191,6 +191,7 @@ Formato wiki de Jira. Reglas (ver ejemplos en `jira-historia-usuario` y `jira-su
 ## Reglas generales
 
 - **Solo biblioteca estándar de Python.** Nunca instales paquetes, nunca crees entornos virtuales (`venv`, `virtualenv`, `conda` o cualquier otro) y nunca cambies el intérprete. La laptop corporativa no tiene permisos de instalación y el proyecto no lo necesita.
+- **No uses herramientas MCP ni extensiones del IDE** (Pylance, pylanceFileSyntaxErrors, getDiagnostics ni ninguna otra) para validar sintaxis ni para ninguna otra operación. Están bloqueadas en la laptop corporativa y siempre fallan. La validación de un script se hace ejecutándolo con `--dry-run`.
 - Si falta un dato (Tracking ID, entorno, proyecto, destino), pregunta antes de crear o subir nada.
 - En la línea `*COMO*` usa el **rol**, nunca un nombre; Jhans es a la vez de infraestructura y DevOps de nube, y para proyectos de nube (p. ej. NEXHUB) el rol es "DevOps del equipo de nube". El **nombre del solicitante** sí va en DATOS, y sale del **correo de solicitud**, no del de asignación.
 - No cambies el estado de historias de usuario ni cierres sprints en Jira: eso lo hace Jhans en el tablero. Tú solo creas issues y cambias el estado de subtareas.
