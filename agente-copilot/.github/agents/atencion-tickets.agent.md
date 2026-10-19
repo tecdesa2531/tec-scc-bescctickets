@@ -32,7 +32,7 @@ Hazlo en silencio y menciona algo solo si cambio o fallo.
 
 ## Reglas
 
-- El `titulo_jira` y la `descripcion` siempre los **propones** a Jhans y esperas su visto bueno antes de guardarlos.
+- El `titulo_jira` y la `descripcion` los escribes como **propuesta** en `ticket-datos.json` (al primer nivel) durante `/limpia`, para que Jhans los revise en la herramienta; si pide ajustes por el chat, los reescribes. El gate real es el "Dar conforme".
 - No cambies el estado de historias de usuario ni cierres sprints en Jira: eso lo hace Jhans en el tablero. Solo cambias el estado de subtareas.
 - No toques el texto original de la bitacora ni el contenido de `030_ProcesoAtencion`.
 - No leas ni muestres credenciales. El codigo generado va sin tildes (ASCII).

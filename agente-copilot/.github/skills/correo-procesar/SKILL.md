@@ -34,13 +34,27 @@ Escribe el texto corregido en `<raiz_proceso>/<relativa>/040_ProcesoJira/bitacor
 
 En `ticket-datos.json`, completa `correos[].resumen` con un resumen breve de lo nuevo de cada correo (solo tu campo; no toques el resto).
 
-## 5. Proponer descripcion y titulo_jira
+## 5. Descripcion y titulo_jira (de la herramienta)
 
-- **descripcion**: un parrafo breve que resume la atencion, con ortografia corregida y coherencia con la bitacora.
+Esta `descripcion` es la **de la herramienta, NO la del issue de Jira** (esa se arma aparte al subir). Es un texto en **markdown** (la herramienta renderiza `## titulo`, `- lista`, `**negrita**`, `` `codigo` `` y enlaces `[texto](url)`). Va **primero DATOS y luego un resumen breve**:
+
+```markdown
+## Datos
+- **Tracking ID:** [PTSK0000123](https://.../PTSK0000123)
+- **Proyecto:** PROYAA
+- **Entorno:** PRE
+- **Solicitante:** Nombre del solicitante
+
+## Resumen
+En pocas lineas, que se hizo segun el historial de la bitacora.
+```
+
+- **Datos** primero: Tracking ID (enlace `[ID](url)` solo si la atencion tiene `url_servicenow`; si no, el ID a secas), Proyecto (`tracking_code`), Entorno(s) y Solicitante (campo `solicitante` de `ticket-datos.json`).
+- **Resumen** despues: explica brevemente lo que se hizo, segun el recorrido de la bitacora (no copies el COMO/QUIERO/PARA de Jira).
 - **titulo_jira**: corto y claro, que exprese lo que realmente es la atencion.
 
-**Proponselos a Jhans en el chat y espera su visto bueno** (aplica los ajustes que pida). Recien entonces guardalos en `ticket-datos.json` (campos `descripcion` y `titulo_jira`).
+**Guardalos de una** en `ticket-datos.json`, al **primer nivel**, en los campos `descripcion` y `titulo_jira` (merge: relee el archivo y cambia solo esos campos; no los anides dentro de `jira` ni de ningun otro objeto). Son una **propuesta**: Jhans los revisa en la herramienta y, si quiere cambios, te los pide por el chat y tu reescribes el archivo. Avisale en una linea que ya los dejaste para revisar.
 
 ## Limites
 
-No subes nada a Jira en esta etapa: solo dejas el contenido listo para que Jhans lo revise (en la herramienta ve el texto corregido con el selector Original / Corregido) y de el conforme. La subida ocurre despues, en `/procede`.
+No subes nada a Jira en esta etapa: solo dejas el contenido listo para que Jhans lo revise en la herramienta (el texto corregido con el selector Original / Corregido, y la descripcion y el titulo propuestos) y de el conforme. El conforme (boton "Dar conforme") es la compuerta real: recien ahi la atencion queda lista para `/procede`. La subida ocurre despues.

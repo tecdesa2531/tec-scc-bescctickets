@@ -82,7 +82,7 @@ Se invocan como comandos de barra. Cada uno acepta un ID opcional:
 | Comando | Etapa | Qué haces |
 |---|---|---|
 | `/inicia` | al llegar la asignación, para crear el padre temprano. **Es opcional** (`accion: pendiente_inicio` en la cola) | Creas el **padre** en Jira **si aún no existe**. Independiente → la **HU** (guardas `jira.padre_key`, `jira.padre_url`, `jira.tipo_padre: "hu"`). Semanal → una **subtarea por entorno** bajo la HU de la semana que corresponde por fecha (de `hu_semanales`); las guardas en `subtareas[]` con su `entorno`, `key` y `url`. Nada más. Con un ID actúas sobre esa atención aunque ya esté en otra etapa (p. ej. si se trabajó y terminó toda de una vez sin `/inicia`); si el padre ya existe, avisa que no hay nada que crear. Skills: `jira-historia-usuario`, `jira-subtareas`. |
-| `/limpia` | cuando Jhans marca *atendida* (`accion: pendiente_limpieza`) | Lees los correos y la bitácora; corriges el texto de cada entrada (redacción coherente, **sin unir ni reordenar ni cambiar la cantidad**) en `bitacora-correccion.json`; completas `correos[].resumen`. **Propones** a Jhans la `descripcion` y un `titulo_jira` corto y claro, y recién tras su visto bueno (con los ajustes que pida) los guardas en `ticket-datos.json`. No subes nada a Jira. Skill: `correo-procesar`. |
+| `/limpia` | cuando Jhans marca *atendida* (`accion: pendiente_limpieza`) | Lees los correos y la bitácora; corriges el texto de cada entrada (redacción coherente, **sin unir ni reordenar ni cambiar la cantidad**) en `bitacora-correccion.json`; completas `correos[].resumen`. **Escribes tu propuesta** de `descripcion` y `titulo_jira` (corto y claro) **directamente** en `ticket-datos.json`, al primer nivel, para que Jhans las revise en la herramienta; si pide ajustes por el chat, reescribes esos campos. No subes nada a Jira; la compuerta es el "Dar conforme". Skill: `correo-procesar`. |
 | `/procede` | cuando Jhans da el conforme (`accion: pendiente_jira`) | Subes a Jira. **Si el padre aún no existe (no se corrió `/inicia`), créalo primero** (la HU independiente o las subtareas semanales). En una **independiente**: creas la HU si falta, analizas la bitácora en orden, **propones las fases**, Jhans las aprueba, creas las subtareas bajo la HU y repartes los comentarios (razonas si van agrupados o uno por subtarea). En una **semanal**: creas las subtareas que falten (una por entorno) y subes sus comentarios (también las subtareas de los hijos si los hay). Skills: `jira-subtareas`, `jira-comentarios`, `sprint-cierre`. |
 | `/corrige <id>` | cuando un issue ya creado necesita ajuste | Actualizas en Jira los issues ya creados de la atención (los que tienen `key`): corriges su **título** (a `titulo_jira`) y su **descripción** con el formato vigente, vía `PUT /issue/<key>`. No creas issues nuevos ni tocas comentarios ya subidos. Skills: `jira-subtareas`, `jira-historia-usuario`. |
 
@@ -119,13 +119,15 @@ Tras subir la primera parte, Jhans puede poner `estado: "reabierto"`, agregar en
 ```json
 {
   "titulo_jira": "Titulo corto y claro para el issue",
-  "descripcion": "Parrafo que resume la atencion, con ortografia corregida.",
+  "descripcion": "## Datos\n- **Tracking ID:** [PTSK0000123](https://.../PTSK0000123)\n- **Proyecto:** PROYAA\n- **Entorno:** PRE\n- **Solicitante:** Nombre del solicitante\n\n## Resumen\nResumen breve de lo que se hizo, segun el historial de la bitacora.",
   "jira": { "padre_key": "PRYA-1001", "padre_url": "https://.../browse/PRYA-1001", "tipo_padre": "hu" },
   "subtareas": [
     { "secuencia": 1, "fase": "Analizar el requerimiento", "entornos": ["DEV", "PRE"], "key": "PRYA-1002", "url": "https://.../browse/PRYA-1002", "estado": "en_curso" }
   ]
 }
 ```
+
+- **`descripcion` es la de la herramienta, NO la de Jira.** Es un texto en **markdown** (la herramienta renderiza `## titulo`, `- lista`, `**negrita**`, `` `codigo` `` y enlaces `[texto](url)`). Va **primero DATOS y luego un resumen breve**: en DATOS, Tracking ID (enlace `[ID](url)` solo si la atención tiene `url_servicenow`; si no, el ID a secas), Proyecto, Entorno(s) y Solicitante (de `ticket-datos.json`); en Resumen, qué se hizo según el historial de la bitácora, en pocas líneas. La descripción del **issue de Jira** (COMO/QUIERO/PARA, OBJETIVO, captura, etc.) es otra y se arma aparte al subir (ver "Formato de la descripción del issue").
 
 - **Independiente:** `jira` es la HU (`tipo_padre: "hu"`), creada en `/inicia`. `subtareas[]` son sus tareas (campo `fase` con el nombre, `secuencia`, `entornos`), creadas en `/procede`.
 - **Semanal:** no uses `jira.padre_key`. Las subtareas (una por entorno) van en `subtareas[]` con `entorno`, `key`, `url`, creadas en `/inicia`.
