@@ -149,6 +149,8 @@ Una atención multi-entorno vive en su carpeta combinada (p. ej. `040_DevPre`), 
 - Para HTTPS, `curl.exe --ssl-no-revoke` desde `subprocess`; no usar `urllib` ni desactivar la validación del certificado.
 - Las credenciales se leen de las variables de entorno indicadas en `config-jira.json` (`url_var`, `email_var`, `token_var` del destino), que deben estar disponibles en la terminal. Nunca las leas, muestres ni escribas.
 - Los scripts leen los payloads JSON desde archivos; no incrustar credenciales ni el payload completo en la orden de terminal.
+- **No uses el endpoint de busqueda de Jira para encontrar o reutilizar issues.** Atlassian retiro `GET/POST /rest/api/2/search` y `/rest/api/3/search` (responden HTTP 410). Para saber que existe, usa las keys ya guardadas (`jira.padre_key`, `subtareas[].key`, `hu_semanales`, los `jira-*respuesta*.json`) y crea solo lo que no tenga key. Si alguna vez una operacion necesita buscar de verdad, usa `/rest/api/3/search/jql`.
+- Para crear issues, comentarios, adjuntos y transiciones, `/rest/api/2` sigue vigente.
 - El código generado va sin tildes ni ñ (es ASCII). Los datos en español con tildes van en los JSON (UTF-8).
 - Cada operación registra una sola línea en `jira-ejecuciones.log`.
 
