@@ -336,9 +336,15 @@ def cambiar_identidad(parametros):
         os.makedirs(os.path.dirname(proceso_nueva), exist_ok=True)
         if os.path.isdir(trabajo_anterior):
             shutil.move(trabajo_anterior, trabajo_nueva)
+            # En volumes distintos (p.ej. OneDrive) shutil.move copia y luego
+            # borra; si el borrado no se completa queda una carpeta huerfana.
+            if os.path.exists(trabajo_anterior):
+                shutil.rmtree(trabajo_anterior, ignore_errors=True)
         else:
             os.makedirs(trabajo_nueva, exist_ok=True)
         shutil.move(proceso_anterior, proceso_nueva)
+        if os.path.exists(proceso_anterior):
+            shutil.rmtree(proceso_anterior, ignore_errors=True)
 
         registro["relativa"] = relativa
         registro["temporal"] = False
