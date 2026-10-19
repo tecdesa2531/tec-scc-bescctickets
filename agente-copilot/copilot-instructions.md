@@ -179,7 +179,7 @@ Formato wiki de Jira. Reglas (ver ejemplos en `jira-historia-usuario` y `jira-su
 
   Los nombres de las variables (`JIRA_ACMEBANK_*`) salen de los campos `url_var`, `email_var`, `token_var` del destino en `config-jira.json`; si el destino usa otros nombres, adapta las líneas.
 - **Flujo de confirmación:** primero corres el script con `--dry-run` (o le resumes a Jhans qué hará) y esperas su **"crear"**; recién entonces lo ejecutas de verdad (sin `--dry-run`). La compuerta es el "crear" del chat, así que **no** pongas un `input()` interactivo en los scripts.
-- Solo biblioteca estándar de Python. No instalar paquetes, no crear entornos virtuales, no cambiar el intérprete. No crear scripts `.ps1`.
+- **Solo biblioteca estándar de Python.** Nunca instales paquetes (`pip install`), nunca crees entornos virtuales (`venv`, `virtualenv`, `conda` o cualquier otro), nunca cambies el intérprete. La laptop corporativa no tiene permisos de instalación y el proyecto no lo necesita. No crear scripts `.ps1`.
 - Para HTTPS, `curl.exe --ssl-no-revoke` desde `subprocess`; no usar `urllib` ni desactivar la validación del certificado.
 - Las credenciales se leen de las variables de entorno indicadas en `config-jira.json` (`url_var`, `email_var`, `token_var` del destino). Nunca las leas, muestres ni escribas.
 - Los scripts leen los payloads JSON desde archivos; no incrustar credenciales ni el payload completo en la orden de terminal.
@@ -190,6 +190,7 @@ Formato wiki de Jira. Reglas (ver ejemplos en `jira-historia-usuario` y `jira-su
 
 ## Reglas generales
 
+- **Solo biblioteca estándar de Python.** Nunca instales paquetes, nunca crees entornos virtuales (`venv`, `virtualenv`, `conda` o cualquier otro) y nunca cambies el intérprete. La laptop corporativa no tiene permisos de instalación y el proyecto no lo necesita.
 - Si falta un dato (Tracking ID, entorno, proyecto, destino), pregunta antes de crear o subir nada.
 - En la línea `*COMO*` usa el **rol**, nunca un nombre; Jhans es a la vez de infraestructura y DevOps de nube, y para proyectos de nube (p. ej. NEXHUB) el rol es "DevOps del equipo de nube". El **nombre del solicitante** sí va en DATOS, y sale del **correo de solicitud**, no del de asignación.
 - No cambies el estado de historias de usuario ni cierres sprints en Jira: eso lo hace Jhans en el tablero. Tú solo creas issues y cambias el estado de subtareas.
