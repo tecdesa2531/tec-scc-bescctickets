@@ -137,9 +137,20 @@ function pintarDetalle() {
   document.getElementById("e-workspace").value = d.workspace_edge || "";
   document.getElementById("e-hu").value        = d.hu_tipo || "semanal";
   document.getElementById("e-estado").value    = d.estado || "en_curso";
-  llenarPadres("e", detalle.id);
+  var padreEditable = detalle.temporal || !detalle.procesada;
+  llenarPadres("e", [detalle.id].concat(descendientesDe(detalle.id)));
   document.getElementById("e-padre").value    = d.padre_id || "";
-  document.getElementById("e-padre").disabled = !!d.padre_id;
+  document.getElementById("e-padre").disabled = !padreEditable;
+  var notaPadre = document.getElementById("e-padre-nota");
+  if (!padreEditable) {
+    notaPadre.textContent = "El agente ya proceso esta atencion; el padre quedo fijo.";
+    notaPadre.hidden = false;
+  } else if (!detalle.temporal) {
+    notaPadre.textContent = "Al asignar o cambiar el padre, la atencion se mueve dentro de la carpeta del padre.";
+    notaPadre.hidden = false;
+  } else {
+    notaPadre.hidden = true;
+  }
   document.getElementById("e-campo-hu").hidden       = !!d.padre_id;
   document.getElementById("i-campo-proyecto").hidden = !!d.padre_id;
 
@@ -282,17 +293,37 @@ async function guardarDatos() {
       workspace_edge: document.getElementById("e-workspace").value,
       estado:         document.getElementById("e-estado").value
     };
-    var esPadreEditable = detalle.temporal;
-    var valorPadre = document.getElementById("e-padre").value;
-    if (esPadreEditable) datosGen.padre_id = valorPadre;
-    if (!valorPadre) datosGen.hu_tipo = document.getElementById("e-hu").value;
-    await enviar("/api/atencion/datos", datosGen);
-    await enviar("/api/atencion/identidad", {
-      id:            detalle.id,
-      tracking_code: leerProyecto("i"),
-      tracking_id:   document.getElementById("i-tracking-id").value,
-      entornos:      leerEntornos("i-entorno")
-    });
+    var valorPadre  = document.getElementById("e-padre").value;
+    var padreActual = detalle.datos.padre_id || "";
+    var padreEditable = detalle.temporal || !detalle.procesada;
+
+    if (detalle.temporal) {
+      // Atencion aun sin ubicar: el padre y la identidad se guardan juntos.
+      datosGen.padre_id = valorPadre;
+      if (!valorPadre) datosGen.hu_tipo = document.getElementById("e-hu").value;
+      await enviar("/api/atencion/datos", datosGen);
+      await enviar("/api/atencion/identidad", {
+        id:            detalle.id,
+        tracking_code: leerProyecto("i"),
+        tracking_id:   document.getElementById("i-tracking-id").value,
+        entornos:      leerEntornos("i-entorno")
+      });
+    } else if (padreActual && !valorPadre) {
+      throw new Error("Quitar el padre no esta disponible; elige otra atencion padre");
+    } else if (padreEditable && valorPadre && valorPadre !== padreActual) {
+      // Reparentar una atencion ya ubicada: mueve la carpeta dentro del padre.
+      await enviar("/api/atencion/datos", datosGen);
+      await enviar("/api/atencion/padre", { id: detalle.id, padre_id: valorPadre });
+    } else {
+      if (!valorPadre) datosGen.hu_tipo = document.getElementById("e-hu").value;
+      await enviar("/api/atencion/datos", datosGen);
+      await enviar("/api/atencion/identidad", {
+        id:            detalle.id,
+        tracking_code: leerProyecto("i"),
+        tracking_id:   document.getElementById("i-tracking-id").value,
+        entornos:      leerEntornos("i-entorno")
+      });
+    }
     proyectos = await leer("/api/proyectos");
     await recargarDetalle();
   } catch (error) { mostrarError(error); }

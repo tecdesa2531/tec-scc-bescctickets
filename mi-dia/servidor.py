@@ -39,6 +39,7 @@ RUTAS_POST = {
     "/api/atencion/crear":        lambda p: atenciones.crear_atencion(p),
     "/api/atencion/datos":        lambda p: atenciones.guardar_datos_generales(p),
     "/api/atencion/identidad":    lambda p: {"id": atenciones.cambiar_identidad(p)},
+    "/api/atencion/padre":        lambda p: {"id": atenciones.cambiar_padre(p)},
     "/api/atencion/terminar":     lambda p: atenciones.terminar_atencion(p),
     "/api/atencion/conforme":     lambda p: atenciones.dar_conforme(p),
     "/api/atencion/abrir_carpeta": lambda p: atenciones.abrir_carpeta(p),

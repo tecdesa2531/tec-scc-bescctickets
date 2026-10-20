@@ -131,13 +131,27 @@ function pintarAtenciones() {
     : '<tr><td colspan="6" class="suave">No hay atenciones para mostrar.</td></tr>';
 }
 
+// -- Descendientes de una atencion (para no ofrecerlos como padre y evitar ciclos)
+function descendientesDe(id) {
+  var res = [];
+  atenciones.forEach(function (a) {
+    if (a.padre_id === id) {
+      res.push(a.id);
+      res = res.concat(descendientesDe(a.id));
+    }
+  });
+  return res;
+}
+
 // -- Dropdown de padre
-function llenarPadres(prefijo, excluirId) {
+function llenarPadres(prefijo, excluir) {
   var sel = document.getElementById(prefijo + "-padre");
   if (!sel) return;
+  var fuera = excluir || [];
+  if (typeof fuera === "string") fuera = fuera ? [fuera] : [];
   sel.innerHTML = '<option value="">Sin padre</option>' +
     atenciones
-      .filter(function (a) { return a.id !== excluirId; })
+      .filter(function (a) { return fuera.indexOf(a.id) === -1; })
       .map(function (a) {
         var label = (a.tracking_id || a.numero || "Sin ID") +
           (a.tracking_code ? " - " + a.tracking_code : "") +

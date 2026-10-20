@@ -324,36 +324,43 @@ def cambiar_identidad(parametros):
             _regenerar_cola()
             return registro["id"]
 
-        trabajo_anterior, proceso_anterior = carpetas_de(registro)
         relativa, carpeta_entorno = ubicacion_definitiva(
             codigo, tracking_id, entornos, padre_relativa, padre_carpeta_entorno)
-        trabajo_nueva = os.path.join(config.RAIZ_TRABAJO, relativa)
-        proceso_nueva = os.path.join(config.RAIZ_PROCESO, relativa)
-        if os.path.exists(trabajo_nueva) or os.path.exists(proceso_nueva):
-            raise ErrorUsuario("Ya existe la carpeta destino " + relativa)
+        return _reubicar(registro, relativa, carpeta_entorno,
+                         {"tracking_code": codigo, "tracking_id": tracking_id,
+                          "entornos": entornos, "carpeta_entorno": carpeta_entorno})
 
-        os.makedirs(os.path.dirname(trabajo_nueva), exist_ok=True)
-        os.makedirs(os.path.dirname(proceso_nueva), exist_ok=True)
-        if os.path.isdir(trabajo_anterior):
-            shutil.move(trabajo_anterior, trabajo_nueva)
-            # En volumes distintos (p.ej. OneDrive) shutil.move copia y luego
-            # borra; si el borrado no se completa queda una carpeta huerfana.
-            if os.path.exists(trabajo_anterior):
-                shutil.rmtree(trabajo_anterior, ignore_errors=True)
-        else:
-            os.makedirs(trabajo_nueva, exist_ok=True)
-        shutil.move(proceso_anterior, proceso_nueva)
-        if os.path.exists(proceso_anterior):
-            shutil.rmtree(proceso_anterior, ignore_errors=True)
 
-        registro["relativa"] = relativa
-        registro["temporal"] = False
-        actualizar_datos(registro, {"tracking_code": codigo, "tracking_id": tracking_id,
-                                    "entornos": entornos, "carpeta_entorno": carpeta_entorno})
-        indice.indexar_atencion(registro["datos"])
-        _cascadear_carpeta_entorno(registro["id"], carpeta_entorno)
-        _regenerar_cola()
-        return registro["id"]
+def _reubicar(registro, relativa_nueva, carpeta_entorno, cambios):
+    # Mueve las carpetas de la atencion (ambas raices) a relativa_nueva y
+    # actualiza sus datos. Reusado por cambiar_identidad y cambiar_padre.
+    trabajo_anterior, proceso_anterior = carpetas_de(registro)
+    trabajo_nueva = os.path.join(config.RAIZ_TRABAJO, relativa_nueva)
+    proceso_nueva = os.path.join(config.RAIZ_PROCESO, relativa_nueva)
+    if os.path.exists(trabajo_nueva) or os.path.exists(proceso_nueva):
+        raise ErrorUsuario("Ya existe la carpeta destino " + relativa_nueva)
+
+    os.makedirs(os.path.dirname(trabajo_nueva), exist_ok=True)
+    os.makedirs(os.path.dirname(proceso_nueva), exist_ok=True)
+    if os.path.isdir(trabajo_anterior):
+        shutil.move(trabajo_anterior, trabajo_nueva)
+        # En volumes distintos (p.ej. OneDrive) shutil.move copia y luego
+        # borra; si el borrado no se completa queda una carpeta huerfana.
+        if os.path.exists(trabajo_anterior):
+            shutil.rmtree(trabajo_anterior, ignore_errors=True)
+    else:
+        os.makedirs(trabajo_nueva, exist_ok=True)
+    shutil.move(proceso_anterior, proceso_nueva)
+    if os.path.exists(proceso_anterior):
+        shutil.rmtree(proceso_anterior, ignore_errors=True)
+
+    registro["relativa"] = relativa_nueva
+    registro["temporal"] = False
+    actualizar_datos(registro, cambios)
+    indice.indexar_atencion(registro["datos"])
+    _cascadear_carpeta_entorno(registro["id"], carpeta_entorno)
+    _regenerar_cola()
+    return registro["id"]
 
 
 def _cascadear_carpeta_entorno(padre_id, carpeta_entorno):
@@ -400,6 +407,80 @@ def guardar_datos_generales(parametros):
         actualizar_datos(registro, cambios)
         indice.indexar_atencion(registro["datos"])
         _regenerar_cola()
+
+
+def atencion_procesada(registro):
+    # True si el agente ya dejo huella: creo issues en Jira (jira.padre_key o
+    # subtareas con key), escribio su propuesta en /limpia (titulo_jira o
+    # descripcion) o dejo el archivo de correccion de la bitacora.
+    datos = registro["datos"]
+    if (datos.get("jira") or {}).get("padre_key"):
+        return True
+    if any(st.get("key") for st in datos.get("subtareas", [])):
+        return True
+    if datos.get("titulo_jira") or datos.get("descripcion"):
+        return True
+    ruta_correccion = os.path.join(config.RAIZ_PROCESO, registro["relativa"],
+                                   config.CARPETA_JIRA, config.ARCHIVO_CORRECCION)
+    return os.path.isfile(ruta_correccion)
+
+
+def _es_descendiente(candidato_id, ancestro_id):
+    # True si candidato_id cuelga (directa o indirectamente) de ancestro_id.
+    visto = set()
+    actual = candidato_id
+    while actual and actual not in visto:
+        visto.add(actual)
+        try:
+            reg = buscar_atencion(actual)
+        except ErrorUsuario:
+            return False
+        padre = reg["datos"].get("padre_id", "")
+        if padre == ancestro_id:
+            return True
+        actual = padre
+    return False
+
+
+def cambiar_padre(parametros):
+    # Reasigna el padre de una atencion y mueve su carpeta dentro de la del
+    # padre. Solo se permite si el agente no la ha procesado todavia. No se
+    # permite quitar el padre (volver a sin padre).
+    with config.BLOQUEO:
+        registro = buscar_atencion(parametros.get("id", ""))
+        nuevo_padre_id = str(parametros.get("padre_id", "")).strip()
+        if not nuevo_padre_id:
+            raise ErrorUsuario("Debes elegir una atencion padre")
+        if atencion_procesada(registro):
+            raise ErrorUsuario("El agente ya proceso esta atencion; el padre ya no se puede cambiar")
+        if nuevo_padre_id == registro["id"]:
+            raise ErrorUsuario("Una atencion no puede ser su propio padre")
+        if _es_descendiente(nuevo_padre_id, registro["id"]):
+            raise ErrorUsuario("No puedes colgar la atencion de uno de sus propios hijos")
+        if nuevo_padre_id == registro["datos"].get("padre_id", ""):
+            return registro["id"]
+
+        padre_registro = buscar_atencion(nuevo_padre_id)
+        if padre_registro["temporal"]:
+            raise ErrorUsuario("La atencion padre aun no tiene carpeta definitiva; completa su proyecto e ID")
+        codigo = padre_registro["datos"].get("tracking_code", "")
+        padre_relativa = padre_registro["relativa"]
+        padre_carpeta_entorno = padre_registro["datos"].get("carpeta_entorno", "")
+        tracking_id = registro["datos"].get("tracking_id", "")
+
+        if registro["temporal"] or not tracking_id:
+            # Aun sin ubicacion definitiva: solo fija el vinculo y hereda el codigo.
+            actualizar_datos(registro, {"padre_id": nuevo_padre_id, "tracking_code": codigo})
+            indice.indexar_atencion(registro["datos"])
+            _regenerar_cola()
+            return registro["id"]
+
+        relativa, carpeta_entorno = ubicacion_definitiva(
+            codigo, tracking_id, registro["datos"].get("entornos", []),
+            padre_relativa, padre_carpeta_entorno)
+        return _reubicar(registro, relativa, carpeta_entorno,
+                         {"padre_id": nuevo_padre_id, "tracking_code": codigo,
+                          "carpeta_entorno": carpeta_entorno})
 
 
 def terminar_atencion(parametros):
@@ -604,6 +685,7 @@ def _detalle_desde_registro(registro):
     return {
         "id": registro["id"],
         "temporal": registro["temporal"],
+        "procesada": atencion_procesada(registro),
         "datos": registro["datos"],
         "entradas": entradas,
         "pendientes": bitacora.contar_pendientes(registro, entradas, enviados),
