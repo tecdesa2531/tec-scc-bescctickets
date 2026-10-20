@@ -1,6 +1,6 @@
 # Guía de puesta en marcha (laptop Windows)
 
-Pasos para dejar funcionando la herramienta **Mi día** y el **agente de Copilot** en la laptop corporativa. Las variables de entorno se definen en **PowerShell** (donde corre la herramienta); los cambios del código llegan con `git pull`.
+Pasos para dejar funcionando la herramienta **Focus Flow** (carpeta `mi-dia/`) y el **agente de Copilot** en la laptop corporativa. Las variables de entorno se definen en **PowerShell** (donde corre la herramienta); los cambios del código llegan con `git pull`.
 
 ## 1. Traer los cambios (terminal de Git)
 

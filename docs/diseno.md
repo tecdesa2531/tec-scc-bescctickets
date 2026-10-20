@@ -177,7 +177,7 @@ El formato completo está en `mi-dia/README.md`, sección 7.
 
 ### Navegación
 
-- El logo **Mi dia** del encabezado actúa como "Volver": desde cualquier vista de detalle regresa a la lista principal.
+- El logo **Focus Flow** del encabezado actúa como "Volver": desde cualquier vista de detalle regresa a la lista principal.
 
 ## 7. Etapa 5: adaptar el agente Copilot (siguiente)
 
@@ -205,7 +205,7 @@ Jhans escribe poco. Tres gatillos:
 | `/limpia <id>` | estado 1 (ver 7.3) | corrige el texto de la bitácora, crea la `descripcion` y escribe el `titulo_jira`. No sube nada a Jira. |
 | `/procede` | estado 2 (ver 7.3) | recorre la **cola** y sube a Jira **todos** los terminados pendientes. |
 
-El agente **no escanea** carpetas: lee `003_Herramienta/agente-cola.json`, que la herramienta mantiene con qué acción le toca a cada atención (`pendiente_inicio`, `pendiente_limpieza`, `pendiente_jira`).
+El agente **no escanea** carpetas: lee `003_Herramienta/agente-cola.json`, que la herramienta mantiene con qué acción le toca a cada atención (`pendiente_inicio`, `pendiente_limpieza`, `pendiente_jira`). Cada fila incluye `raiz_id` y `hu_tipo_raiz`: en un hijo manda el tipo de la raíz. Con raíz semanal el hijo es su propia subtarea; con raíz independiente no tiene issue propio (no entra como `pendiente_inicio`) y sus entradas se analizan junto con las de la raíz al proponer las fases de la HU.
 
 **Ejecución de Jira (actualizado):** el agente ya no solo entrega los scripts `.py`; los **ejecuta él** en la terminal de VS Code. Primero corre un `--dry-run` y, tras la confirmación **"crear"** de Jhans en el chat, la ejecución real. Esto evita copiar comandos y buscar carpetas. Las credenciales siguen solo en variables de entorno (deben estar a nivel usuario para la terminal).
 

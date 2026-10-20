@@ -5,14 +5,21 @@ description: Crea las subtareas de Jira y cambia su estado (En curso, Espera ext
 
 # Subtareas de Jira
 
-Sigue `.github/copilot-instructions.md`. Generas el script `.py` en `040_ProcesoJira` y **lo ejecutas tu** en la terminal tras la confirmacion "crear" de Jhans (primero un `--dry-run`). Solo biblioteca estandar y `curl.exe --ssl-no-revoke` via `subprocess`.
+Sigue `.github/copilot-instructions.md`. Generas el script `.py` en `040_ProcesoJira` y **lo ejecutas tu** en la terminal. Solo biblioteca estandar y `curl.exe --ssl-no-revoke` via `subprocess`.
+
+**Gate de ejecucion:**
+- **Subtareas creadas en `/inicia`** (semanal, o hija de raiz semanal): directo, sin `--dry-run` ni "crear".
+- **Todo lo demas** (`/procede`, cambios de estado, `/corrige`): primero `--dry-run` y, tras el "crear" de Jhans, la ejecucion real.
 
 Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el proyecto tiene varios destinos, se repite por cada uno.
 
 ## Cuando se crean
 
-- **Semanal** (en `/inicia`): una subtarea **por entorno** bajo la HU de la semana que corresponde por fecha (de `hu_semanales` de `config-jira.json`). Una atencion en PRE y PRO genera dos subtareas. Guardalas en `subtareas[]` de `ticket-datos.json` con `entorno`, `key`, `url`. Ejecuta directo, sin dry-run ni confirmacion.
+- **Semanal** (en `/inicia`): una subtarea **por entorno** bajo la HU de la semana que corresponde por fecha (de `hu_semanales` de `config-jira.json`). Una atencion en PRE y PRO genera dos subtareas. Guardalas en `subtareas[]` de `ticket-datos.json` con `entorno`, `key`, `url`. Ejecuta directo, sin dry-run ni confirmacion. Si no hay en `hu_semanales` una HU que cubra la fecha, avisa y salta esa atencion (no crees HU semanales aqui).
 - **Independiente** (en `/procede`): las tareas secuenciales aprobadas por Jhans, bajo `jira.padre_key` de la atencion. Una tarea puede abarcar varios entornos si comparten repositorio o flujo. Guardalas en `subtareas[]` con `secuencia`, `fase`, `entornos`, `key`, `url`.
+- **Hija** (`padre_id` con valor): usa `hu_tipo_raiz` de la cola, no su propio `hu_tipo`.
+  - Raiz **semanal** (en `/inicia`): se crea **como una semanal**: una subtarea por entorno bajo la HU de `hu_semanales` que cubre la fecha del hijo, titulo `PROYAA(ENT): <ID del hijo> - titulo` (si no tiene entornos propios, los de la raiz).
+  - Raiz **independiente**: el hijo **no** tiene subtarea propia. Sus entradas se analizan junto con las de la raiz al proponer las fases de la HU (en el `/procede` de la raiz). Ver "Padre e hijos" en `copilot-instructions.md`.
 
 ## Titulo
 
@@ -92,7 +99,7 @@ Para **semanal**, una entrada por entorno con `parent.key` = la `key` de la HU d
 
 ## Script de creacion (referencia)
 
-Recorre `jira-crear_subtareas.json` en orden de `secuencia`, crea cada subtarea y guarda las keys en `jira-respuesta_subtareas.json`. Si se interrumpe, omite las que ya tengan key. Acepta `--dry-run` para simular sin tocar Jira: corres primero el dry-run, y tras el "crear" de Jhans lo ejecutas sin `--dry-run`. El script no pide confirmacion por teclado (la compuerta es el "crear" del chat).
+Recorre `jira-crear_subtareas.json` en orden de `secuencia`, crea cada subtarea y guarda las keys en `jira-respuesta_subtareas.json`. Si se interrumpe, omite las que ya tengan key. Acepta `--dry-run` para simular sin tocar Jira: en `/procede` corres primero el dry-run, y tras el "crear" de Jhans lo ejecutas sin `--dry-run`; en `/inicia` lo ejecutas directo. El script nunca pide confirmacion por teclado.
 
 ```python
 import json
@@ -161,7 +168,7 @@ Despues de ejecutarse: guarda las `key` y `url` en `subtareas[]` de `ticket-dato
 
 El script consulta las transiciones disponibles (`GET /issue/<key>/transitions`), busca la que lleva al estado destino y la aplica (`POST /issue/<key>/transitions`). Si no hay transicion directa (el flujo exige pasar antes por otro estado), avisa a Jhans para que lo mueva a mano. Nunca cambies el estado de la HU ni cierres sprints: solo subtareas.
 
-**Subtarea reabierta.** Si en un `/procede` posterior la subtarea ya esta en `FINALIZADO` y la atencion se reabrio con **trabajo nuevo** (entradas nuevas por subir), reabrela antes de comentar: `FINALIZADO → En curso`, sube los comentarios nuevos (`jira-comentarios`) y vuelve a cerrarla (`En curso → FINALIZADO`). Si lo nuevo es solo evidencia o una aclaracion, comenta sin reabrir.
+**Subtarea reabierta.** Si en un `/procede` posterior la subtarea ya esta en `FINALIZADO` y la atencion se reabrio con **trabajo nuevo** (entradas nuevas por subir), reabrela antes de comentar: `FINALIZADO -> En curso`, sube los comentarios nuevos (`jira-comentarios`) y vuelve a cerrarla (`En curso -> FINALIZADO`). Si lo nuevo es solo evidencia o una aclaracion, comenta sin reabrir.
 
 ## Corregir un issue ya creado (`/corrige`)
 
@@ -169,7 +176,8 @@ Para ajustar un issue que ya existe (tiene `key`), actualiza su `summary` (titul
 
 ```python
 # PUT /issue/<key> con {"fields": {"summary": "...", "description": "..."}}
-# Lee el nuevo contenido de un archivo JSON y lo envia con curl.exe (como en el re-parent).
+# Lee el nuevo contenido de un archivo JSON y lo envia con curl.exe
+# (mismo patron que el script de cambio de padre del skill sprint-cierre).
 ```
 
-Aplica el formato vigente (sin titulo `DESCRIPCION`, `*COMO*`/`*QUIERO*`/`*PARA*` en negrita, rol sin nombres, DATOS con enlace de ServiceNow y correo). Si el `.eml` de asignacion no esta adjunto, adjuntalo. No toques los comentarios ya subidos.
+Aplica el formato vigente (sin titulo `DESCRIPCION`, `*COMO*`/`*QUIERO*`/`*PARA*` en negrita, rol sin nombres, DATOS con Tracking ID como enlace si hay `url_servicenow`, Proyecto, Entorno y Solicitante; **sin** linea de correo de asignacion). Si la **captura** del correo de asignacion (o la de solicitud) no esta adjunta, subela y referenciala con `!archivo.png|thumbnail!`; **no** adjuntes el `.eml` de asignacion. No toques los comentarios ya subidos.

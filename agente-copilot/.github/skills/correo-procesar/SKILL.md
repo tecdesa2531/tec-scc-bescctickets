@@ -7,7 +7,7 @@ description: Base del comando /limpia. Lee los correos y la bitacora de una aten
 
 Sigue `.github/copilot-instructions.md`. La herramienta ya organizo las carpetas, guardo los correos y llevo la bitacora. Tu **no mueves ni organizas nada**: partes de lo que ya existe.
 
-Esta etapa corre cuando Jhans marca la atencion como *atendida* (`accion: pendiente_limpieza` en la cola). Tomas la atencion por su ID o, sin ID, todas las `pendiente_limpieza` (si hay varias, confirma antes).
+Esta etapa corre cuando Jhans marca la atencion como *atendida* (`accion: pendiente_limpieza` en la cola). Tomas la atencion por su ID o, sin ID, todas las `pendiente_limpieza`: si son **5 o menos**, confirma cuales antes de empezar; si son **mas de 5**, listalas y procede.
 
 ## 1. Ubicar la atencion
 

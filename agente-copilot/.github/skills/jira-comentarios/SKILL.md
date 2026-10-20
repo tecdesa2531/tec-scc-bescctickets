@@ -17,8 +17,10 @@ Solo entran las entradas con `para_jira: true` que aun no figuran como subidas. 
 
 ## 3. A que subtarea va cada comentario
 
-- **Independiente:** reparte cada comentario en la **tarea (fase)** que le corresponde segun lo que describe la entrada.
-- **Semanal:** el comentario va a la subtarea del **entorno** correspondiente; si la entrada aplica a varios entornos, repitelo en cada subtarea de esos entornos.
+- **Independiente:** reparte cada comentario en la **tarea (fase)** que le corresponde segun lo que describe la entrada. Incluye las entradas de los **hijos** con conforme (raiz independiente): van a las fases de la HU de la raiz.
+- **Semanal** (y todo hijo de raiz semanal): el comentario va a la subtarea del **entorno** correspondiente; si la entrada aplica a varios entornos, repitelo en cada subtarea de esos entornos.
+
+**Comentarios de un hijo de raiz independiente:** registralos en un `jira-comentarios_<fase>.json` dentro del `040_ProcesoJira` **del propio hijo** (no en el de la raiz), con la `key` de la fase de la raiz. La herramienta solo marca como enviada una entrada si la encuentra en la carpeta de esa misma atencion; si la registras en la carpeta de la raiz, el hijo quedara con pendientes para siempre.
 
 ## 4. Archivo por subtarea
 

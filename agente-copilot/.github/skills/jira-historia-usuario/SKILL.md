@@ -1,11 +1,17 @@
 ---
 name: jira-historia-usuario
-description: Crea las historias de usuario (HU) en Jira. La independiente para una atencion compleja (en /inicia) y la semanal para los tickets simples (cuando Jhans la pide o cuando /inicia de una semanal no encuentra una HU vigente). No cambia estados de HU ni cierra sprints.
+description: Crea las historias de usuario (HU) en Jira. La independiente para una atencion compleja (en /inicia, o en /procede si se salto /inicia) y las semanales del sprint para los tickets simples (cuando Jhans las pide, con dry-run y "crear"; /inicia no las crea). Nunca crea HU para una atencion hija. No cambia estados de HU ni cierra sprints.
 ---
 
 # Historias de usuario
 
-Sigue `.github/copilot-instructions.md`. Generas el script `.py` en `040_ProcesoJira` y **lo ejecutas tu** en la terminal tras la confirmacion "crear" de Jhans (primero un `--dry-run`). Solo biblioteca estandar y `curl.exe --ssl-no-revoke` via `subprocess`.
+Sigue `.github/copilot-instructions.md`. Generas el script `.py` en `040_ProcesoJira` y **lo ejecutas tu** en la terminal. Solo biblioteca estandar y `curl.exe --ssl-no-revoke` via `subprocess`.
+
+**Gate de ejecucion:**
+- **HU independiente en `/inicia`**: directo, sin `--dry-run` ni "crear".
+- **Todo lo demas** (HU independiente creada o actualizada en `/procede`, HU semanales del sprint, `/corrige`): primero `--dry-run` y, tras el "crear" de Jhans, la ejecucion real.
+
+Una atencion **hija** nunca es HU (ver "Padre e hijos" en `copilot-instructions.md`): no crees una HU para ella.
 
 | Tipo | Cuando | Cuantas |
 |---|---|---|
@@ -29,7 +35,7 @@ DOCINF: JDOC0000000005 - titulo
 
 Con todos los entornos de la atencion separados por coma; sin parentesis si la atencion no tiene entorno.
 
-**Descripcion** (formato wiki de Jira, saltos como `\n` en el JSON). Contenido **breve, sin rodeos**. Saca el OBJETIVO y el ALCANCE de tu analisis de la bitacora:
+**Descripcion** (formato wiki de Jira, saltos como `\n` en el JSON). Contenido **breve, sin rodeos**. Fuente del OBJETIVO y el ALCANCE: en `/inicia`, el **correo de asignacion** (o el de solicitud si no hay asignacion), porque la bitacora aun suele estar vacia; en `/procede`, la actualizas con tu analisis de la bitacora y la `descripcion` corregida:
 
 ```
 *COMO* <rol de Jhans, nunca un nombre: p. ej. DevOps del equipo de nube o miembro del equipo de infraestructura>, *QUIERO* <lo que pide>, *PARA* <para que lo necesita>.
@@ -75,7 +81,7 @@ Al crear, guarda en `ticket-datos.json`: `jira.padre_key`, `jira.padre_url` (`<u
 
 ## HU semanales del sprint
 
-Jhans crea el sprint y te da su duracion (inicio y fin). El agente crea **una HU por semana** (lunes a viernes) dentro del rango del sprint. Tambien cuando en `/inicia` de una atencion semanal no hay en `hu_semanales` una HU que cubra su fecha: avisa y crea las que falten.
+Jhans crea el sprint y te da su duracion (inicio y fin). El agente crea **una HU por semana** (lunes a viernes) dentro del rango del sprint, con `--dry-run` y "crear". Si en `/inicia` de una atencion semanal no hay en `hu_semanales` una HU que cubra su fecha, **no la crees ahi**: avisa a Jhans y salta esa atencion; las HU semanales se crean aparte con este flujo.
 
 Para calcular las semanas: parte del lunes de la semana del inicio del sprint y avanza en tramos de lunes a viernes hasta cubrir el fin del sprint. Una HU por cada tramo (semana completa lun-vie, aunque el sprint empiece o termine a mitad de semana).
 
@@ -128,4 +134,4 @@ if __name__ == "__main__":
     crear()
 ```
 
-Despues de ejecutar el script (tras el "crear" de Jhans), confirma la key en `jira-hu_respuesta.json`, guardala donde corresponda (`jira.padre_key` para la independiente; un elemento en `hu_semanales` de `config-jira.json` por cada HU semanal) y registra una linea en `jira-ejecuciones.log`.
+Despues de ejecutar el script (directo en `/inicia`; tras el "crear" de Jhans en lo demas), confirma la key en `jira-hu_respuesta.json`, guardala donde corresponda (`jira.padre_key` para la independiente; un elemento en `hu_semanales` de `config-jira.json` por cada HU semanal) y registra una linea en `jira-ejecuciones.log`.

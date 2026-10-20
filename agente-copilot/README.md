@@ -1,33 +1,36 @@
 # Atención de tickets con Copilot
 
-Este agente de GitHub Copilot prepara tus atenciones para Jira. No organiza carpetas ni correos: eso ya lo hace la herramienta **Mi día**. El agente lee los archivos que ella deja y crea las historias de usuario, las subtareas y los comentarios en Jira.
+Este agente de GitHub Copilot prepara tus atenciones para Jira. No organiza carpetas ni correos: eso ya lo hace la herramienta **Focus Flow**. El agente lee los archivos que ella deja y crea las historias de usuario, las subtareas y los comentarios en Jira.
 
 ## Instalar (una sola vez)
 
 1. Abre en VS Code un workspace que incluya tres carpetas: `agente-copilot` y tus dos raíces de datos (la de trabajo y la de proceso). Lo más cómodo es un archivo `.code-workspace` con las tres.
 2. Revisa `config-jira.json`: los destinos de Jira y el mapeo de cada proyecto, con tus valores reales (viven fuera del repositorio).
 3. Revisa tus variables de entorno de credenciales, las que nombra `config-jira.json` en cada destino (`url_var`, `email_var`, `token_var`).
-4. En Copilot Chat elige el agente **atencion-tickets** o usa directamente los comandos `/inicia`, `/limpia` y `/procede`.
+4. En Copilot Chat elige el agente **atencion-tickets** o usa directamente los comandos `/inicia`, `/limpia`, `/procede` y `/corrige`.
 
 ## Uso diario
 
-Le hablas en corto. Hay tres comandos; cada uno acepta un ID (Tracking ID) o, sin ID, toma de la cola todas las pendientes de esa etapa:
+Le hablas en corto. Cada comando acepta un ID (Tracking ID) o, sin ID, toma de la cola todas las pendientes de esa etapa (si son 5 o menos te pide confirmar cuáles; si son más, las lista y avanza):
 
 | Quieres | Le dices |
 |---|---|
 | Crear el issue padre al llegar la asignación | `/inicia` o `/inicia PTSK0000123` |
-| Limpiar el texto y proponer descripción y título (cuando marcas *Terminar* en Mi día) | `/limpia` o `/limpia PTSK0000123` |
+| Limpiar el texto y proponer descripción y título (cuando marcas *Terminar* en Focus Flow) | `/limpia` o `/limpia PTSK0000123` |
 | Subir a Jira lo que diste por conforme | `/procede` o `/procede PTSK0000123` |
-| Crear la HU de la semana | `crea la HU de la semana` |
+| Corregir título y descripción de issues ya creados | `/corrige PTSK0000123` |
+| Crear las HU semanales del sprint | `crea las HU semanales del sprint` |
 | Cierre de semana o de sprint | `cierre de semana` / `cierre de sprint` |
 
-En `/limpia`, el agente te **propone** la descripción y el título; tú los apruebas o ajustas antes de que los guarde.
+En `/limpia`, el agente deja **su propuesta** de descripción y título en `ticket-datos.json`; tú la revisas en la herramienta y, si quieres cambios, se los pides por el chat.
+
+Si una atención semanal no tiene HU semanal que cubra su fecha, `/inicia` te avisa y la salta: primero crea las HU semanales del sprint.
 
 ## Lo que haces tú
 
-- En **Mi día**: trabajas, llevas la bitácora, marcas *Terminar* (el agente limpia el texto) y, tras revisarlo, *Dar conforme* (el agente sube a Jira).
+- En **Focus Flow**: trabajas, llevas la bitácora, marcas *Terminar* (el agente limpia el texto) y, tras revisarlo, *Dar conforme* (el agente sube a Jira).
 - Revisas el texto corregido con el selector *Original / Corregido* antes de dar el conforme.
-- Confirmas con **"crear"** en el chat cuando el agente te muestra el dry-run; él ejecuta el script `.py` en la terminal (no tienes que copiar comandos ni buscar carpetas).
+- En `/procede`, `/corrige` y la creación de HU semanales, confirmas con **"crear"** en el chat cuando el agente te muestra el dry-run; él ejecuta el script `.py` en la terminal (no tienes que copiar comandos ni buscar carpetas). `/inicia` es la excepción: crea el padre directo, sin dry-run.
 - Cierras la historia de usuario y el sprint en el tablero de Jira, y asocias la HU nueva a la épica y al sprint.
 
 ## Cómo se comunican la herramienta y el agente
