@@ -72,16 +72,16 @@ La **épica representa el trimestre** (por ejemplo, Q4 2026); un trimestre puede
 
 Las **HU independientes** no van en el config: viven en `jira.padre_key` de cada atención. Ambos tipos conviven en el mismo sprint.
 
-## Los tres comandos
+## Los comandos
 
 Se invocan como comandos de barra. Cada uno acepta un ID opcional:
 
 - **con ID** (Tracking ID o `id_herramienta`): trabajas solo sobre esa atención.
-- **sin ID**: lees `agente-cola.json` y trabajas sobre todas las pendientes de esa etapa; si hay varias, confirma con Jhans antes de crear o subir nada.
+- **sin ID**: lees `agente-cola.json` y trabajas sobre todas las pendientes de esa etapa. Si son **5 o menos**, lista los títulos y confirma con Jhans cuáles vas a procesar antes de empezar; si son **más de 5**, lista solo los títulos (una línea por ítem) y procede sin preguntar por cada uno. Esa confirmación de alcance es distinta del gate **"crear"** de cada script. (`/inicia` es la excepción: crea el padre directo, sin confirmación de alcance ni "crear").
 
 | Comando | Etapa | Qué haces |
 |---|---|---|
-| `/inicia` | al llegar la asignación, para crear el padre temprano. **Es opcional** (`accion: pendiente_inicio` en la cola) | Creas el **padre** en Jira **si aún no existe**. Independiente → la **HU** (guardas `jira.padre_key`, `jira.padre_url`, `jira.tipo_padre: "hu"`). Semanal → una **subtarea por entorno** bajo la HU de la semana que corresponde por fecha (de `hu_semanales`); las guardas en `subtareas[]` con su `entorno`, `key` y `url`. Nada más. Con un ID actúas sobre esa atención aunque ya esté en otra etapa (p. ej. si se trabajó y terminó toda de una vez sin `/inicia`); si el padre ya existe, avisa que no hay nada que crear. Skills: `jira-historia-usuario`, `jira-subtareas`. |
+| `/inicia` | al llegar la asignación, para crear el padre temprano. **Es opcional** (`accion: pendiente_inicio` en la cola) | Creas el **padre** en Jira **si aún no existe**, directo (sin dry-run ni "crear"). Independiente → la **HU** (guardas `jira.padre_key`, `jira.padre_url`, `jira.tipo_padre: "hu"`). Semanal → una **subtarea por entorno** bajo la HU de la semana que corresponde por fecha (de `hu_semanales`); las guardas en `subtareas[]` con su `entorno`, `key` y `url`. Nada más. Con un ID actúas sobre esa atención aunque ya esté en otra etapa (p. ej. si se trabajó y terminó toda de una vez sin `/inicia`); si el padre ya existe, avisa que no hay nada que crear. Skills: `jira-historia-usuario`, `jira-subtareas`. |
 | `/limpia` | cuando Jhans marca *atendida* (`accion: pendiente_limpieza`) | Lees los correos y la bitácora; corriges el texto de cada entrada (redacción coherente, **sin unir ni reordenar ni cambiar la cantidad**) en `bitacora-correccion.json`; completas `correos[].resumen`. **Escribes tu propuesta** de `descripcion` y `titulo_jira` (corto y claro) **directamente** en `ticket-datos.json`, al primer nivel, para que Jhans las revise en la herramienta; si pide ajustes por el chat, reescribes esos campos. No subes nada a Jira; la compuerta es el "Dar conforme". Skill: `correo-procesar`. |
 | `/procede` | cuando Jhans da el conforme (`accion: pendiente_jira`) | Subes a Jira. **Si el padre aún no existe (no se corrió `/inicia`), créalo primero** (la HU independiente o las subtareas semanales). En una **independiente**: creas la HU si falta, analizas la bitácora en orden, **propones las fases**, Jhans las aprueba, creas las subtareas bajo la HU y repartes los comentarios (razonas si van agrupados o uno por subtarea). En una **semanal**: creas las subtareas que falten (una por entorno) y subes sus comentarios (también las subtareas de los hijos si los hay). **Después de subir el comentario de cierre**, transicionas cada subtarea a `FINALIZADO` y actualizas `subtareas[].estado` en `ticket-datos.json`. Si no hay transición directa, avisas a Jhans. Skills: `jira-subtareas`, `jira-comentarios`, `sprint-cierre`. |
 | `/corrige <id>` | cuando un issue ya creado necesita ajuste | Actualizas en Jira los issues ya creados de la atención (los que tienen `key`): corriges su **título** (a `titulo_jira`) y su **descripción** con el formato vigente, vía `PUT /issue/<key>`. No creas issues nuevos ni tocas comentarios ya subidos. Skills: `jira-subtareas`, `jira-historia-usuario`. |
@@ -165,7 +165,7 @@ Formato wiki de Jira. Reglas (ver ejemplos en `jira-historia-usuario` y `jira-su
 
 ## Reglas de ejecución de Jira
 
-- Toda operación de Jira es un script `.py`. **Lo ejecutas tú** (el agente) en la terminal de VS Code, desde la carpeta `040_ProcesoJira` de la atención, tras la confirmación **"crear"** de Jhans en el chat. Tú manejas la ruta; Jhans no copia comandos ni busca carpetas. Invoca el script como `python nombre_script.py` (**sin `.\`**, para que funcione igual en PowerShell y en Git Bash). **No uses `Start-Process` ni `& operador`**: PowerShell falla con rutas que tienen espacios (p. ej. "OneDrive - Santander"); usa siempre `python nombre_script.py` directamente.
+- Toda operación de Jira es un script `.py`. **Lo ejecutas tú** (el agente) en la terminal de VS Code, desde la carpeta `040_ProcesoJira` de la atención. En `/procede` y `/corrige`, tras la confirmación **"crear"** de Jhans en el chat; **`/inicia` es la excepción y se ejecuta directo, sin dry-run ni "crear"**. Tú manejas la ruta; Jhans no copia comandos ni busca carpetas. Invoca el script como `python nombre_script.py` (**sin `.\`**, para que funcione igual en PowerShell y en Git Bash). **No uses `Start-Process` ni `& operador`**: PowerShell falla con rutas que tienen espacios (p. ej. "OneDrive - Santander"); usa siempre `python nombre_script.py` directamente.
 - **Antes de ejecutar cualquier script** (incluyendo el `--dry-run`), copia las variables de entorno del nivel User a la sesión actual con estos comandos en la terminal. Hazlo siempre; no asumas que ya están en la sesión:
 
   ```powershell
@@ -178,7 +178,7 @@ Formato wiki de Jira. Reglas (ver ejemplos en `jira-historia-usuario` y `jira-su
   ```
 
   Los nombres de las variables (`JIRA_ACMEBANK_*`) salen de los campos `url_var`, `email_var`, `token_var` del destino en `config-jira.json`; si el destino usa otros nombres, adapta las líneas.
-- **Flujo de confirmación:** primero corres el script con `--dry-run` (o le resumes a Jhans qué hará) y esperas su **"crear"**; recién entonces lo ejecutas de verdad (sin `--dry-run`). La compuerta es el "crear" del chat, así que **no** pongas un `input()` interactivo en los scripts.
+- **Flujo de confirmación (`/procede` y `/corrige`):** primero corres el script con `--dry-run` (o le resumes a Jhans qué hará) y esperas su **"crear"**; recién entonces lo ejecutas de verdad (sin `--dry-run`). La compuerta es el "crear" del chat. **`/inicia` es la excepción:** crea el padre directo, sin `--dry-run` ni "crear". En ningún caso pongas un `input()` interactivo en los scripts.
 - **Solo biblioteca estándar de Python.** Nunca instales paquetes (`pip install`), nunca crees entornos virtuales (`venv`, `virtualenv`, `conda` o cualquier otro), nunca cambies el intérprete. La laptop corporativa no tiene permisos de instalación y el proyecto no lo necesita. No crear scripts `.ps1`.
 - Para HTTPS, `curl.exe --ssl-no-revoke` desde `subprocess`; no usar `urllib` ni desactivar la validación del certificado.
 - Las credenciales se leen de las variables de entorno indicadas en `config-jira.json` (`url_var`, `email_var`, `token_var` del destino). Nunca las leas, muestres ni escribas.

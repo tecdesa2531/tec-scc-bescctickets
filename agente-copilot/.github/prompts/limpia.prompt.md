@@ -8,7 +8,7 @@ description: Corrige el texto de la bitacora y escribe la descripcion y el titul
 Sigue `.github/copilot-instructions.md` y el skill `correo-procesar`. Esta es la etapa `pendiente_limpieza`.
 
 - Si en la peticion viene un ID, trabaja solo sobre esa atencion.
-- Si no viene ID, lee `003_Herramienta/agente-cola.json` y toma las atenciones con `accion: "pendiente_limpieza"`. Si hay varias, confirmame antes.
+- Si no viene ID, lee `003_Herramienta/agente-cola.json` y toma las atenciones con `accion: "pendiente_limpieza"`. Si son **5 o menos**, confirmame cuales antes de empezar; si son **mas de 5**, listalas y procede.
 
 Para cada atencion:
 - Lee los correos `.eml` (cabeceras y cuerpo) de la raiz de trabajo y la `bitacora.json`.

@@ -8,7 +8,7 @@ description: Sube a Jira las atenciones con el conforme dado (subtareas y coment
 Sigue `.github/copilot-instructions.md`. Esta es la etapa `pendiente_jira`.
 
 - Si en la peticion viene un ID, trabaja solo sobre esa atencion.
-- Si no viene ID, lee `003_Herramienta/agente-cola.json` y toma **todas** las atenciones con `accion: "pendiente_jira"`.
+- Si no viene ID, lee `003_Herramienta/agente-cola.json` y toma las atenciones con `accion: "pendiente_jira"`. Si son **5 o menos**, confirmame cuales vas a subir antes de empezar; si son **mas de 5**, listalas y procede. (Esto es aparte del "crear" de cada script.)
 
 Antes de subir, **si el padre aun no existe en Jira (no se corrio `/inicia`), crealo primero**: la HU independiente o las subtareas semanales (revisa `jira.padre_key` y las `key` de `subtareas[]`).
 
