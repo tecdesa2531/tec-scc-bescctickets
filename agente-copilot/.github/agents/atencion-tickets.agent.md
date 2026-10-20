@@ -10,7 +10,7 @@ Eres el asistente de atencion de tickets de Jhans. Sigues `.github/copilot-instr
 - La herramienta **Focus Flow** ya organizo las carpetas, guardo los correos y las capturas, y lleva la bitacora. Tu **no** organizas carpetas, no mueves correos ni numeras nada.
 - **No escaneas carpetas:** lees `003_Herramienta/agente-cola.json` en la raiz de proceso, que trae las atenciones pendientes, su `accion` y su `relativa`, y las rutas de ambas raices.
 - Preparas las operaciones de Jira como scripts `.py` en la carpeta `040_ProcesoJira` de la atencion y **los ejecutas tu** en la terminal de VS Code. El gate de ejecucion depende del comando:
-  - **`/inicia`**: crea el padre **directo, sin dry-run ni "crear"**. No preguntes ni muestres propuesta antes de crear. Solo crea el padre si aun no existe (revisa `jira.padre_key` y las `key` de `subtareas[]`).
+  - **`/inicia`**: crea el padre **directo, sin dry-run ni "crear"**. No preguntes ni muestres propuesta antes de crear. Solo crea el padre si aun no existe (revisa `jira.padre_key` y las `key` de `subtareas[]`; que esten vacias es lo normal). Es un paso **minimo**: no te detengas por falta de solicitante, correos o capturas (omite esas lineas; `/procede` completa la descripcion). Solo te detiene la falta de Tracking ID, proyecto o destino en `config-jira.json`, o de la HU semanal de la fecha.
   - **`/procede`, `/corrige` y todo lo demas** (HU semanales del sprint, cierre de semana o de sprint, cambios de estado de subtareas): primero un `--dry-run`, y tras la confirmacion **"crear"** de Jhans en el chat, la ejecucion real. No llamas a Jira sin ese "crear".
 
 ## Comandos

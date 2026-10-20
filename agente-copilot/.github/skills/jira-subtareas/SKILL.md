@@ -23,7 +23,7 @@ Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el pro
 
 ## Titulo
 
-- **Semanal** (una por entorno): `PROYAA(PRE): PTSK0000123 - titulo` (sin parentesis si no hay entorno). En `/inicia` aun no existe `titulo_jira`; toma el `titulo` de `ticket-datos.json`, mejoralo levemente (ortografia, claridad) y usalo. No lo copies literal pero no lo reescribas desde cero. En `/procede`, actualiza el titulo a `titulo_jira`.
+- **Semanal** (una por entorno): `PROYAA(PRE): PTSK0000123 - titulo` (sin parentesis si no hay entorno). En `/inicia` aun no existe `titulo_jira`; toma el `titulo` de `ticket-datos.json`, mejoralo levemente (ortografia, claridad) y usalo. No lo copies literal pero no lo reescribas desde cero. En `/procede`, actualiza (PUT `/issue/<key>`) el titulo a `titulo_jira` y la descripcion con lo que aporto `/limpia` (solicitante, correos, captura), porque en `/inicia` pudo quedar minima.
 - **Independiente** (tareas de la HU): **solo el nombre de la tarea** (`fase`), sin proyecto ni Tracking ID, porque ya estan en la HU padre.
 
 ## Descripcion (formato wiki de Jira, saltos como `\n`)
@@ -48,8 +48,9 @@ Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el pro
 
 - `*COMO*` es el rol de Jhans segun el proyecto (nube/infra), **nunca** un nombre.
 - Tracking ID como enlace `[ID|URL]` solo si la atencion tiene `url_servicenow`; si no, deja solo el ID.
-- **Solicitante** = quien pidio la atencion; su nombre sale del **correo de solicitud** (entrada tipo `solicitud`), **no** del de asignacion (ese es quien asigno, otra persona). Si no hay correo de solicitud, usa `solicitante` de `ticket-datos.json` o pregunta.
-- La **captura del correo de asignacion** va embebida en la descripcion: subela como adjunto (`POST /issue/<key>/attachments`) y referenciala con `!archivo.png|thumbnail!`. No se adjunta el `.eml` de asignacion. **Si no hay correo de asignacion**, usa la captura del **correo de solicitud** (`captura_correo_solicitud`).
+- **Solicitante** = quien pidio la atencion; su nombre sale del **correo de solicitud** (entrada tipo `solicitud`), **no** del de asignacion (ese es quien asigno, otra persona). Si no hay correo de solicitud, usa `solicitante` de `ticket-datos.json`; si tampoco hay, **omite la linea** (no preguntes).
+- La **captura del correo de asignacion** va embebida en la descripcion: subela como adjunto (`POST /issue/<key>/attachments`) y referenciala con `!archivo.png|thumbnail!`. No se adjunta el `.eml` de asignacion. **Si no hay correo de asignacion**, usa la captura del **correo de solicitud** (`captura_correo_solicitud`); si no hay ninguno, **omite la seccion de captura**.
+- **Sin correos** (lo normal en `JINT`, `JDOC`, `JCON`): redacta el COMO/QUIERO/PARA y el OBJETIVO breves a partir del `titulo`. Nunca te detengas por falta de correos, solicitante o capturas.
 - El `.eml` y la captura del **correo de cierre** van en el comentario final, no aqui (ver `jira-comentarios`).
 
 **Tarea de una HU independiente:**

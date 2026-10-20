@@ -49,7 +49,7 @@ Esta `descripcion` es la **de la herramienta, NO la del issue de Jira** (esa se 
 En pocas lineas, que se hizo segun el historial de la bitacora.
 ```
 
-- **Datos** primero: Tracking ID (enlace `[ID](url)` solo si la atencion tiene `url_servicenow`; si no, el ID a secas), Proyecto (`tracking_code`), Entorno(s) y Solicitante (campo `solicitante` de `ticket-datos.json`).
+- **Datos** primero: Tracking ID (enlace `[ID](url)` solo si la atencion tiene `url_servicenow`; si no, el ID a secas), Proyecto (`tracking_code`), Entorno(s) y Solicitante (del correo de solicitud o del campo `solicitante` de `ticket-datos.json`; si no hay, omite esa linea y no preguntes).
 - **Resumen** despues: explica brevemente lo que se hizo, segun el recorrido de la bitacora (no copies el COMO/QUIERO/PARA de Jira).
 - **titulo_jira**: corto y claro, que exprese lo que realmente es la atencion. La fuente depende del estado de la atencion:
   - Si ya hay padre en Jira (`jira.padre_key` o alguna subtarea con `key`): el titulo propuesto debe ser coherente con el `titulo` de `ticket-datos.json` que uso `/inicia` para crearlo. No lo cambies radicalmente; es una refinacion.

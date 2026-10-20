@@ -35,7 +35,7 @@ DOCINF: JDOC0000000005 - titulo
 
 Con todos los entornos de la atencion separados por coma; sin parentesis si la atencion no tiene entorno.
 
-**Descripcion** (formato wiki de Jira, saltos como `\n` en el JSON). Contenido **breve, sin rodeos**. Fuente del OBJETIVO y el ALCANCE: en `/inicia`, el **correo de asignacion** (o el de solicitud si no hay asignacion), porque la bitacora aun suele estar vacia; en `/procede`, la actualizas con tu analisis de la bitacora y la `descripcion` corregida:
+**Descripcion** (formato wiki de Jira, saltos como `\n` en el JSON). Contenido **breve, sin rodeos**. Fuente del OBJETIVO y el ALCANCE: en `/inicia`, el correo de asignacion o de solicitud **si existe**; si no hay correos (lo normal en `JINT`, `JDOC`, `JCON`), redactalos breves a partir del `titulo` de la atencion. **Nunca te detengas por falta de correos.** En `/procede`, la actualizas con tu analisis de la bitacora y la `descripcion` corregida:
 
 ```
 *COMO* <rol de Jhans, nunca un nombre: p. ej. DevOps del equipo de nube o miembro del equipo de infraestructura>, *QUIERO* <lo que pide>, *PARA* <para que lo necesita>.
@@ -56,8 +56,8 @@ Con todos los entornos de la atencion separados por coma; sin parentesis si la a
 !20261005_captura_correo_asignado.png|thumbnail!
 ```
 
-- Mismas reglas que las subtareas: `*COMO*` es el rol (sin nombres); el **Solicitante** (con nombre) sale del **correo de solicitud**, no del de asignacion; el Tracking ID como enlace si hay `url_servicenow`.
-- La **captura del correo de asignacion** se sube como adjunto y se referencia con `!archivo.png|thumbnail!`; si no hay correo de asignacion, usa la del **correo de solicitud** (`captura_correo_solicitud`). El `.eml` y la captura de cierre van en el comentario final (ver `jira-comentarios`).
+- Mismas reglas que las subtareas: `*COMO*` es el rol (sin nombres); el **Solicitante** (con nombre) sale del **correo de solicitud**, no del de asignacion; si no hay correo ni campo `solicitante`, **omite esa linea** (no preguntes); el Tracking ID como enlace si hay `url_servicenow`.
+- La **captura del correo de asignacion** se sube como adjunto y se referencia con `!archivo.png|thumbnail!`; si no hay correo de asignacion, usa la del **correo de solicitud** (`captura_correo_solicitud`); si no hay ninguno, **omite la seccion de captura**. El `.eml` y la captura de cierre van en el comentario final (ver `jira-comentarios`).
 
 No muestres la propuesta ni esperes ajustes: genera el script y ejecutalo directamente.
 
