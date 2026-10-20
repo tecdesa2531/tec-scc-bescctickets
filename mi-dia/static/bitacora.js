@@ -1,4 +1,4 @@
-// Mi dia - bitacora.js: detalle de atencion y redactor de entradas
+// Focus Flow - bitacora.js: detalle de atencion y redactor de entradas
 
 function mdInline(s) {
   s = esc(s);
@@ -90,6 +90,7 @@ async function volver() {
   }
   detalle = null;
   limpiarRedactor();
+  document.title = "Focus Flow";
   document.getElementById("vista-atencion").hidden = true;
   document.getElementById("vista-inicio").hidden   = false;
   await cargarAtenciones();
@@ -99,6 +100,9 @@ async function volver() {
 
 function pintarDetalle() {
   var d = detalle.datos;
+  document.title = (d.tracking_id && d.tracking_code)
+    ? d.tracking_id + "-" + d.tracking_code
+    : "Focus Flow";
   document.getElementById("d-titulo").textContent =
     (NOMBRES_TIPO[d.tipo] || d.tipo) + " " + (d.tracking_id || "Sin ID") + " - " + d.titulo;
   document.getElementById("d-aviso-temporal").hidden = !detalle.temporal;
@@ -202,7 +206,7 @@ function pintarJira() {
 
 function verTextoBitacora(modo) {
   vistaBitacora = modo;
-  try { localStorage.setItem("mi-dia-vista-bitacora", modo); } catch (e) {}
+  try { localStorage.setItem("focus-flow-vista-bitacora", modo); } catch (e) {}
   pintarEntradas();
 }
 

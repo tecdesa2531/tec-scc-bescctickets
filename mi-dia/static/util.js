@@ -1,4 +1,4 @@
-// Mi dia - util.js: estado global, tema y funciones de uso general
+// Focus Flow - util.js: estado global, tema y funciones de uso general
 
 // -- Estado global
 var proyectos = [];
@@ -11,7 +11,7 @@ var nuevosArchivos = [];
 var edicion = null;
 var ideaEnConversion = null;
 var vistaBitacora = (function () {
-  try { return localStorage.getItem("mi-dia-vista-bitacora") || "corregido"; } catch (e) { return "corregido"; }
+  try { return localStorage.getItem("focus-flow-vista-bitacora") || "corregido"; } catch (e) { return "corregido"; }
 })();
 
 var NOMBRES_TIPO    = { ticket: "Ticket", int: "Iniciativa interna", doc: "Documentacion", con: "Consulta o Reunion" };
@@ -23,7 +23,7 @@ function aplicarTema(tema) {
   document.documentElement.setAttribute("data-tema", tema);
   var btn = document.getElementById("btn-tema");
   if (btn) btn.textContent = tema === "oscuro" ? "Modo claro" : "Modo oscuro";
-  try { localStorage.setItem("mi-dia-tema", tema); } catch (e) {}
+  try { localStorage.setItem("focus-flow-tema", tema); } catch (e) {}
 }
 
 function alternarTema() {
@@ -33,7 +33,7 @@ function alternarTema() {
 
 function iniciarTema() {
   var guardado = null;
-  try { guardado = localStorage.getItem("mi-dia-tema"); } catch (e) {}
+  try { guardado = localStorage.getItem("focus-flow-tema"); } catch (e) {}
   if (!guardado) {
     guardado = window.matchMedia("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro";
   }

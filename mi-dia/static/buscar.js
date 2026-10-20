@@ -1,4 +1,4 @@
-// Mi dia - buscar.js: buscador global en el header
+// Focus Flow - buscar.js: buscador global en el header
 
 var _buscarTimer = null;
 

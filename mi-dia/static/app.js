@@ -1,4 +1,4 @@
-// Mi dia - app.js: arranque, routing, eventos globales y actualizacion periodica
+// Focus Flow - app.js: arranque, routing, eventos globales y actualizacion periodica
 
 // -- Routing
 function rutear() {

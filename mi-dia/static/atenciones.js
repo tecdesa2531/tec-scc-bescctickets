@@ -1,4 +1,4 @@
-// Mi dia - atenciones.js: lista, nueva atencion, proyectos e ideas
+// Focus Flow - atenciones.js: lista, nueva atencion, proyectos e ideas
 
 // -- Copia de ID-proyecto al portapapeles
 function copiarIdProyecto(evento, texto) {

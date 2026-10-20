@@ -235,7 +235,7 @@ def main():
     indice.init_indice(registros)
     cola.regenerar(registros)
     servidor = ThreadingHTTPServer(("127.0.0.1", config.PUERTO), Manejador)
-    print("Mi dia iniciado en http://127.0.0.1:%d" % config.PUERTO)
+    print("Focus Flow iniciado en http://127.0.0.1:%d" % config.PUERTO)
     print("Raiz de trabajo: " + config.RAIZ_TRABAJO)
     print("Raiz de proceso: " + config.RAIZ_PROCESO)
     print("Para detenerlo presiona Ctrl+C")

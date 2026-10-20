@@ -1,4 +1,4 @@
-// Mi dia - foco.js: foco activo y resumen del dia
+// Focus Flow - foco.js: foco activo y resumen del dia
 
 async function cargarFoco() {
   foco = await leer("/api/foco");

@@ -1,4 +1,4 @@
-// Mi dia - accesos.js: tarjetas de accesos rapidos
+// Focus Flow - accesos.js: tarjetas de accesos rapidos
 
 function toggleAccesos() {
   var card = document.getElementById("card-accesos");

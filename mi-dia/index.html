@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mi dia</title>
+<title>Focus Flow</title>
 <!-- Aplica el tema antes de que cargue el CSS para evitar parpadeo -->
 <script>
 (function () {
   try {
-    var t = localStorage.getItem("mi-dia-tema");
+    var t = localStorage.getItem("focus-flow-tema");
     if (!t) t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro";
     document.documentElement.setAttribute("data-tema", t);
   } catch (e) {}
@@ -19,7 +19,7 @@
 <body>
 
 <header>
-  <span class="logo" onclick="volver()" style="cursor:pointer">Mi dia</span>
+  <span class="logo" onclick="volver()" style="cursor:pointer">Focus Flow</span>
   <span id="foco-actual" class="foco-label">Sin foco</span>
   <div id="buscar-zona" class="buscar-zona">
     <input type="text" id="buscador-global" placeholder="Buscar ticket o proyecto..." autocomplete="off" oninput="onBuscarInput()">
