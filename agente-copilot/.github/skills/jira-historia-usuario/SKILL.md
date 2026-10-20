@@ -18,7 +18,7 @@ La API no asocia la HU a la epica ni al sprint: eso lo hace Jhans en el tablero.
 
 ## HU independiente (en `/inicia`)
 
-En `/inicia`, el `titulo_jira` y la `descripcion` aun no existen (los escribe `/limpia`). Crea la HU con el `titulo` actual de `ticket-datos.json` y una descripcion breve a partir del correo de asignacion. En `/procede`, el agente actualiza el titulo a `titulo_jira` y la descripcion a la `descripcion` ya corregida.
+En `/inicia`, el `titulo_jira` y la `descripcion` aun no existen (los escribe `/limpia`). Toma el `titulo` de `ticket-datos.json`, mejoralo levemente (ortografia, claridad, coherencia entre palabras) y usalo como `summary` de la HU. No lo copies literal pero tampoco lo reescribas desde cero: es una mejora menor. Crea la HU directamente, sin mostrar propuesta ni pedir confirmacion a Jhans. En `/procede`, el agente actualiza el titulo a `titulo_jira` y la descripcion a la `descripcion` ya corregida.
 
 **Titulo** (sin corchetes; entornos entre parentesis en mayusculas):
 
@@ -53,7 +53,7 @@ Con todos los entornos de la atencion separados por coma; sin parentesis si la a
 - Mismas reglas que las subtareas: `*COMO*` es el rol (sin nombres); el **Solicitante** (con nombre) sale del **correo de solicitud**, no del de asignacion; el Tracking ID como enlace si hay `url_servicenow`.
 - La **captura del correo de asignacion** se sube como adjunto y se referencia con `!archivo.png|thumbnail!`; si no hay correo de asignacion, usa la del **correo de solicitud** (`captura_correo_solicitud`). El `.eml` y la captura de cierre van en el comentario final (ver `jira-comentarios`).
 
-**Mostrar el titulo y la descripcion a Jhans antes de generar el script** y aplicar los ajustes que pida.
+No muestres la propuesta ni esperes ajustes: genera el script y ejecutalo directamente.
 
 **Archivos** en `040_ProcesoJira`: `jira-hu_crear.json` (payload) y `jira-hu_respuesta.json` (lo escribe el script).
 

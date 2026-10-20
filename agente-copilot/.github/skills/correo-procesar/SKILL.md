@@ -51,7 +51,9 @@ En pocas lineas, que se hizo segun el historial de la bitacora.
 
 - **Datos** primero: Tracking ID (enlace `[ID](url)` solo si la atencion tiene `url_servicenow`; si no, el ID a secas), Proyecto (`tracking_code`), Entorno(s) y Solicitante (campo `solicitante` de `ticket-datos.json`).
 - **Resumen** despues: explica brevemente lo que se hizo, segun el recorrido de la bitacora (no copies el COMO/QUIERO/PARA de Jira).
-- **titulo_jira**: corto y claro, que exprese lo que realmente es la atencion.
+- **titulo_jira**: corto y claro, que exprese lo que realmente es la atencion. La fuente depende del estado de la atencion:
+  - Si ya hay padre en Jira (`jira.padre_key` o alguna subtarea con `key`): el titulo propuesto debe ser coherente con el `titulo` de `ticket-datos.json` que uso `/inicia` para crearlo. No lo cambies radicalmente; es una refinacion.
+  - Si no hay padre en Jira (se salto `/inicia`): deriva el titulo del contenido de la bitacora y del `titulo` de `ticket-datos.json`. Que refleje lo que realmente se hizo.
 
 **Guardalos de una** en `ticket-datos.json`, al **primer nivel**, en los campos `descripcion` y `titulo_jira` (merge: relee el archivo y cambia solo esos campos; no los anides dentro de `jira` ni de ningun otro objeto). Son una **propuesta**: Jhans los revisa en la herramienta y, si quiere cambios, te los pide por el chat y tu reescribes el archivo. Avisale en una linea que ya los dejaste para revisar.
 

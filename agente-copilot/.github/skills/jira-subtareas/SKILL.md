@@ -11,12 +11,12 @@ Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el pro
 
 ## Cuando se crean
 
-- **Semanal** (en `/inicia`): una subtarea **por entorno** bajo la HU de la semana que corresponde por fecha (de `hu_semanales` de `config-jira.json`). Una atencion en PRE y PRO genera dos subtareas. Guardalas en `subtareas[]` de `ticket-datos.json` con `entorno`, `key`, `url`.
+- **Semanal** (en `/inicia`): una subtarea **por entorno** bajo la HU de la semana que corresponde por fecha (de `hu_semanales` de `config-jira.json`). Una atencion en PRE y PRO genera dos subtareas. Guardalas en `subtareas[]` de `ticket-datos.json` con `entorno`, `key`, `url`. Ejecuta directo, sin dry-run ni confirmacion.
 - **Independiente** (en `/procede`): las tareas secuenciales aprobadas por Jhans, bajo `jira.padre_key` de la atencion. Una tarea puede abarcar varios entornos si comparten repositorio o flujo. Guardalas en `subtareas[]` con `secuencia`, `fase`, `entornos`, `key`, `url`.
 
 ## Titulo
 
-- **Semanal** (una por entorno): `PROYAA(PRE): PTSK0000123 - titulo` (sin parentesis si no hay entorno). En `/inicia` aun no existe `titulo_jira`; usa el `titulo` actual y, en `/procede`, actualiza el titulo a `titulo_jira`.
+- **Semanal** (una por entorno): `PROYAA(PRE): PTSK0000123 - titulo` (sin parentesis si no hay entorno). En `/inicia` aun no existe `titulo_jira`; toma el `titulo` de `ticket-datos.json`, mejoralo levemente (ortografia, claridad) y usalo. No lo copies literal pero no lo reescribas desde cero. En `/procede`, actualiza el titulo a `titulo_jira`.
 - **Independiente** (tareas de la HU): **solo el nombre de la tarea** (`fase`), sin proyecto ni Tracking ID, porque ya estan en la HU padre.
 
 ## Descripcion (formato wiki de Jira, saltos como `\n`)
@@ -87,7 +87,8 @@ Para **independiente**, agrupa todas las tareas aprobadas en un solo `jira-crear
 Para **semanal**, una entrada por entorno con `parent.key` = la `key` de la HU de `hu_semanales` cuya ventana (`inicio`-`fin`) cubre la fecha de la atencion, y el `summary` con el formato `PROYAA(PRE): ID - titulo`.
 
 - `issuetype.id` = `tipo_subtarea_id`; `assignee.accountId` = `asignado_account_id`; `parent.key` = la HU (independiente: `jira.padre_key`; semanal: la HU de `hu_semanales` que cubre la fecha de la atencion). Si el destino tiene `prioridad` o `etiquetas`, agregalos.
-- En independiente, en `/procede` **actualiza primero la HU** (PUT `/issue/<padre_key>`) con `titulo_jira` y la `descripcion` corregida, antes de crear las tareas.
+- En independiente, en `/procede`: si `jira.padre_key` no existe (se salto `/inicia`), crea primero la HU usando `titulo_jira` (siguiendo el skill `jira-historia-usuario`) y guarda la key antes de crear las tareas. Si ya existe, **actualiza primero la HU** (PUT `/issue/<padre_key>`) con `titulo_jira` y la `descripcion` corregida, antes de crear las tareas.
+- En semanal, en `/procede`: si `subtareas[]` no tiene ninguna con `key` (se salto `/inicia`), crea primero las subtareas por entorno (como lo haria `/inicia`) usando `titulo_jira` en lugar del `titulo`, y guardalas antes de subir comentarios.
 
 ## Script de creacion (referencia)
 
