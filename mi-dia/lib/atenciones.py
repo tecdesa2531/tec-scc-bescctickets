@@ -354,6 +354,10 @@ def _reubicar(registro, relativa_nueva, carpeta_entorno, cambios):
     if os.path.exists(proceso_anterior):
         shutil.rmtree(proceso_anterior, ignore_errors=True)
 
+    # Limpia las carpetas de origen que hayan quedado vacias tras el movimiento.
+    _eliminar_vacias_hacia_arriba(trabajo_anterior, config.RAIZ_TRABAJO)
+    _eliminar_vacias_hacia_arriba(proceso_anterior, config.RAIZ_PROCESO)
+
     registro["relativa"] = relativa_nueva
     registro["temporal"] = False
     actualizar_datos(registro, cambios)
@@ -361,6 +365,20 @@ def _reubicar(registro, relativa_nueva, carpeta_entorno, cambios):
     _cascadear_carpeta_entorno(registro["id"], carpeta_entorno)
     _regenerar_cola()
     return registro["id"]
+
+
+def _eliminar_vacias_hacia_arriba(ruta_movida, raiz):
+    # Sube desde la carpeta que se movio y elimina las carpetas padre que
+    # quedaron vacias. os.rmdir solo borra una carpeta vacia: si tiene
+    # cualquier contenido falla y la dejamos intacta. No pasa de la raiz.
+    raiz = os.path.abspath(raiz)
+    actual = os.path.dirname(os.path.abspath(ruta_movida))
+    while actual != raiz and actual.startswith(raiz + os.sep):
+        try:
+            os.rmdir(actual)
+        except OSError:
+            break
+        actual = os.path.dirname(actual)
 
 
 def _cascadear_carpeta_entorno(padre_id, carpeta_entorno):
