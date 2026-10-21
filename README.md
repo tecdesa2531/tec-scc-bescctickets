@@ -15,7 +15,7 @@ Herramientas personales para organizar el dia de trabajo en infraestructura y re
 | Carpeta           | Contenido |
 |---|---|
 | `mi-dia/`         | Focus Flow: accesos rapidos, atenciones, bitacora con correos y capturas, foco. Guia en su `README.md`. |
-| `agente-copilot/` | Agente y skills de GitHub Copilot que crean y suben los registros a Jira. |
+| `agente-copilot/` | Agente SprintDesk y skills de GitHub Copilot que crean y suben los registros a Jira. |
 | `docs/diseno.md`  | Decisiones y acuerdos del diseno. |
 | `CLAUDE.md`       | Contexto para Claude Code. |
 
