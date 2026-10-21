@@ -7,7 +7,7 @@
 | Parte           | Significado                                        |
 |-----------------|----------------------------------------------------|
 | `tec`           | Organización GitHub: tecdesa2531                   |
-| `scc`           | Aplicación: Sprint, Comentarios y Cierres          |
+| `scc`           | Aplicación **SprintDesk** (Sprint, Comentarios y Cierres) |
 | `bescctickets`  | Short name: BE (Backend) + SCCTICKETS (nombre corto) |
 
 Herramientas personales para organizar el día de trabajo en infraestructura y registrar las atenciones en Jira.
