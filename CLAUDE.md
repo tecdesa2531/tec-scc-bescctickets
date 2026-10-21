@@ -1,3 +1,5 @@
+cambio por el issure hijo 2
+
 # Contexto del proyecto
 
 Repositorio personal de Jhans (infraestructura/DevOps) para organizar su día de trabajo y registrar sus atenciones en Jira. Tiene dos partes que trabajan juntas:
