@@ -1,14 +1,31 @@
 // Focus Flow - bitacora.js: detalle de atencion y redactor de entradas
 
+function urlEtiqueta(urlEsc) {
+  var urlReal = urlEsc
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+  try {
+    var u = new URL(urlReal);
+    return u.pathname.length > 1 ? u.hostname + "/\u2026" : u.hostname;
+  } catch (e) {
+    return urlReal.length > 50 ? urlReal.slice(0, 47) + "\u2026" : urlReal;
+  }
+}
+
 function mdInline(s) {
   s = esc(s);
   s = s.replace(/`([^`\n]+)`/g,         '<code class="md-c">$1</code>');
   s = s.replace(/\*\*([^*\n]+)\*\*/g,   "<strong>$1</strong>");
   s = s.replace(/\*([^*\n]+)\*/g,       "<em>$1</em>");
   s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(_, txt, url) {
-    return /^https?:\/\//i.test(url)
-      ? '<a href="' + url + '" target="_blank" rel="noopener">' + txt + "</a>"
-      : txt;
+    var href = /^https?:\/\//i.test(url) ? url
+             : /^www\./i.test(url)       ? "https://" + url
+             : null;
+    return href ? '<a href="' + href + '" target="_blank" rel="noopener">' + txt + "</a>" : txt;
+  });
+  s = s.replace(/(?<![="'])(https?:\/\/[^\s<>"]+)/g, function(urlEsc) {
+    urlEsc = urlEsc.replace(/[.,;:!?)\]]+$/, "");
+    return '<a href="' + urlEsc + '" target="_blank" rel="noopener" title="' + urlEsc + '">' + urlEtiqueta(urlEsc) + "</a>";
   });
   return s;
 }

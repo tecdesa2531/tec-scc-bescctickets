@@ -507,6 +507,7 @@ details[open] summary::before { content: "\25BC  "; }
   font-size: 13px;
   margin: 6px 0;
   line-height: 1.6;
+  overflow-wrap: break-word;
 }
 
 .entrada .texto .md-h,
