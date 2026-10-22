@@ -76,10 +76,10 @@ class Manejador(BaseHTTPRequestHandler):
     def origen_permitido(self):
         # Solo acepta peticiones de la propia pagina (127.0.0.1 o localhost)
         anfitrion = (self.headers.get("Host") or "").split(":")[0]
-        if anfitrion not in ("127.0.0.1", "localhost"):
+        if anfitrion not in ("127.0.0.1", "localhost", "focusflow.localhost"):
             return False
         origen = self.headers.get("Origin")
-        if origen and urlparse(origen).hostname not in ("127.0.0.1", "localhost"):
+        if origen and urlparse(origen).hostname not in ("127.0.0.1", "localhost", "focusflow.localhost"):
             return False
         return True
 
