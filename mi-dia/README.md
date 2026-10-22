@@ -109,7 +109,19 @@ Si aún no tienes el número de ticket o el proyecto, déjalo vacío. La atenci�
 1. **Terminar** (botón *Terminar*, o una entrada de Cierre): marca la atención como *atendida*. El agente puede entonces limpiar el texto de la bitácora (corrige la redacción sin unir ni reordenar), escribir la descripción y proponer un título corto para Jira. Tú no pierdes nada: el texto original se conserva y en la bitácora hay un selector *Original / Corregido por el agente*.
 2. **Dar conforme** (botón *Dar conforme*): cuando revisaste el texto corregido y estás de acuerdo, lo marcas listo para Jira. Recién aquí el agente sube los comentarios. Si después agregas más entradas (reabres), vuelves a terminar y dar conforme, y solo se procesan las nuevas.
 
-**Foco.** En la portada, un clic en una atención la marca como tu foco. Al cambiar de foco se cierra el tramo anterior.
+**Lista de atenciones.** La tabla muestra todas tus atenciones ordenadas primero por estado y luego, dentro de cada grupo, por fecha de actualización (la más reciente arriba):
+
+| Orden | Estado | Significa |
+|---|---|---|
+| 1 | Reabierto | Estaba cerrada y volvió a activarse; requiere atención inmediata. |
+| 2 | En curso | Trabajo activo del día, incluyendo las temporales sin ID. |
+| 3 | En espera | Bloqueada, esperando algo externo. |
+| 4 | Atendido | Terminada. |
+| 5 | Descartado | Archivada sin completar. |
+
+La columna **Tiempo** muestra el tiempo acumulado de foco registrado para esa atención (suma de todos los tramos). Las atenciones sin ningún tramo de foco muestran la celda vacía.
+
+**Foco.** En la portada, un clic en una atención la marca como tu foco. Al cambiar de foco se cierra el tramo anterior. El encabezado de la página muestra el nombre de la atención en foco y la duración del tramo actual; hacer clic en ese texto abre directamente su bitácora.
 
 - *Pausa*: baño, agua, estirarte.
 - *Idea*: algo que se te ocurrió; queda en *Ideas pendientes* para decidir después.
@@ -118,6 +130,8 @@ Si aún no tienes el número de ticket o el proyecto, déjalo vacío. La atenci�
 - *Ver mi día*: totales y tramos de hoy.
 
 El tiempo es solo un registro interno y no se envía a Jira.
+
+**URLs en la bitácora.** Las URLs pegadas en el texto de una entrada se convierten automáticamente en enlaces; se muestra solo el dominio (`empresa.atlassian.net/…`) y la URL completa aparece al pasar el mouse. El formato Markdown `[texto](https://...)` y `[texto](www....)` también genera enlaces.
 
 ## 6. Dónde se guarda cada cosa
 

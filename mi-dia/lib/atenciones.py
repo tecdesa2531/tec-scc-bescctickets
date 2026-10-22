@@ -668,7 +668,9 @@ def resumen_atenciones():
                 registro, datos_bitacora.get("entradas", []), enviados),
             "actualizado": datos.get("actualizado", ""),
         })
+    orden_estado = {"reabierto": 0, "en_curso": 1, "en_espera": 2, "atendido": 3, "descartado": 4}
     lista.sort(key=lambda a: a["actualizado"], reverse=True)
+    lista.sort(key=lambda a: orden_estado.get(a["estado"], 1))
     return lista
 
 
