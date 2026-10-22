@@ -174,7 +174,7 @@ Los proyectos nuevos toman el siguiente número de 10 en 10 (`040_Infras`), con 
 |---|---|---|
 | `ticket-datos.json` | La herramienta | Copilot completa `correos[].resumen`, `subtareas`, `descripcion`, `titulo_jira` y las `key`/`url` de los issues. La herramienta nunca toca esos campos. |
 | `bitacora.json` | La herramienta | Copilot solo lo lee; el texto original nunca se modifica. |
-| `040_ProcesoJira\bitacora-correccion.json` | Copilot | Texto corregido de la bitácora por `bitacora_id`. La herramienta lo lee para mostrar original / corregido. |
+| `040_ProcesoJira\bitacora-correccion.json` | Copilot | Texto corregido de la bitácora por `bitacora_id`: `{"correcciones": {"<id>": {"texto": "...", "corregido": "AAAA-MM-DD HH:MM"}}}`. La herramienta lo lee para mostrar original / corregido. Si la entrada se editó en o después de `corregido`, la corrección no se muestra y aparece "Correccion pendiente". |
 | `040_ProcesoJira\jira-*.json` | Copilot | La herramienta solo los lee para saber qué entradas ya se subieron. |
 | `003_Herramienta\agente-cola.json` | La herramienta | Cola de pendientes del agente (`pendiente_inicio`, `pendiente_limpieza`, `pendiente_jira`), para que no escanee. |
 

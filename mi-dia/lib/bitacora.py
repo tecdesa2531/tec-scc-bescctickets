@@ -28,17 +28,27 @@ def ruta_correccion(registro):
 
 def leer_correcciones(registro):
     # Texto corregido por el agente, enganchado por bitacora_id. Solo lectura.
-    # Formato: {"correcciones": {"<bitacora_id>": "<texto corregido>"}}.
-    # Se tolera tambien {"<bitacora_id>": {"texto": "..."}} por si el agente lo anida.
+    # Formato: {"correcciones": {"<bitacora_id>": {"texto": "...", "corregido": "AAAA-MM-DD HH:MM"}}}.
+    # Se tolera el formato antiguo {"<bitacora_id>": "<texto>"} (sin fecha).
     datos = leer_json(ruta_correccion(registro), {"correcciones": {}})
     bruto = datos.get("correcciones", {}) or {}
     correcciones = {}
     for clave, valor in bruto.items():
         if isinstance(valor, dict):
-            correcciones[clave] = valor.get("texto", "") or ""
+            correcciones[clave] = {"texto": valor.get("texto", "") or "",
+                                   "corregido": valor.get("corregido", "") or ""}
         else:
-            correcciones[clave] = valor or ""
+            correcciones[clave] = {"texto": valor or "", "corregido": ""}
     return correcciones
+
+
+def correccion_vigente(entrada, correccion):
+    # Una correccion vence si la entrada se edito en o despues de corregirla.
+    # Sin fecha de correccion solo vale si la entrada nunca se edito.
+    editado = entrada.get("editado", "")
+    if not editado:
+        return True
+    return bool(correccion["corregido"]) and correccion["corregido"] > editado
 
 
 def ids_enviados(registro):

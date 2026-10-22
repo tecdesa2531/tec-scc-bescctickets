@@ -9,7 +9,7 @@ Sigue `.github/copilot-instructions.md`. Generas el script `.py` en `040_Proceso
 
 ## 1. Fuente del texto
 
-Usa el **texto corregido** de `040_ProcesoJira/bitacora-correccion.json` (por `bitacora_id`); si una entrada no tiene correccion, usa su texto original de `bitacora.json`. Las capturas, correos y adjuntos salen de la entrada de `bitacora.json`.
+Usa el **texto corregido** de `040_ProcesoJira/bitacora-correccion.json` (campo `texto`, por `bitacora_id`; en el formato antiguo el valor es el texto directo); si una entrada no tiene correccion, usa su texto original de `bitacora.json`. Si la correccion esta vencida (la entrada se edito en o despues de su `corregido`, ver skill `correo-procesar`), no la subas: avisa a Jhans que corra `/limpia` antes. Las capturas, correos y adjuntos salen de la entrada de `bitacora.json`.
 
 ## 2. Seleccion con criterio
 

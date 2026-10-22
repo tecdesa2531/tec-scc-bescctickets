@@ -263,6 +263,7 @@ function pintarEntradas() {
     if (!e.para_jira)      html += '<span class="etiqueta">Privada</span>';
     if (e.enviada)         html += '<span class="etiqueta">Enviada a Jira</span>';
     if (e.texto_corregido) html += '<span class="etiqueta">' + (usarCorregido ? "Corregido" : "Con correccion") + "</span>";
+    if (e.correccion_vencida) html += '<span class="etiqueta">Correccion pendiente</span>';
     if (e.editado)         html += '<span class="etiqueta">Editada ' + esc(e.editado) + "</span>";
     if (!e.enviada)        html += '<button class="derecha" onclick="editarEntrada(\'' + e.id + '\')">Editar</button>';
     html += "</div>";

@@ -27,8 +27,19 @@ Corrige el texto de **cada** entrada de `bitacora.json` (todas, no solo las `par
 Escribe el texto corregido en `<raiz_proceso>/<relativa>/040_ProcesoJira/bitacora-correccion.json`, enganchado por `bitacora_id`:
 
 ```json
-{ "correcciones": { "e20261018163626...": "Al ejecutar `flux get ks` aparece un error en el EKS." } }
+{ "correcciones": { "e20261018163626...": { "texto": "Al ejecutar `flux get ks` aparece un error en el EKS.", "corregido": "2026-10-21 15:40" } } }
 ```
+
+`corregido` es la fecha y hora local en que escribes la correccion, formato `AAAA-MM-DD HH:MM`. Tomala de la terminal (`python -c "import datetime; print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M'))"`); no la inventes.
+
+**Limpieza incremental.** `/limpia` puede correr varias veces sobre la misma atencion (por ejemplo, si Jhans no dio el conforme, o si reabrio y agrego entradas). Antes de corregir:
+
+- Si `bitacora-correccion.json` ya existe, leelo y conserva sus correcciones.
+- Una correccion esta **vigente** si la entrada no tiene campo `editado`, o si su `corregido` es mayor que el `editado` de la entrada. Si la entrada se edito despues (o en el mismo minuto), o la correccion no tiene `corregido` y la entrada tiene `editado`, la correccion esta **vencida**.
+- Si una entrada tiene correccion vigente, **saltala**: Jhans ya pudo revisarla.
+- Corrige las entradas sin correccion o con correccion vencida y **escribelas** en el archivo (merge: reemplaza solo esas, sin borrar las demas). Si encuentras correcciones en el formato antiguo (solo texto, sin `corregido`) y vigentes, dejalas como estan.
+- Solo vuelves a corregir una entrada ya corregida si Jhans lo pide de forma explicita en el chat.
+- Si no hay entradas nuevas, no reescribas el archivo y avisalo en una linea.
 
 ## 4. Resumir los correos
 

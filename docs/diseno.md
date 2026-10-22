@@ -213,7 +213,7 @@ El agente **no escanea** carpetas: lee `003_Herramienta/agente-cola.json`, que l
 
 | Estado | Señal | Qué ocurre |
 |---|---|---|
-| **1. Limpieza** | Jhans lo marca en la herramienta | Con `/limpia`, el agente corrige **solo el texto** de cada entrada de la bitácora (oraciones coherentes, para dejar el historial limpio). **No une, no reordena, no cambia la estructura ni la cantidad** de entradas. Corrige **todas** las entradas, no solo las `para_jira`. Además crea la `descripcion` y el `titulo_jira`. El original nunca se toca: lo corregido va a `bitacora-correccion.json`. |
+| **1. Limpieza** | Jhans lo marca en la herramienta | Con `/limpia`, el agente corrige **solo el texto** de cada entrada de la bitácora (oraciones coherentes, para dejar el historial limpio). **No une, no reordena, no cambia la estructura ni la cantidad** de entradas. Corrige **todas** las entradas, no solo las `para_jira`. Además crea la `descripcion` y el `titulo_jira`. El original nunca se toca: lo corregido va a `bitacora-correccion.json`. La limpieza es **incremental**: si `/limpia` corre otra vez (sin conforme, o tras reabrir y agregar entradas), salta las entradas con corrección vigente y solo corrige las nuevas o las editadas. Cada corrección guarda su fecha (`corregido`); si la entrada se editó en o después de esa fecha, la corrección vence: la herramienta deja de mostrarla (etiqueta "Correccion pendiente") y el siguiente `/limpia` la rehace. Re-corregir una vigente solo si Jhans lo pide. |
 | **2. Terminado** | Jhans revisa lo corregido y da el conforme | Habilita `/procede`. El agente analiza los terminados y sube a Jira. |
 
 ### 7.4 Mapeo a Jira

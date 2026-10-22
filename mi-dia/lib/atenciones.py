@@ -703,7 +703,14 @@ def _detalle_desde_registro(registro):
     entradas = datos_bitacora.get("entradas", [])
     for entrada in entradas:
         entrada["enviada"] = entrada["id"] in enviados
-        entrada["texto_corregido"] = correcciones.get(entrada["id"], "")
+        correccion = correcciones.get(entrada["id"])
+        entrada["texto_corregido"] = ""
+        entrada["correccion_vencida"] = False
+        if correccion and correccion["texto"]:
+            if bitacora.correccion_vigente(entrada, correccion):
+                entrada["texto_corregido"] = correccion["texto"]
+            else:
+                entrada["correccion_vencida"] = True
     return {
         "id": registro["id"],
         "temporal": registro["temporal"],
