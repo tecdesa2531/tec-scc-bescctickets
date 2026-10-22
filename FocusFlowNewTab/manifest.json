@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "name": "Focus Flow Nueva Pestana",
+  "version": "1.0.0",
+  "description": "Reemplaza la pestana nueva con la herramienta Focus Flow local.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  }
+}

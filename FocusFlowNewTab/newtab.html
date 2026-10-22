@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Focus Flow</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0f1117;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .marca {
+      font-size: 1.75rem;
+      font-weight: 300;
+      letter-spacing: 0.2em;
+      color: #94a3b8;
+    }
+
+    .separador {
+      width: 32px;
+      height: 1px;
+      background: #1e293b;
+    }
+
+    #estado {
+      font-size: 0.85rem;
+      color: #475569;
+      letter-spacing: 0.05em;
+    }
+
+    #error {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    #error p {
+      font-size: 0.9rem;
+      color: #64748b;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    #error button {
+      padding: 7px 22px;
+      background: transparent;
+      border: 1px solid #1e293b;
+      border-radius: 3px;
+      color: #64748b;
+      font-size: 0.85rem;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    #error button:hover {
+      border-color: #334155;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="marca">Focus Flow</div>
+  <div class="separador"></div>
+  <div id="estado">Conectando...</div>
+  <div id="error" hidden>
+    <p>Focus Flow no esta activo.<br>Inicia el servidor y recarga.</p>
+    <button onclick="verificar()">Reintentar</button>
+  </div>
+
+  <script>
+    var URL_DESTINO = "http://focusflow.localhost:8765";
+    var TIMEOUT_MS  = 2000;
+
+    function mostrarError() {
+      document.getElementById("estado").hidden = true;
+      document.getElementById("error").hidden  = false;
+    }
+
+    function verificar() {
+      var estadoEl = document.getElementById("estado");
+      estadoEl.hidden  = false;
+      estadoEl.textContent = "Conectando...";
+      document.getElementById("error").hidden = true;
+
+      var control      = new AbortController();
+      var temporizador = setTimeout(function() { control.abort(); }, TIMEOUT_MS);
+
+      fetch(URL_DESTINO, { method: "GET", mode: "no-cors", signal: control.signal })
+        .then(function() {
+          clearTimeout(temporizador);
+          window.location.replace(URL_DESTINO);
+        })
+        .catch(function() {
+          clearTimeout(temporizador);
+          mostrarError();
+        });
+    }
+
+    verificar();
+  </script>
+
+</body>
+</html>
