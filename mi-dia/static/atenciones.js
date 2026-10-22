@@ -99,7 +99,7 @@ function pintarAtenciones() {
       "<td" + idCeldaAttr + ">" + dotHijos + (dotHijos ? " " : "") + idTexto + "</td>" +
       "<td" + proyCeldaAttr + ">" + esc(codigoMostrar) + "</td>" +
       '<td title="' + esc(a.titulo) + '">' + esc(a.titulo) + "</td>" +
-      "<td>" + esc(NOMBRES_ESTADO[a.estado] || a.estado) + "</td>" +
+      "<td>" + (a.segundos ? duracion(a.segundos) : "") + "</td>" +
       "<td>" + (a.pendientes || "") + "</td>" +
       "<td>" + esc(a.actualizado) + "</td></tr>";
   }

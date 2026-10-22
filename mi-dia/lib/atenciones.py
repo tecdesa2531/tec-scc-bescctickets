@@ -648,6 +648,7 @@ def tiempo_por_atencion():
 
 def resumen_atenciones():
     lista = []
+    tiempos = tiempo_por_atencion()
     for registro in buscar_atenciones():
         datos = registro["datos"]
         datos_bitacora = bitacora.leer_bitacora(registro)
@@ -662,6 +663,7 @@ def resumen_atenciones():
             "tracking_id": datos.get("tracking_id", ""),
             "titulo": datos.get("titulo", ""),
             "estado": datos.get("estado", ""),
+            "segundos": tiempos.get(registro["id"], 0),
             "pendientes": bitacora.contar_pendientes(
                 registro, datos_bitacora.get("entradas", []), enviados),
             "actualizado": datos.get("actualizado", ""),

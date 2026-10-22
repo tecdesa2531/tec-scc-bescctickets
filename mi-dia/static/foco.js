@@ -8,8 +8,18 @@ async function cargarFoco() {
 function pintarFoco() {
   var cabecera = document.getElementById("foco-actual");
   if (foco.actual) {
-    cabecera.innerHTML = "Foco: <b>" + esc(foco.actual.etiqueta) + "</b> (" + duracion(segundosDesde(foco.actual.inicio)) + ")";
+    var idFoco = foco.actual.atencion_id;
+    cabecera.innerHTML = "<b>" + esc(foco.actual.etiqueta) + "</b> (" + duracion(segundosDesde(foco.actual.inicio)) + ")";
+    if (idFoco) {
+      cabecera.className = "foco-label foco-clic";
+      cabecera.onclick = function() { abrirAtencion(idFoco); };
+    } else {
+      cabecera.className = "foco-label";
+      cabecera.onclick = null;
+    }
   } else {
+    cabecera.className = "foco-label";
+    cabecera.onclick = null;
     cabecera.textContent = "Sin foco";
   }
 

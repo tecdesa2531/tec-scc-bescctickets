@@ -84,6 +84,12 @@ header {
   -webkit-text-fill-color: var(--texto);
 }
 
+.foco-clic { cursor: pointer; }
+.foco-clic:hover b {
+  color: var(--activo);
+  -webkit-text-fill-color: var(--activo);
+}
+
 .btn-tema {
   font-size: 12px;
   padding: 4px 14px;
