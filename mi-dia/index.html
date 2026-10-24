@@ -21,7 +21,13 @@
 
 <header>
   <span class="logo" onclick="volver()" style="cursor:pointer">Focus Flow</span>
-  <span id="foco-actual" class="foco-label">Sin foco</span>
+  <a id="foco-pildora" class="pildora pildora-sin" href="#" title="Abrir la atencion en foco" onclick="clicPildora(event)">
+    <span class="pildora-dot"></span>
+    <span id="pildora-label">Sin foco</span>
+    <b id="pildora-id" class="pildora-id" hidden></b>
+    <span id="pildora-code" class="pildora-code" hidden></span>
+    <span id="pildora-timer" class="pildora-timer" hidden></span>
+  </a>
   <div id="buscar-zona" class="buscar-zona">
     <input type="text" id="buscador-global" placeholder="Buscar ticket o proyecto..." autocomplete="off" oninput="onBuscarInput()">
     <div id="buscar-dropdown" hidden class="buscar-dropdown"></div>
@@ -29,52 +35,101 @@
   <button id="btn-tema" class="btn-tema" onclick="alternarTema()">Modo oscuro</button>
 </header>
 
+<!-- Franja de interrupcion (global, visible mientras hay una interrupcion activa) -->
+<div id="franja-npl" class="franja-npl" hidden>
+  <span class="franja-dot"></span>
+  <span class="franja-txt">Interrupcion en curso</span>
+  <span id="franja-timer" class="franja-timer"></span>
+  <span id="franja-detalle" class="franja-detalle"></span>
+  <span class="franja-sep"></span>
+  <button class="franja-btn" onclick="anotarInterrupcion()">Anotar</button>
+  <button class="franja-btn franja-btn-pri" onclick="anotarInterrupcion()">Cerrar interrupcion</button>
+</div>
+
 <!-- =============== VISTA INICIO =============== -->
-<main id="vista-inicio" class="contenedor">
+<main id="vista-inicio">
 
+  <div class="layout-principal">
   <div id="aviso-config" class="aviso" hidden></div>
+  <div class="col-main">
 
-  <!-- Accesos -->
-  <div class="card" id="card-accesos">
-    <div class="card-titulo card-titulo-clic" onclick="toggleAccesos()">Accesos</div>
-    <div id="accesos"></div>
-  </div>
+  <!-- Panel de foco -->
+  <section class="panel-foco">
 
-  <!-- Foco -->
-  <div class="card">
-    <div class="card-titulo">Foco</div>
-    <div class="foco-header">
-      <button class="principal" onclick="terminarDia()">Terminar dia</button>
-      <div class="foco-acciones">
-        <button id="btn-pausa" onclick="focoPausa()" title="Pausa"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="2" width="4" height="10" rx="1"/></svg></button>
-        <button onclick="focoIdea()">Idea</button>
-        <button onclick="focoReunion()">Nueva reunion</button>
-        <button onclick="iniciarInterrupcion()">Interrupcion</button>
+    <!-- Foco abierto de ayer: bloquea el panel hasta cerrar -->
+    <div id="foco-ayer" class="foco-ayer" hidden>
+      <div class="foco-ayer-info">
+        <span class="foco-ayer-titulo">Quedo un foco abierto de ayer</span>
+        <span class="foco-ayer-detalle"><b id="anterior-etiqueta"></b> desde <span id="anterior-inicio"></span>. Indica a que hora terminaste para continuar.</span>
       </div>
+      <div class="foco-ayer-cierre">
+        <label for="anterior-hora">Hora de cierre</label>
+        <input type="time" id="anterior-hora">
+      </div>
+      <button class="principal" onclick="cerrarAnterior()">Cerrar y continuar</button>
     </div>
-    <div id="aviso-anterior" class="aviso" hidden>
-      Quedo abierto el foco <b id="anterior-etiqueta"></b> desde <span id="anterior-inicio"></span>.
-      A que hora terminaste?
-      <input type="time" id="anterior-hora">
-      <button onclick="cerrarAnterior()">Guardar</button>
+
+    <!-- Sin foco -->
+    <div id="foco-sinfoco" class="foco-sinfoco" hidden>
+      <span class="foco-kicker foco-kicker-gris">SIN FOCO</span>
+      <span class="foco-pregunta">En que trabajas ahora?</span>
+      <span class="foco-hint">Elige una atencion de la lista con <b>Enfocar</b>, o crea una nueva.</span>
     </div>
-    <div id="foco-chips" class="foco-columnas"></div>
-    <div class="seccion-colapsable">
-      <div class="seccion-titulo" onclick="alternar('resumen-dia')">Ver mi dia</div>
-      <div id="resumen-dia" hidden style="margin-top:10px"></div>
+
+    <!-- En foco / en pausa -->
+    <div id="foco-activo" class="foco-activo" hidden>
+      <div class="foco-activo-datos">
+        <span id="foco-kicker" class="foco-kicker"></span>
+        <div class="foco-activo-id">
+          <span id="foco-id" class="mono-id"></span>
+          <a id="foco-titulo-link" class="foco-titulo ell" href="#" onclick="clicPildora(event)"></a>
+        </div>
+      </div>
+      <span id="foco-timer" class="foco-timer"></span>
     </div>
-  </div>
+
+    <!-- Botones de accion -->
+    <div id="foco-botones" class="foco-botones" hidden>
+      <button id="btn-pausa" class="btn-pausa" onclick="focoPausa()" title="Pausa"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="2" width="4" height="10" rx="1"/></svg></button>
+      <button class="btn-foco" onclick="focoIdea()" title="Atajo: tecla I">Idea <kbd>I</kbd></button>
+      <button class="btn-foco" onclick="focoReunion()">Reunion</button>
+      <button class="btn-foco" onclick="iniciarInterrupcion()" title="Atajo: tecla N">Interrupcion <kbd>N</kbd></button>
+      <span class="foco-sep"></span>
+      <button class="btn-terminar-dia" onclick="pedirTerminarDia()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg> Terminar dia</button>
+    </div>
+
+    <!-- Confirmacion en linea de Terminar dia -->
+    <div id="foco-terminar-fila" class="foco-confirmar" hidden>
+      <span id="foco-terminar-texto"></span>
+      <span class="foco-sep"></span>
+      <button onclick="cancelarTerminarDia()">Cancelar</button>
+      <button class="principal" onclick="terminarDia()">Terminar dia</button>
+    </div>
+
+    <!-- Idea en linea -->
+    <div id="foco-idea-fila" class="foco-fila-inline" hidden>
+      <input type="text" id="foco-idea-input" class="campo-idea" placeholder="Escribe la idea y pulsa Enter">
+      <button class="foco-inline-btn" onclick="guardarFocoIdea()">Guardar</button>
+    </div>
+
+    <!-- Reunion en linea -->
+    <div id="foco-reunion-fila" class="foco-fila-inline" hidden>
+      <input type="text" id="foco-reunion-input" class="campo-reunion" placeholder="Titulo de la reunion (el proyecto lo asignas al terminar)">
+      <button class="foco-inline-btn" id="foco-reunion-iniciar" onclick="iniciarFocoReunion()" disabled>Iniciar</button>
+    </div>
+  </section>
 
   <!-- Atenciones -->
-  <div class="card">
-    <div class="card-titulo">Atenciones</div>
-    <div class="fila">
-      <button class="principal" onclick="mostrarNueva()">Nueva atencion</button>
-      <input type="text" id="buscar" placeholder="Buscar por ID, proyecto o titulo" oninput="pintarAtenciones()" style="min-width:260px">
-<select id="filtro" onchange="pintarAtenciones()">
-        <option value="abiertas">Abiertas o con pendientes</option>
-        <option value="todas">Todas</option>
-      </select>
+  <div class="card" id="card-atenciones">
+    <div class="atenciones-cab">
+      <h2 class="atenciones-titulo">Atenciones</h2>
+      <div class="filtros-seg" role="group" aria-label="Filtro">
+        <button type="button" id="filtro-abiertas" class="filtro-btn" onclick="setFiltro('abiertas')">Abiertas</button>
+        <button type="button" id="filtro-revisar" class="filtro-btn" onclick="setFiltro('revisar')">Por revisar<span id="filtro-revisar-count" class="filtro-count" hidden>0</span></button>
+        <button type="button" id="filtro-todas" class="filtro-btn" onclick="setFiltro('todas')">Todas</button>
+      </div>
+      <span class="atenciones-sep"></span>
+      <button class="principal" onclick="mostrarNueva()">+ Nueva atencion</button>
     </div>
 
     <div id="form-nueva" class="formulario" hidden>
@@ -154,30 +209,26 @@
       </div>
     </div>
 
-    <table class="tabla-atenciones">
-      <colgroup>
-        <col style="width:170px">
-        <col style="width:88px">
-        <col>
-        <col style="width:108px">
-        <col style="width:52px">
-        <col style="width:128px">
-      </colgroup>
-      <thead>
-        <tr>
-          <th>ID</th><th>Proyecto</th><th>Titulo</th>
-          <th>Tiempo</th><th>Pend.</th><th>Actualizado</th>
-        </tr>
-      </thead>
-      <tbody id="lista-atenciones"></tbody>
-    </table>
+    <div id="lista-atenciones" class="lista-at"></div>
   </div>
 
-  <!-- Ideas pendientes -->
-  <div class="card">
-    <div class="card-titulo">Ideas pendientes</div>
-    <div id="ideas"></div>
-  </div>
+  </div><!-- /col-main -->
+
+  <aside class="col-aside">
+    <!-- Accesos -->
+    <div class="card" id="card-accesos">
+      <div class="card-titulo">Accesos rapidos</div>
+      <div id="accesos" class="accesos-scroll"></div>
+    </div>
+
+    <!-- Ideas pendientes -->
+    <div class="card" id="card-ideas">
+      <div class="card-titulo">Ideas pendientes</div>
+      <div id="ideas"></div>
+    </div>
+  </aside>
+
+  </div><!-- /layout-principal -->
 
 </main>
 
@@ -339,6 +390,12 @@
   </div>
 
 </main>
+
+<!-- Aviso "Foco en ... / Deshacer" (se oculta solo a los 5 s) -->
+<div id="aviso-foco" class="aviso-foco" hidden>
+  <span id="aviso-foco-texto"></span>
+  <button class="aviso-foco-btn" onclick="deshacerFoco()">Deshacer</button>
+</div>
 
 <script src="/static/util.js"></script>
 <script src="/static/buscar.js"></script>

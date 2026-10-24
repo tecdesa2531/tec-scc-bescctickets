@@ -1,44 +1,155 @@
 // Focus Flow - atenciones.js: lista, nueva atencion, proyectos e ideas
 
-// -- Copia de ID-proyecto al portapapeles
-function copiarIdProyecto(evento, texto) {
-  evento.stopPropagation();
-  navigator.clipboard.writeText(texto).then(function () {
-    var tip = document.createElement("div");
-    tip.textContent = "Copiado";
-    tip.className = "tip-copiado";
-    tip.style.left = (evento.clientX + 12) + "px";
-    tip.style.top  = (evento.clientY - 10) + "px";
-    document.body.appendChild(tip);
-    setTimeout(function () { tip.classList.add("tip-copiado-salir"); }, 600);
-    setTimeout(function () { tip.remove(); }, 900);
-  });
+// -- Etiquetas y check de la lista
+var ETIQUETA_TIPO = { ticket: "TKT", int: "INT", doc: "DOC", con: "CON", npl: "NPL" };
+var SVG_CHECK = '<svg class="at-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+
+// -- Filtro de la lista
+function setFiltro(filtro) {
+  filtroAtenciones = filtro;
+  pintarAtenciones();
 }
 
-// -- Colapso de ramas en la lista
+function enfocarDesdeLista(evento, id) {
+  evento.stopPropagation();
+  focoAtencion(id);
+}
+
+// -- Colapso de ramas (sin flechas: toda la columna izquierda del padre)
 function leerColapsado(id) {
   try { return localStorage.getItem("colapso-" + id) === "1"; } catch (e) { return false; }
 }
 
-function toggleColapso(evento, id) {
+function alternarColapso(evento, id) {
   evento.stopPropagation();
   try { localStorage.setItem("colapso-" + id, leerColapsado(id) ? "0" : "1"); } catch (e) {}
-  var sy = window.scrollY;
   pintarAtenciones();
-  window.scrollTo(0, sy);
+}
+
+function colapsoTeclado(evento, id) {
+  if (evento.key === "Enter" || evento.key === " ") { evento.preventDefault(); alternarColapso(evento, id); }
+}
+
+function tieneDescendienteFoco(id, idFoco) {
+  return atenciones.some(function (h) {
+    return h.padre_id === id && (h.id === idFoco || tieneDescendienteFoco(h.id, idFoco));
+  });
+}
+
+// -- Etiqueta de estado / paso hacia Jira
+function badgePaso(paso) {
+  var etiquetas = {
+    en_curso: "En curso", en_espera: "En espera", reabierto: "Reabierto", descartado: "Descartado",
+    limpia: "Pendiente de limpieza", revisar: "Revisar y dar conforme",
+    procede: "Pendiente de subir", jira: "En Jira"
+  };
+  var label = etiquetas[paso] || paso;
+  if (paso === "en_curso" || paso === "en_espera" || paso === "reabierto" || paso === "descartado") {
+    return '<span class="at-pill at-pill-estado at-mark-' + paso + '">' + esc(label) + "</span>";
+  }
+  if (paso === "revisar") return '<span class="at-pill at-pill-revisar">' + esc(label) + "</span>";
+  if (paso === "jira")    return '<span class="at-pill at-pill-jira">' + SVG_CHECK + esc(label) + "</span>";
+  return '<span class="at-pill at-pill-gris">' + esc(label) + "</span>";
+}
+
+// -- Una fila de la lista
+function htmlFila(a, nivel, mapa, idFoco) {
+  var tipo      = a.tipo;
+  var enFoco    = a.id === idFoco;
+  var esCerrada = a.estado === "atendido" || a.estado === "descartado";
+  var atenuada  = a.paso === "jira" || a.estado === "descartado";
+
+  var totalHijos = atenciones.filter(function (h) { return h.padre_id === a.id; }).length;
+  var tieneHijos = totalHijos > 0;
+  var colapsado  = tieneHijos && leerColapsado(a.id);
+  var hijoEnFoco = tieneHijos && tieneDescendienteFoco(a.id, idFoco);
+
+  var idTexto = a.tracking_id || (a.temporal ? "Sin Tracking ID" : (a.numero || "Sin ID"));
+  var codigo  = a.tracking_code ||
+    (nivel > 0 && a.padre_id && mapa[a.padre_id] ? mapa[a.padre_id].tracking_code : "");
+  var proj = codigo || (a.temporal ? "Sin proyecto" : "");
+  var env = "";
+  if ((tipo === "ticket" || tipo === "int") && a.entornos) {
+    env = a.entornos.filter(function (x) { return x && x !== "SIN_ENTORNO"; }).join(", ");
+  }
+
+  var abrir = a.numero
+    ? "abrirDetalleNueva('" + a.tipo + "','" + esc(a.numero) + "')"
+    : "abrirAtencion('" + a.id + "')";
+
+  // Circulo con el numero de hijas en la esquina de la etiqueta de tipo
+  var badgeHijos = "";
+  if (tieneHijos) {
+    var clsHijos = "at-hijos";
+    if (colapsado && hijoEnFoco) clsHijos += " at-hijos-foco";
+    else if (colapsado)          clsHijos += " at-hijos-llena";
+    badgeHijos = '<span class="' + clsHijos + '">' + totalHijos + "</span>";
+  }
+  var tag = '<span class="at-tag at-tag-' + tipo + '">' + esc(ETIQUETA_TIPO[tipo] || tipo) + badgeHijos + "</span>";
+
+  // Columna izquierda: etiqueta de tipo + tiempo. En padres, boton de colapso.
+  var toggleAttrs = "";
+  if (tieneHijos) {
+    var txt = (colapsado ? "Expandir " : "Contraer ") + totalHijos + (totalHijos === 1 ? " hija" : " hijas");
+    toggleAttrs = ' role="button" tabindex="0" aria-expanded="' + (!colapsado) +
+      '" aria-label="' + esc(txt) +
+      '" onclick="alternarColapso(event,\'' + a.id + '\')" onkeydown="colapsoTeclado(event,\'' + a.id + '\')"';
+  }
+  var toggle = '<div class="at-toggle' + (tieneHijos ? " at-toggle-clic" : "") + '"' + toggleAttrs + ">" +
+    tag +
+    '<span class="at-tiempo">' + esc(duracion(a.segundos || 0)) + "</span>" +
+  "</div>";
+
+  var linea1 = '<span class="at-id">' + esc(idTexto) + "</span>" +
+    (proj ? '<span class="at-proj">- ' + esc(proj) + "</span>" : "") +
+    (env ? '<span class="at-proj">- ' + esc(env) + "</span>" : "") +
+    (a.temporal ? '<span class="at-temporal">Temporal</span>' : "");
+
+  var tituloCls = a.estado === "descartado" ? "at-titulo at-tachado ell" : "at-titulo ell";
+  var linea2 = '<span class="' + tituloCls + '" title="' + esc(a.titulo) + '">' + esc(a.titulo) +
+    (a.npl_pendiente_cierre ? ' <span class="at-badge-cierre">Pendiente de cerrar</span>' : "") + "</span>";
+
+  var accion = enFoco
+    ? '<span class="at-enfoco"><span class="at-enfoco-dot"></span>En foco</span>'
+    : (!esCerrada ? '<button class="at-enfocar" onclick="enfocarDesdeLista(event,\'' + a.id + '\')">Enfocar</button>' : "");
+
+  var cls = "at-fila" + (nivel > 0 ? " at-hija" : "") + (enFoco ? " at-en-foco" : "") + (atenuada ? " at-atenuada" : "");
+  return '<div class="' + cls + '" onclick="' + abrir + '">' +
+    '<div class="at-izq">' +
+      toggle +
+      '<div class="at-linea1">' + linea1 + "</div>" +
+      '<div class="at-linea2">' + linea2 + "</div>" +
+    "</div>" +
+    '<div class="at-estado">' + badgePaso(a.paso) + "</div>" +
+    '<div class="at-accion">' + accion + "</div>" +
+  "</div>";
 }
 
 // -- Lista de atenciones (con arbol padre-hijo)
 function pintarAtenciones() {
-  var texto  = document.getElementById("buscar").value.trim().toLowerCase();
-  var filtro = document.getElementById("filtro").value;
-  var mapa   = {};
+  var mapa = {};
   atenciones.forEach(function (a) { mapa[a.id] = a; });
+  var idFoco = foco && foco.actual ? foco.actual.atencion_id : "";
+
+  // Contador de "Por revisar"
+  var nRev = atenciones.filter(function (a) { return a.paso === "revisar"; }).length;
+  var countEl = document.getElementById("filtro-revisar-count");
+  if (countEl) {
+    countEl.hidden = nRev === 0;
+    countEl.textContent = nRev;
+  }
+
+  // Estado activo de los botones de filtro
+  ["abiertas", "revisar", "todas"].forEach(function (f) {
+    var b = document.getElementById("filtro-" + f);
+    if (b) b.classList.toggle("activo", filtroAtenciones === f);
+  });
 
   function pasaDirecto(a) {
-    if (filtro === "abiertas" && !(a.estado === "en_curso" || a.estado === "en_espera" || a.estado === "reabierto" || a.temporal || a.pendientes > 0)) return false;
-    if (!texto) return true;
-    return (a.numero + " " + a.tracking_id + " " + a.tracking_code + " " + a.titulo).toLowerCase().includes(texto);
+    if (filtroAtenciones === "todas") return true;
+    if (filtroAtenciones === "revisar") return a.paso === "revisar";
+    var abierta = a.estado === "en_curso" || a.estado === "en_espera" || a.estado === "reabierto";
+    return abierta || a.temporal || (a.estado === "atendido" && a.paso !== "jira");
   }
 
   function tieneHijoPasando(id) {
@@ -49,87 +160,23 @@ function pintarAtenciones() {
 
   function pasa(a) { return pasaDirecto(a) || tieneHijoPasando(a.id); }
 
-  var idFoco = foco && foco.actual ? foco.actual.atencion_id : "";
-  var filas  = [];
-
-  function tieneDescendienteFoco(id) {
-    return atenciones.some(function (h) {
-      return h.padre_id === id && (h.id === idFoco || tieneDescendienteFoco(h.id));
-    });
-  }
-
-  function htmlFila(a, nivel, mostrarBorde) {
-    var accion = a.numero
-      ? 'onclick="abrirDetalleNueva(\'' + a.tipo + '\',\'' + esc(a.numero) + '\')"'
-      : 'onclick="abrirAtencion(\'' + a.id + '\')"';
-    var esCerrada = a.estado === "atendido" || a.estado === "descartado";
-    var clases = "clic" + (a.id === idFoco ? " en-foco" : "") + (esCerrada ? " atendida" : "") + (mostrarBorde ? "" : " sin-borde");
-    var idTexto = esc(a.tracking_id || a.numero || "Sin ID");
-    var totalHijos = atenciones.filter(function (h) { return h.padre_id === a.id; }).length;
-    var hijoEnFoco = totalHijos > 0 && tieneDescendienteFoco(a.id);
-    var dotHijos = totalHijos > 0
-      ? '<span class="dot-hijos' + (hijoEnFoco ? " dot-hijos-foco" : "") + '" title="' + totalHijos + (totalHijos === 1 ? " hijo" : " hijos") + '">' + totalHijos + "</span>"
-      : "";
-    var idCeldaAttr, proyCeldaAttr;
-    if (nivel > 0) {
-      var idTextoRaw = a.tracking_id || a.numero || "";
-      var codigoHijo = a.tracking_code || (a.padre_id && mapa[a.padre_id] ? mapa[a.padre_id].tracking_code : "") || "";
-      var combinado = idTextoRaw && codigoHijo ? idTextoRaw + "-" + codigoHijo : idTextoRaw || codigoHijo || "";
-      idCeldaAttr = combinado
-        ? ' onclick="copiarIdProyecto(event,\'' + esc(combinado) + '\')" style="text-align:right;cursor:pointer"'
-        : ' style="text-align:right"';
-      proyCeldaAttr = combinado
-        ? ' onclick="copiarIdProyecto(event,\'' + esc(combinado) + '\')" style="cursor:pointer"'
-        : "";
-    } else {
-      var idCeldaClick = totalHijos > 0 ? ' onclick="toggleColapso(event,\'' + a.id + '\')"' : "";
-      var idCeldaCursor = totalHijos > 0 ? "cursor:pointer" : "";
-      idCeldaAttr = ' style="' + idCeldaCursor + '"' + idCeldaClick;
-      var combinadoPadre = (a.tracking_id || a.numero) && a.tracking_code
-        ? (a.tracking_id || a.numero) + "-" + a.tracking_code
-        : a.tracking_code || "";
-      proyCeldaAttr = combinadoPadre
-        ? ' onclick="copiarIdProyecto(event,\'' + esc(combinadoPadre) + '\')" style="cursor:pointer"'
-        : "";
-    }
-    var codigoMostrar = nivel > 0
-      ? (a.tracking_code || (a.padre_id && mapa[a.padre_id] ? mapa[a.padre_id].tracking_code : "") || "")
-      : (a.tracking_code || "");
-    return '<tr class="' + clases + '" ' + accion + '>' +
-      "<td" + idCeldaAttr + ">" + dotHijos + (dotHijos ? " " : "") + idTexto + "</td>" +
-      "<td" + proyCeldaAttr + ">" + esc(codigoMostrar) + "</td>" +
-      '<td title="' + esc(a.titulo) + '">' + esc(a.titulo) +
-        (a.npl_pendiente_cierre ? ' <span class="etiqueta">Pendiente de cerrar</span>' : "") + "</td>" +
-      "<td>" + (a.segundos ? duracion(a.segundos) : "") + "</td>" +
-      "<td>" + (a.pendientes || "") + "</td>" +
-      "<td>" + esc(a.actualizado) + "</td></tr>";
-  }
-
   var entradas = [];
-
   function renderRama(a, nivel) {
     if (!pasa(a)) return;
     entradas.push({ a: a, nivel: nivel });
-    if (!leerColapsado(a.id)) {
-      atenciones
-        .filter(function (h) { return h.padre_id === a.id; })
-        .forEach(function (h) { renderRama(h, nivel + 1); });
-    }
+    if (leerColapsado(a.id)) return;
+    atenciones
+      .filter(function (h) { return h.padre_id === a.id; })
+      .forEach(function (h) { renderRama(h, nivel + 1); });
   }
 
   var raices = atenciones.filter(function (a) { return !a.padre_id || !mapa[a.padre_id]; });
   raices.forEach(function (a) { renderRama(a, 0); });
 
-  var filas = entradas.map(function (e, i) {
-    var siguiente = entradas[i + 1];
-    var mostrarBorde = !siguiente || siguiente.nivel === 0;
-    return htmlFila(e.a, e.nivel, mostrarBorde);
-  });
-
-  var cuerpo = document.getElementById("lista-atenciones");
-  cuerpo.innerHTML = filas.length
-    ? filas.join("")
-    : '<tr><td colspan="6" class="suave">No hay atenciones para mostrar.</td></tr>';
+  var cont = document.getElementById("lista-atenciones");
+  cont.innerHTML = entradas.length
+    ? entradas.map(function (e) { return htmlFila(e.a, e.nivel, mapa, idFoco); }).join("")
+    : '<p class="suave" style="padding:12px 2px">No hay atenciones para mostrar.</p>';
 }
 
 // -- Descendientes de una atencion (para no ofrecerlos como padre y evitar ciclos)
@@ -278,39 +325,66 @@ async function crearAtencion() {
 async function cargarIdeas() {
   var datos = await leer("/api/ideas");
   ideas = (datos.ideas || []).filter(function (i) { return i.estado === "pendiente"; });
+  pintarIdeas();
+}
+
+function pintarIdeas() {
   var contenedor = document.getElementById("ideas");
   if (!ideas.length) {
+    ideaBitAbierta = null;
     contenedor.innerHTML = '<span class="suave">No hay ideas pendientes.</span>';
     return;
   }
-  var opciones = atenciones
-    .filter(function (a) { return a.estado === "en_curso" || a.estado === "en_espera" || a.estado === "reabierto"; })
-    .map(function (a) { return '<option value="' + a.id + '">' + esc(nombreAtencion(a)) + "</option>"; })
-    .join("");
-  contenedor.innerHTML = '<table><tr><th>Fecha</th><th>Idea</th><th>Que hacer</th></tr>' +
-    ideas.map(function (i) {
-      return "<tr><td>" + esc(i.fecha) + "</td><td>" + esc(i.texto) + "</td><td>" +
-        '<select id="idea-destino-' + i.id + '">' + opciones + "</select> " +
-        '<button onclick="ideaABitacora(\'' + i.id + '\')">Agregar a bitacora</button> ' +
-        '<button onclick="ideaAAtencion(\'' + i.id + '\')">Crear atencion</button> ' +
-        '<button onclick="ideaDescartar(\'' + i.id + '\')">Descartar</button></td></tr>';
-    }).join("") + "</table>";
+  var abiertas = atenciones.filter(function (a) {
+    return a.estado === "en_curso" || a.estado === "en_espera" || a.estado === "reabierto";
+  });
+  var idFoco = foco && foco.actual ? foco.actual.atencion_id : "";
+
+  contenedor.innerHTML = ideas.map(function (i) {
+    var cuerpo;
+    if (ideaBitAbierta === i.id) {
+      var opciones = abiertas.map(function (a) {
+        var sel = a.id === idFoco ? " selected" : "";
+        return '<option value="' + a.id + '"' + sel + ">" +
+          esc(nombreAtencion(a)) + (a.id === idFoco ? " (en foco)" : "") + "</option>";
+      }).join("");
+      var hay = abiertas.length > 0;
+      cuerpo = '<div class="idea-bit">' +
+          '<label for="idea-destino-' + i.id + '">Agregar a la bitacora de</label>' +
+          '<select id="idea-destino-' + i.id + '"' + (hay ? "" : " disabled") + ">" +
+            (hay ? opciones : '<option>No hay atenciones abiertas</option>') + "</select>" +
+          '<div class="idea-bit-botones">' +
+            '<button class="idea-link" onclick="cerrarIdeaBit()">Cancelar</button>' +
+            '<button class="idea-agregar"' + (hay ? "" : " disabled") +
+              ' onclick="confirmarIdeaBitacora(\'' + i.id + '\')">Agregar</button>' +
+          "</div>" +
+        "</div>";
+    } else {
+      cuerpo = '<div class="idea-acciones">' +
+          '<button class="idea-btn" onclick="abrirIdeaBit(\'' + i.id + '\')">A bitacora</button>' +
+          '<button class="idea-btn" onclick="ideaAAtencion(\'' + i.id + '\')">Nueva atencion</button>' +
+          '<button class="idea-link" onclick="descartarIdea(\'' + i.id + '\')">Descartar</button>' +
+        "</div>";
+    }
+    return '<div class="idea-card">' +
+        '<span class="idea-texto">' + esc(i.texto) + "</span>" +
+        cuerpo +
+      "</div>";
+  }).join("");
 }
 
-async function ideaABitacora(id) {
-  var idea    = ideas.find(function (i) { return i.id === id; });
-  var destino = document.getElementById("idea-destino-" + id).value;
-  if (!destino) { alert("No hay atenciones en curso para elegir."); return; }
-  var mapa = {};
-  atenciones.forEach(function (a) { mapa[a.id] = a; });
-  var atencionDestino = mapa[destino];
-  if (atencionDestino && atencionDestino.estado === "atendido") {
-    alert("Esta atencion esta atendida. Cambia el estado a Reabierto para poder agregar mas entradas.");
-    return;
-  }
+function abrirIdeaBit(id) { ideaBitAbierta = id; pintarIdeas(); }
+function cerrarIdeaBit() { ideaBitAbierta = null; pintarIdeas(); }
+
+async function confirmarIdeaBitacora(id) {
+  var idea = ideas.find(function (i) { return i.id === id; });
+  var sel  = document.getElementById("idea-destino-" + id);
+  var destino = sel ? sel.value : "";
+  if (!destino || !idea) return;
   try {
     await enviar("/api/entrada/crear", { id: destino, tipo: "avance", texto: idea.texto, para_jira: false });
     await enviar("/api/ideas/estado", { id: id, estado: "convertida", atencion_id: destino });
+    ideaBitAbierta = null;
     await cargarAtenciones();
     await cargarIdeas();
   } catch (error) { mostrarError(error); }
@@ -323,8 +397,9 @@ function ideaAAtencion(id) {
   document.getElementById("form-nueva").scrollIntoView();
 }
 
-async function ideaDescartar(id) {
-  if (!confirm("Descartar esta idea?")) return;
-  try { await enviar("/api/ideas/estado", { id: id, estado: "descartada" }); await cargarIdeas(); }
-  catch (error) { mostrarError(error); }
+async function descartarIdea(id) {
+  try {
+    await enviar("/api/ideas/estado", { id: id, estado: "descartada" });
+    await cargarIdeas();
+  } catch (error) { mostrarError(error); }
 }

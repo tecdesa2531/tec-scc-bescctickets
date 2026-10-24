@@ -25,6 +25,21 @@ def tramo_abierto():
     return None
 
 
+def quitar_tramo_abierto_de(atencion_id):
+    # Si el foco abierto apunta a esta atencion, quita ese tramo (queda sin foco).
+    # Sin bloqueo: lo debe tomar quien llama (p. ej. cancelar_interrupcion).
+    abierto = tramo_abierto()
+    if not abierto:
+        return
+    ruta, datos, tramo = abierto
+    if tramo.get("atencion_id") != atencion_id:
+        return
+    tramos = datos.get("tramos", [])
+    if tramos and tramos[-1] is tramo:
+        tramos.pop()
+        escribir_json(ruta, datos)
+
+
 def leer_ideas():
     return leer_json(config.ruta_ideas(), {"ideas": []})
 
@@ -55,7 +70,8 @@ def cambiar_foco(parametros):
             return {"atencion_id": parametros.get("atencion_id")}
 
         tramo = {"inicio": texto_fecha_seg(momento), "fin": "", "tipo": tipo,
-                 "atencion_id": "", "idea_id": "", "etiqueta": ""}
+                 "atencion_id": "", "idea_id": "", "etiqueta": "",
+                 "origen": parametros.get("origen", "")}
         if tipo == "atencion":
             registro = atenciones.buscar_atencion(parametros.get("atencion_id", ""))
             tramo["atencion_id"] = registro["id"]
@@ -100,6 +116,31 @@ def cambiar_foco(parametros):
             resultado["numero"] = reg["datos"].get("numero", "")
             resultado["tipo"] = reg["datos"].get("tipo", "")
         return resultado
+
+
+def deshacer_foco():
+    # Deshace el foco recien pasado al ABRIR una atencion, sin registrar tiempo.
+    # Limites para no borrar tiempo real: solo si el tramo abierto se creo al abrir
+    # una atencion (origen "abrir") y tiene menos de 60 segundos.
+    with config.BLOQUEO:
+        momento = ahora()
+        abierto = tramo_abierto()
+        if not abierto or abierto[0] != ruta_focos_del_dia(momento):
+            raise ErrorUsuario("No hay un foco reciente que deshacer")
+        ruta, datos, tramo = abierto
+        if tramo.get("origen") != "abrir":
+            raise ErrorUsuario("Solo se puede deshacer un foco recien abierto")
+        if (momento - leer_fecha_seg(tramo["inicio"])).total_seconds() >= 60:
+            raise ErrorUsuario("Ya paso demasiado tiempo para deshacer el foco")
+        tramos = datos.get("tramos", [])
+        if not tramos or tramos[-1] is not tramo:
+            raise ErrorUsuario("No se puede deshacer el foco")
+        tramos.pop()
+        # Reabrir el tramo anterior con su inicio original (continua sin cortes)
+        if tramos:
+            tramos[-1]["fin"] = ""
+        escribir_json(ruta, datos)
+        return {"ok": True}
 
 
 def terminar_dia():

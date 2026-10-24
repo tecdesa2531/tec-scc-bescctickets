@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Focus Flow - Vista principal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#1C1A27}a:hover{color:#C2185B}
+.ell{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F3F8; font-family: Inter, system-ui, sans-serif; color: #1C1A27; font-size: 14px">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 24px; background: #FFFFFF; border-bottom: 1px solid #E6E4EE">
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+      <span style="font-size: 20px; font-weight: 700; color: #C2185B">Focus Flow</span>
+      <a href="Detalle.dc.html" title="Abrir la atencion en foco" style="{{pillStyle}}">
+        <span style="{{pillDot}}"></span>
+        {{pillLabel}}
+        <sc-if value="{{conFoco}}" hint-placeholder-val="{{true}}">
+          <b style="font-family: 'JetBrains Mono', monospace; font-weight: 600">PTSK0001234</b>
+          <span style="font-family: 'JetBrains Mono', monospace">{{timer}}</span>
+        </sc-if>
+      </a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px; flex: 0 1 420px">
+      <input aria-label="Buscar ticket o proyecto" placeholder="Buscar ticket o proyecto..." style="flex: 1; min-width: 0; height: 40px; border-radius: 999px; border: 1px solid #E6E4EE; background: #F8F7FB; padding: 0 16px; font: 400 14px Inter, sans-serif">
+      <button type="button" style="height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid #E6E4EE; background: #FFFFFF; color: #4B4760; font: 500 13px Inter, sans-serif; cursor: pointer">Modo oscuro</button>
+    </div>
+  </header>
+
+  <sc-if value="{{hayNpl}}" hint-placeholder-val="{{true}}">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 10px 24px; background: #FCE7F0; border-bottom: 1px solid #F5C6DA">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: #C2185B"></span>
+      <span style="font-weight: 600; color: #7A0F39">Interrupcion en curso</span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #7A0F39">{{nplTimer}}</span>
+      <span style="color: #7A0F39">JNPL0000000006 · empezo 22:18</span>
+      <span style="flex: 1"></span>
+      <a href="Interrupcion.dc.html" style="height: 34px; padding: 0 12px; border-radius: 8px; background: #FFFFFF; color: #7A0F39; font: 500 13px Inter, sans-serif; display: flex; align-items: center; text-decoration: none; border: 1px solid #F5C6DA">Anotar</a>
+      <a href="Interrupcion.dc.html" style="height: 34px; padding: 0 14px; border-radius: 8px; background: #C2185B; color: #FFFFFF; font: 600 13px Inter, sans-serif; display: flex; align-items: center; text-decoration: none">Cerrar interrupcion</a>
+    </div>
+  </sc-if>
+
+  <div style="max-width: 1360px; margin: 0 auto; padding: 24px; box-sizing: border-box; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+
+    <main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+
+      <section aria-label="Foco" style="background: #FFFFFF; border: 1px solid #E6E4EE; border-radius: 16px; padding: 30px 28px">
+        <sc-if value="{{isAyer}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 16px; border-radius: 12px; background: #FFF6E5; border: 1px solid #F1D9A8">
+            <div style="flex: 1 1 300px; display: flex; flex-direction: column; gap: 4px">
+              <span style="font-weight: 600; color: #4A3300">Quedo un foco abierto de ayer</span>
+              <span style="color: #5C4410">PTSK0001234 · desde el jueves 22, 17:40. Indica a que hora terminaste para continuar.</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px">
+              <label for="hora" style="font-size: 12px; font-weight: 600; color: #5C4410">Hora de cierre</label>
+              <input id="hora" type="time" value="18:00" style="height: 40px; border-radius: 8px; border: 1px solid #E3C98F; padding: 0 10px; font: 500 14px Inter, sans-serif">
+            </div>
+            <button type="button" onClick="{{cerrarAyer}}" style="height: 40px; padding: 0 16px; border-radius: 8px; border: none; background: #1C1A27; color: #FFFFFF; font: 600 14px Inter, sans-serif; cursor: pointer">Cerrar y continuar</button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{noAyer}}" hint-placeholder-val="{{true}}">
+          <sc-if value="{{sinFoco}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; color: #6E6A80">SIN FOCO</span>
+              <span style="font-size: 20px; font-weight: 600">¿En que trabajas ahora?</span>
+              <span style="font-size: 14px; color: #5F5B70">Elige una atencion de la lista con <b>Enfocar</b>, o crea una nueva.</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{conFoco}}" hint-placeholder-val="{{true}}">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px">
+            <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 10px">
+              <span style="{{focoLabelStyle}}">{{focoLabel}}</span>
+              <div style="display: flex; align-items: baseline; gap: 10px; min-width: 0">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: #4B4760">PTSK0001234</span>
+                <a href="Detalle.dc.html" class="ell" style="font-size: 18px; font-weight: 600; text-decoration: none">Despliegue modulo de red Terraform en PRE</a>
+              </div>
+            </div>
+            <span style="{{timerStyle}}">{{timer}}</span>
+          </div>
+          </sc-if>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 26px">
+            <sc-if value="{{conFoco}}" hint-placeholder-val="{{true}}">
+            <button type="button" onClick="{{togglePausa}}" style="{{pausaStyle}}">
+              <sc-if value="{{enPausa}}" hint-placeholder-val="{{false}}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l13-7.5z"></path></svg>
+              </sc-if>
+              <sc-if value="{{noPausa}}" hint-placeholder-val="{{true}}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>
+              </sc-if>
+              {{pausaLabel}}
+            </button>
+            </sc-if>
+            <button type="button" onClick="{{abrirIdea}}" title="Atajo: tecla I" style="height: 40px; padding: 0 10px 0 14px; border-radius: 10px; border: 1px solid #E6E4EE; background: #FFFFFF; color: #1C1A27; font: 500 14px Inter, sans-serif; cursor: pointer; display: flex; align-items: center; gap: 8px">Idea <kbd style="min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 5px; border: 1px solid #D8D5E3; border-bottom-width: 2px; background: #F8F7FB; font: 600 11px 'JetBrains Mono', monospace; color: #4B4760; display: inline-flex; align-items: center; justify-content: center">I</kbd></button>
+            <button type="button" onClick="{{abrirReunion}}" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #E6E4EE; background: #FFFFFF; color: #1C1A27; font: 500 14px Inter, sans-serif; cursor: pointer">Reunion</button>
+            <a href="Interrupcion.dc.html" title="Atajo: tecla N" style="height: 40px; padding: 0 10px 0 14px; box-sizing: border-box; border-radius: 10px; border: 1px solid #E6E4EE; background: #FFFFFF; color: #1C1A27; font: 500 14px Inter, sans-serif; display: flex; align-items: center; gap: 8px; text-decoration: none">Interrupcion <kbd style="min-width: 20px; height: 20px; padding: 0 5px; box-sizing: border-box; border-radius: 5px; border: 1px solid #D8D5E3; border-bottom-width: 2px; background: #F8F7FB; font: 600 11px 'JetBrains Mono', monospace; color: #4B4760; display: inline-flex; align-items: center; justify-content: center">N</kbd></a>
+            <span style="flex: 1"></span>
+            <button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #D8D5E3; background: #F8F7FB; color: #1C1A27; font: 600 14px Inter, sans-serif; cursor: pointer; display: flex; align-items: center; gap: 8px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+              Terminar dia
+            </button>
+          </div>
+          <sc-if value="{{reunionOpen}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; gap: 8px; margin-top: 12px">
+              <input aria-label="Titulo de la reunion" value="{{reunionText}}" onInput="{{setReunion}}" onKeyDown="{{reunionKey}}" placeholder="Titulo de la reunion (el proyecto lo asignas al terminar)" style="flex: 1; min-width: 0; height: 40px; border-radius: 10px; border: 1px solid #E6E4EE; padding: 0 12px; font: 400 14px Inter, sans-serif; background: #F6F2FE">
+              <sc-if value="{{reunionOk}}" hint-placeholder-val="{{false}}">
+                <a href="Detalle.dc.html" style="height: 40px; padding: 0 14px; border-radius: 10px; background: #1C1A27; color: #FFFFFF; font: 600 13px Inter, sans-serif; display: flex; align-items: center; text-decoration: none">Iniciar</a>
+              </sc-if>
+              <sc-if value="{{reunionNoOk}}" hint-placeholder-val="{{true}}">
+                <button type="button" disabled title="Escribe un titulo" style="height: 40px; padding: 0 14px; border-radius: 10px; border: none; background: #E6E4EE; color: #6E6A80; font: 600 13px Inter, sans-serif; cursor: not-allowed">Iniciar</button>
+              </sc-if>
+            </div>
+          </sc-if>
+          <sc-if value="{{ideaOpen}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; gap: 8px; margin-top: 12px">
+              <input aria-label="Nueva idea" value="{{ideaText}}" onInput="{{setIdea}}" onKeyDown="{{ideaKey}}" placeholder="Escribe la idea y pulsa Enter" style="flex: 1; min-width: 0; height: 40px; border-radius: 10px; border: 1px solid #E6E4EE; padding: 0 12px; font: 400 14px Inter, sans-serif; background: #FFFCF2">
+              <button type="button" onClick="{{guardarIdea}}" style="height: 40px; padding: 0 14px; border-radius: 10px; border: none; background: #1C1A27; color: #FFFFFF; font: 600 13px Inter, sans-serif; cursor: pointer">Guardar</button>
+            </div>
+          </sc-if>
+        </sc-if>
+      </section>
+
+      <section aria-label="Atenciones" style="background: #FFFFFF; border: 1px solid #E6E4EE; border-radius: 16px; padding: 20px 20px 8px">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 12px">
+          <h2 style="margin: 0 6px 0 0; font-size: 16px; font-weight: 600">Atenciones</h2>
+          <div role="group" aria-label="Filtro" style="display: flex; padding: 3px; background: #F1EFF7; border-radius: 10px">
+            <sc-for list="{{filtros}}" as="f" hint-placeholder-count="3">
+              <button type="button" onClick="{{f.pick}}" aria-pressed="{{f.pressed}}" style="{{f.style}}">{{f.label}}<sc-if value="{{f.hasCount}}" hint-placeholder-val="{{false}}"><span style="margin-left: 6px; display: inline-flex; min-width: 18px; height: 18px; padding: 0 5px; box-sizing: border-box; align-items: center; justify-content: center; border-radius: 999px; background: #C2185B; color: #FFFFFF; font-size: 11px; font-weight: 700">{{f.count}}</span></sc-if></button>
+            </sc-for>
+          </div>
+          <span style="flex: 1"></span>
+          <a href="NuevaAtencion.dc.html" style="height: 40px; padding: 0 16px; border-radius: 10px; background: #C2185B; color: #FFFFFF; font: 600 14px Inter, sans-serif; display: flex; align-items: center; text-decoration: none">+ Nueva atencion</a>
+        </div>
+
+        <div style="overflow-x: auto">
+          <div style="min-width: 520px">
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="6">
+              <div style="{{r.rowStyle}}">
+                <div style="{{r.idCell}}">
+                  <div style="display: flex; align-items: center; gap: 10px; min-width: 0">
+                    <span style="{{r.tipoStyle}}">{{r.tipo}}</span>
+                    <a href="Detalle.dc.html" style="font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; text-decoration: none; flex-shrink: 0">{{r.id}}</a>
+                    <span style="font-size: 13px; font-weight: 600; color: #3B3850; flex-shrink: 0">- {{r.proj}}</span>
+                    <sc-if value="{{r.hasEnv}}" hint-placeholder-val="{{true}}">
+                      <span style="font-size: 13px; font-weight: 600; color: #3B3850; flex-shrink: 0">- {{r.env}}</span>
+                    </sc-if>
+                    <sc-if value="{{r.temporal}}" hint-placeholder-val="{{false}}">
+                      <span style="flex-shrink: 0; font-size: 11px; font-weight: 600; color: #7A4F00; background: #FCEFD3; border-radius: 6px; padding: 2px 7px">Temporal</span>
+                    </sc-if>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #5F5B70; min-width: 0">
+                    <span style="flex-shrink: 0; width: 46px; text-align: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; color: #6E6A80; white-space: nowrap">{{r.tiempo}}</span>
+                    <span class="ell" style="{{r.tituloStyle}}">{{r.titulo}}</span>
+                  </div>
+                </div>
+                <div>
+                  <span style="{{r.pasoStyle}}">{{r.paso}}</span>
+                </div>
+                <div style="display: flex; justify-content: flex-end">
+                  <sc-if value="{{r.isFoco}}" hint-placeholder-val="{{false}}">
+                    <span style="display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: #1F9D55; color: #FFFFFF; font-size: 12px; font-weight: 700"><span style="width: 6px; height: 6px; border-radius: 50%; background: #FFFFFF"></span>En foco</span>
+                  </sc-if>
+                  <sc-if value="{{r.canFoco}}" hint-placeholder-val="{{true}}">
+                    <button type="button" style="height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid #E6E4EE; background: #FFFFFF; color: #1C1A27; font: 500 12px Inter, sans-serif; cursor: pointer">Enfocar</button>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+      <section aria-label="Accesos rapidos" style="background: #FFFFFF; border: 1px solid #E6E4EE; border-radius: 16px; padding: 16px">
+        <h2 style="margin: 0 0 8px 4px; font-size: 14px; font-weight: 600">Accesos rapidos</h2>
+        <div style="max-height: 300px; overflow-y: auto; padding-right: 4px">
+        <sc-for list="{{accesos}}" as="g" hint-placeholder-count="3">
+          <div>
+            <button type="button" onClick="{{g.toggle}}" aria-expanded="{{g.exp}}" style="display: flex; align-items: center; gap: 6px; width: 100%; height: 34px; padding: 0 4px; border: none; background: transparent; font: 600 13px Inter, sans-serif; color: #3B3850; cursor: pointer; text-align: left">
+              <svg style="{{g.chev}}" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg>
+              {{g.name}}
+            </button>
+            <sc-if value="{{g.open}}" hint-placeholder-val="{{true}}">
+              <div style="display: flex; flex-direction: column; gap: 4px; padding: 2px 0 10px">
+                <sc-for list="{{g.links}}" as="l" hint-placeholder-count="2">
+                  <a href="#" target="_blank" style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1px solid #EEEDF3; background: #FAFAFC; text-decoration: none; color: #1C1A27">
+                    <span style="{{l.iconStyle}}">{{l.ini}}</span>
+                    <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px">
+                      <span style="font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{l.name}}</span>
+                      <span style="font-size: 12px; color: #6E6A80; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{l.desc}}</span>
+                    </span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8A869A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink: 0"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg>
+                  </a>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        </div>
+      </section>
+
+      <section aria-label="Ideas pendientes" style="background: #FFFFFF; border: 1px solid #E6E4EE; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0 0 0 4px; font-size: 14px; font-weight: 600">Ideas pendientes</h2>
+        <sc-for list="{{ideas}}" as="i" hint-placeholder-count="2">
+          <div style="padding: 10px 12px; border-radius: 10px; background: #FFFCF2; border: 1px solid #F1E7C4; display: flex; flex-direction: column; gap: 8px">
+            <span style="font-size: 13px; line-height: 1.4">{{i.texto}}</span>
+            <sc-if value="{{i.abierta}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; flex-direction: column; gap: 6px">
+                <label for="{{i.selId}}" style="font-size: 12px; font-weight: 600; color: #5C4A12">Agregar a la bitacora de</label>
+                <select id="{{i.selId}}" style="height: 34px; border-radius: 8px; border: 1px solid #EADFB8; padding: 0 8px; font: 400 12px Inter, sans-serif; background: #FFFFFF; color: #1C1A27; min-width: 0">
+                  <option>PTSK0001234 - INFRAS (en foco)</option>
+                  <option>TLND002998 - NEXHUB</option>
+                  <option>JDOC0000000002 - NEXHUB</option>
+                </select>
+                <div style="display: flex; gap: 6px; justify-content: flex-end">
+                  <button type="button" onClick="{{i.cancelarBit}}" style="height: 30px; padding: 0 10px; border-radius: 7px; border: none; background: transparent; color: #6B5A2A; font: 500 12px Inter, sans-serif; cursor: pointer">Cancelar</button>
+                  <button type="button" onClick="{{i.agregarBit}}" style="height: 30px; padding: 0 12px; border-radius: 7px; border: none; background: #1C1A27; color: #FFFFFF; font: 600 12px Inter, sans-serif; cursor: pointer">Agregar</button>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{i.cerrada}}" hint-placeholder-val="{{true}}">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap">
+              <button type="button" onClick="{{i.toBit}}" style="height: 28px; padding: 0 8px; border-radius: 7px; border: 1px solid #EADFB8; background: #FFFFFF; font: 500 12px Inter, sans-serif; cursor: pointer">A bitacora</button>
+              <a href="NuevaAtencion.dc.html" style="height: 28px; padding: 0 8px; box-sizing: border-box; border-radius: 7px; border: 1px solid #EADFB8; background: #FFFFFF; color: #1C1A27; font: 500 12px Inter, sans-serif; display: flex; align-items: center; text-decoration: none">Nueva atencion</a>
+              <button type="button" onClick="{{i.descartar}}" style="height: 28px; padding: 0 8px; border-radius: 7px; border: none; background: transparent; color: #6B5A2A; font: 500 12px Inter, sans-serif; cursor: pointer">Descartar</button>
+            </div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{noIdeas}}" hint-placeholder-val="{{false}}">
+          <span style="font-size: 13px; color: #5F5B70; padding-left: 4px">No hay ideas pendientes.</span>
+        </sc-if>
+      </section>
+    </aside>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"estadoFoco":{"editor":"enum","options":["En foco","En pausa","Sin foco","Abierto de ayer"],"default":"En foco","section":"Estado"},"interrupcion":{"editor":"boolean","default":false,"section":"Estado"},"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tick: 0, pausaOv: null, ayerOk: false, lastProp: null, filtro: 'abiertas', ideaOpen: false, ideaText: '', reunionOpen: false, reunionText: '', closed: {},
+      ideas: [{ id: 1, texto: 'Terminar el Excel de inventario de API Gateway' }, { id: 2, texto: 'Plantilla de bitacora para despliegues Terraform' }] };
+  }
+  componentDidMount() { this.iv = setInterval(() => this.setState({ tick: this.state.tick + 1 }), 1000); }
+  componentWillUnmount() { clearInterval(this.iv); }
+  renderVals() {
+    const s = this.state;
+    const prop = this.props.estadoFoco || 'En foco';
+    const fresh = s.lastProp !== prop;
+    const enPausa = fresh ? prop === 'En pausa' : (s.pausaOv !== null ? s.pausaOv : prop === 'En pausa');
+    const isAyer = prop === 'Abierto de ayer' && !(s.ayerOk && !fresh);
+    const set = (p) => this.setState(Object.assign({ lastProp: prop }, p));
+    const fmt = (x) => [Math.floor(x / 3600), Math.floor(x / 60) % 60, x % 60].map((n) => String(n).padStart(2, '0')).join(':');
+    const fmtHM = (x) => Math.floor(x / 3600) + 'h ' + String(Math.floor(x / 60) % 60).padStart(2, '0') + 'm';
+
+    const TIPO = { ticket: ['TKT', '#1E4FC2', '#E4ECFF'], int: ['INT', '#0B6B62', '#DCF2EE'], doc: ['DOC', '#8A4B08', '#FBEDD3'], con: ['CON', '#6127C9', '#ECE4FD'], npl: ['NPL', '#A3154C', '#FCE7F0'] };
+    const EST = { 'en curso': '#1F9D55', 'en espera': '#C98A00', 'reabierto': '#D9480F', 'atendido': '#8A869A', 'descartado': '#B4B0C2' };
+    const PASO = {
+      limpia: ['Pendiente de limpieza', '#4B4760', '#F1EFF7'],
+      revisar: ['Revisar y dar conforme', '#A3154C', '#FDF0F5'],
+      procede: ['Pendiente de subir', '#4B4760', '#F1EFF7'],
+      jira: ['✓ En Jira', '#1A7F46', '#E3F5EA']
+    };
+    const data = [
+      { id: 'PTSK0001234', tipo: 'ticket', titulo: 'Despliegue modulo de red Terraform en PRE', proj: 'INFRAS', env: 'PRE', estado: 'en curso', tiempo: '1h 22m', foco: true, hijos: [
+        { id: 'JCON0000000001', tipo: 'con', titulo: 'Reunion con equipo de nube', proj: 'INFRAS', estado: 'atendido', paso: 'jira', tiempo: '0h 07m' },
+        { id: 'JDOC0000000001', tipo: 'doc', titulo: 'Documentacion de despliegue modulo de red', proj: 'INFRAS', estado: 'atendido', paso: 'revisar', tiempo: '0h 10m' }
+      ] },
+      { id: 'TLND002998', tipo: 'ticket', titulo: 'Cargar datos a DynamoDB', proj: 'NEXHUB', env: 'PRE', estado: 'en espera', tiempo: '0h 00m', hijos: [
+        { id: 'JDOC0000000002', tipo: 'doc', titulo: 'Documentacion de datos', proj: 'NEXHUB', estado: 'en curso', tiempo: '0h 16m' }
+      ] },
+      { id: 'Sin Tracking ID', tipo: 'con', titulo: 'Consulta de accesos equipo de datos', proj: 'Sin proyecto', estado: 'en curso', tiempo: '0h 05m', temporal: true, hijos: [] },
+      { id: 'JINT0000000001', tipo: 'int', titulo: 'Error en secrets de Flux', proj: 'INFRAS', env: 'DEV,PRE', estado: 'atendido', paso: 'limpia', tiempo: '0h 07m', hijos: [] },
+      { id: 'JNPL0000000005', tipo: 'npl', titulo: 'Llamada de coordinacion NEXHUB', proj: 'NEXHUB', estado: 'atendido', paso: 'revisar', tiempo: '0h 12m', hijos: [] },
+      { id: 'JINT0000000003', tipo: 'int', titulo: 'Prueba de rotacion de llaves', proj: 'INFRAS', env: 'DEV', estado: 'descartado', tiempo: '0h 04m', hijos: [] },
+      { id: 'PTSK0001198', tipo: 'ticket', titulo: 'Ajuste de reglas de seguridad en DEV', proj: 'INFRAS', env: 'DEV', estado: 'atendido', paso: 'jira', tiempo: '2h 05m', hijos: [] }
+    ];
+    const sinF = prop === 'Sin foco';
+    const mk = (a, nivel) => {
+      if (sinF) a = Object.assign({}, a, { foco: false });
+      const t = TIPO[a.tipo];
+      const p = a.paso ? PASO[a.paso] : null;
+      const nh = (a.hijos || []).length;
+      return {
+        id: a.id, titulo: a.titulo, proj: a.proj, env: a.env || '', hasEnv: !!a.env,
+        tituloStyle: a.estado === 'descartado' ? 'text-decoration:line-through' : '', estado: a.estado, tiempo: a.tiempo, temporal: !!a.temporal,
+        tipo: t[0], tipoStyle: 'flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:46px;height:18px;padding:0;border-radius:5px;font-size:10px;font-weight:700;letter-spacing:.04em;color:' + t[1] + ';background:' + t[2],
+        idCell: 'display:flex;flex-direction:column;gap:6px;min-width:0;' + (nivel ? 'padding-left:14px;border-left:2px solid #DCD9E6;margin-left:6px' : ''),
+        paso: p ? p[0] : a.estado.charAt(0).toUpperCase() + a.estado.slice(1),
+        pasoStyle: 'display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:600;' + (p ? 'color:' + p[1] + ';background:' + p[2] : 'color:#3B3850;background:#FFFFFF;border:1px solid #E6E4EE;box-shadow:inset 3px 0 0 ' + EST[a.estado]),
+        hasHijos: nh > 0, hijos: String(nh),
+        isFoco: !!a.foco && !enPausa, canFoco: !(a.foco && !enPausa) && a.estado !== 'atendido' && a.estado !== 'descartado',
+        rowStyle: 'display:grid;grid-template-columns:minmax(0,1fr) 190px 84px;align-items:center;column-gap:16px;padding:' + (nivel ? '12px' : '16px') + ' 12px;border-bottom:1px solid #EEEDF3;' + (a.foco && !enPausa ? 'background:#EAF7EF;box-shadow:inset 4px 0 0 #1F9D55;' : '') + (a.paso === 'jira' || a.estado === 'descartado' ? 'opacity:.55;' : '') + (nivel ? 'background:#FCFCFE' : '')
+      };
+    };
+    const abiertos = ['en curso', 'en espera', 'reabierto'];
+    let rows = [];
+    let nRev = 0;
+    data.forEach((a) => { if (a.paso === 'revisar') nRev++; a.hijos.forEach((h) => { if (h.paso === 'revisar') nRev++; }); });
+    if (s.filtro === 'revisar') {
+      data.forEach((a) => { if (a.paso === 'revisar') rows.push(mk(a, 0)); a.hijos.forEach((h) => { if (h.paso === 'revisar') rows.push(mk(h, 0)); }); });
+    } else {
+      data.forEach((a) => {
+        const visible = s.filtro === 'todas' || abiertos.includes(a.estado) || a.hijos.some((h) => abiertos.includes(h.estado) || h.paso === 'revisar');
+        if (!visible) return;
+        rows.push(mk(a, 0));
+        a.hijos.forEach((h) => { if (s.filtro === 'todas' || abiertos.includes(h.estado) || h.paso === 'revisar') rows.push(mk(h, 1)); });
+      });
+      if (s.filtro === 'abiertas') {
+        data.forEach((a) => { if (!abiertos.includes(a.estado) && a.paso && a.paso !== 'jira' && !rows.find((r) => r.id === a.id)) rows.push(mk(a, 0)); });
+      }
+    }
+    const segOn = 'height:34px;padding:0 12px;border-radius:8px;border:none;background:#FFFFFF;color:#1C1A27;font:600 13px Inter,sans-serif;cursor:pointer;box-shadow:0 1px 2px rgba(28,26,39,.12);display:flex;align-items:center';
+    const segOff = 'height:34px;padding:0 12px;border-radius:8px;border:none;background:transparent;color:#4B4760;font:500 13px Inter,sans-serif;cursor:pointer;display:flex;align-items:center';
+    const filtros = [['abiertas', 'Abiertas'], ['revisar', 'Por revisar'], ['todas', 'Todas']].map((f) => ({
+      label: f[1], pressed: s.filtro === f[0] ? 'true' : 'false', style: s.filtro === f[0] ? segOn : segOff,
+      hasCount: f[0] === 'revisar' && nRev > 0, count: String(nRev), pick: () => set({ filtro: f[0] })
+    }));
+    const accDef = [
+      ['Gestion', [['ServiceNow', 'Tickets e incidentes'], ['Jira', 'Historias y sprints']]],
+      ['Codigo', [['Repo Terraform', 'Infraestructura como codigo'], ['Repo Flux', 'GitOps y despliegues']]],
+      ['Plataforma', [['Monitoreo', 'Alertas y metricas'], ['AWS Consola', 'Cuenta de produccion']]],
+      ['Diagramas', [['Arquitectura EKS', 'Diagrama general'], ['Red VPC', 'Subnets y NLB'], ['Flujo GitOps', 'Flux y repos']]],
+      ['Documentacion', [['Confluence', 'Espacio del equipo'], ['Runbooks', 'Procedimientos']]]
+    ];
+    const paletaGrupos = ['#2F62D6', '#6127C9', '#B45309', '#0B6B62', '#A3154C', '#4B4760'];
+    accDef.forEach((g, gi) => { const c = paletaGrupos[gi % paletaGrupos.length]; g[1] = g[1].map((l) => ({ name: l[0], desc: l[1], ini: l[0].slice(0, 1), iconStyle: 'flex-shrink:0;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font:700 13px Inter,sans-serif;color:#FFFFFF;background:' + c })); g[2] = c; });
+    const accesos = accDef.map((g) => {
+      const open = !s.closed[g[0]];
+      return { name: g[0], links: g[1], open, exp: open ? 'true' : 'false', chev: 'transition:transform .15s;transform:rotate(' + (open ? 90 : 0) + 'deg)', toggle: () => set({ closed: Object.assign({}, s.closed, { [g[0]]: open }) }) };
+    });
+    const addIdea = () => { const t = s.ideaText.trim(); if (!t) return; set({ ideas: s.ideas.concat([{ id: Date.now(), texto: t }]), ideaText: '', ideaOpen: false }); };
+    const ideas = s.ideas.map((i) => ({
+      texto: i.texto, selId: 'bit-' + i.id,
+      abierta: s.ideaBit === i.id, cerrada: s.ideaBit !== i.id,
+      toBit: () => set({ ideaBit: i.id }), cancelarBit: () => set({ ideaBit: null }),
+      agregarBit: () => set({ ideaBit: null, ideas: s.ideas.filter((x) => x.id !== i.id) }),
+      descartar: () => set({ ideas: s.ideas.filter((x) => x.id !== i.id) })
+    }));
+    return {
+      hayNpl: !!this.props.interrupcion, nplTimer: fmt(185 + s.tick),
+      isAyer, noAyer: !isAyer, cerrarAyer: () => set({ ayerOk: true }),
+      enPausa, noPausa: !enPausa,
+      focoLabel: enPausa ? 'EN PAUSA · ULTIMA ATENCION' : 'EN FOCO',
+      focoLabelStyle: 'font-size:11px;font-weight:700;letter-spacing:.08em;color:' + (enPausa ? '#8A5E00' : '#1A7F46'),
+      timer: enPausa ? fmtHM(312 + s.tick) : fmtHM(4938 + s.tick),
+      timerStyle: "font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:" + (enPausa ? '#8A869A' : '#1C1A27'),
+      pausaLabel: enPausa ? 'Reanudar' : 'Pausa',
+      sinFoco: prop === 'Sin foco', conFoco: prop !== 'Sin foco',
+      pillLabel: prop === 'Sin foco' ? 'Sin foco' : (enPausa ? 'En pausa:' : 'En foco:'),
+      pillDot: 'width:8px;height:8px;border-radius:50%;background:' + (prop === 'Sin foco' ? '#B4B0C2' : (enPausa ? '#C98A00' : '#1F9D55')),
+      pillStyle: 'display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:999px;text-decoration:none;font:500 13px Inter,sans-serif;' + (enPausa ? 'background:#FFF6E5;border:1px solid #F1D9A8;color:#5C4410' : 'background:#F2FAF5;border:1px solid #CDEBD8;color:#1A5E36'),
+      pausaStyle: 'height:40px;padding:0 16px;border-radius:10px;font:600 14px Inter,sans-serif;cursor:pointer;display:flex;align-items:center;gap:8px;' + (enPausa ? 'border:none;background:#C2185B;color:#FFFFFF' : 'border:1px solid #E6E4EE;background:#FFFFFF;color:#1C1A27'),
+      togglePausa: () => set({ pausaOv: !enPausa, tick: 0 }),
+      ideaOpen: s.ideaOpen, ideaText: s.ideaText, abrirIdea: () => set({ ideaOpen: !s.ideaOpen, reunionOpen: false }),
+      reunionOpen: s.reunionOpen, reunionText: s.reunionText, abrirReunion: () => set({ reunionOpen: !s.reunionOpen, ideaOpen: false }),
+      setReunion: (e) => set({ reunionText: e.target.value }),
+      reunionKey: (e) => { if (e.key === 'Escape') set({ reunionOpen: false, reunionText: '' }); },
+      reunionOk: !!s.reunionText.trim(), reunionNoOk: !s.reunionText.trim(),
+      setIdea: (e) => set({ ideaText: e.target.value }),
+      ideaKey: (e) => { if (e.key === 'Enter') addIdea(); if (e.key === 'Escape') set({ ideaOpen: false }); },
+      guardarIdea: addIdea,
+      filtros, rows, accesos, ideas, noIdeas: ideas.length === 0
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -10,6 +10,8 @@ var nuevasCapturas = [];
 var nuevosArchivos = [];
 var edicion = null;
 var ideaEnConversion = null;
+var filtroAtenciones = "abiertas";
+var ideaBitAbierta = null;
 var vistaBitacora = (function () {
   try { return localStorage.getItem("focus-flow-vista-bitacora") || "corregido"; } catch (e) { return "corregido"; }
 })();
@@ -130,5 +132,4 @@ async function cargarTodo() {
 async function cargarAtenciones() {
   atenciones = await leer("/api/atenciones");
   pintarAtenciones();
-  pintarChips();
 }

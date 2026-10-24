@@ -19,8 +19,9 @@ async function cargarPaginaDetalle(numero) {
     document.getElementById("vista-atencion").hidden = false;
     limpiarRedactor();
     pintarDetalle();
-    cargarFoco().catch(function () {});
     window.scrollTo(0, 0);
+    await cargarFoco();
+    await focoAlAbrir(detalle.id);
   } catch (error) {
     mostrarError(error);
   }
@@ -71,8 +72,19 @@ zonaNpl.addEventListener("drop", async function (e) {
 window.addEventListener("dragover", function (e) { e.preventDefault(); });
 window.addEventListener("drop",     function (e) { e.preventDefault(); });
 
+// -- Atajos de teclado: I abre Idea, N inicia Interrupcion (solo fuera de campos)
+document.addEventListener("keydown", function (e) {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  var t = e.target;
+  if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
+  if (document.getElementById("vista-inicio").hidden) return;
+  var k = (e.key || "").toLowerCase();
+  if (k === "i") { e.preventDefault(); focoIdea(); }
+  else if (k === "n") { e.preventDefault(); iniciarInterrupcion(); }
+});
+
 // -- Actualizacion periodica
-setInterval(pintarFoco, 30000);
+setInterval(actualizarCronometros, 30000);
 setInterval(function () { if (!detalle) cargarFoco().catch(function () {}); }, 120000);
 
 // -- Arranque

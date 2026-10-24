@@ -90,6 +90,7 @@ async function abrirAtencion(id) {
   limpiarRedactor();
   pintarDetalle();
   window.scrollTo(0, 0);
+  await focoAlAbrir(id);
 }
 
 async function recargarDetalle() {
@@ -580,7 +581,9 @@ async function cancelarInterrupcion() {
   if (!confirm("Cancelar esta interrupcion? Quedara descartada y no ira a Jira.")) return;
   try {
     await enviar("/api/interrupcion/cancelar", { id: detalle.id });
-    await recargarDetalle();
+    // La atencion se borro; volver a la principal (el foco queda sin foco)
+    detalle = null;
+    window.location.href = "/";
   }
   catch (error) { mostrarError(error); }
 }

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Focus Flow - Colores claro y oscuro</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1440px; height: 1500px; box-sizing: border-box; padding: 40px; background: #ECEBF1; font-family: Inter, system-ui, sans-serif; color: #1C1A27; display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; flex-direction: column; gap: 4px">
+    <h1 style="margin: 0; font-size: 26px; font-weight: 700">Colores claro y oscuro</h1>
+    <span style="font-size: 14px; color: #5F5B70">Mismos nombres de token en los dos modos; la app solo cambia el valor.</span>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px">
+    <sc-for list="{{modos}}" as="m" hint-placeholder-count="2">
+      <div style="{{m.page}}">
+        <span style="{{m.titulo}}">{{m.nombre}}</span>
+
+        <div style="{{m.card}}">
+          <span style="{{m.labelFoco}}">EN FOCO</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+            <div style="display: flex; align-items: baseline; gap: 10px; min-width: 0">
+              <span style="{{m.idTxt}}">PTSK0001234</span>
+              <span style="{{m.tituloTxt}}">Despliegue modulo de red Terraform</span>
+            </div>
+            <span style="{{m.timer}}">1h 22m</span>
+          </div>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap">
+            <span style="{{m.btnSec}}">Pausa</span>
+            <span style="{{m.btnSec}}">Idea <span style="{{m.kbd}}">I</span></span>
+            <span style="{{m.btnSec}}">Interrupcion <span style="{{m.kbd}}">N</span></span>
+            <span style="{{m.btnPri}}">+ Nueva atencion</span>
+          </div>
+        </div>
+
+        <div style="{{m.card}}">
+          <sc-for list="{{m.filas}}" as="f" hint-placeholder-count="3">
+            <div style="{{m.fila}}">
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <span style="{{f.tag}}">{{f.tipo}}</span>
+                  <span style="{{m.idTxt}}">{{f.id}}</span>
+                  <span style="{{m.textoSec}}">- {{f.proj}}</span>
+                </div>
+                <span style="{{m.textoSec}}">{{f.titulo}}</span>
+              </div>
+              <span style="{{f.estado}}">{{f.estadoTxt}}</span>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="{{m.card}}">
+          <span style="{{m.textoPri}}">Se verifico el secreto en AWS Secrets Manager. Comando usado:</span>
+          <pre style="{{m.code}}">aws secretsmanager describe-secret \
+  --secret-id flux/github-token</pre>
+          <div style="{{m.aviso}}">Falta el proyecto del equipo que te llamo</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 16px">
+          <sc-for list="{{m.tokens}}" as="t" hint-placeholder-count="12">
+            <div style="display: flex; align-items: center; gap: 10px; min-width: 0">
+              <span style="{{t.sw}}"></span>
+              <span style="display: flex; flex-direction: column; min-width: 0">
+                <span style="{{m.tokNombre}}">{{t.nombre}}</span>
+                <span style="{{m.tokHex}}">{{t.hex}}</span>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const C = {
+      claro: {
+        fondo: '#F4F3F8', superficie: '#FFFFFF', suave: '#F8F7FB', borde: '#E6E4EE', texto: '#1C1A27', textoSec: '#5F5B70',
+        acento: '#C2185B', acentoTxt: '#FFFFFF', foco: '#1A7F46', focoFondo: '#E3F5EA', aviso: '#5C4410', avisoFondo: '#FFF6E5', avisoBorde: '#F1D9A8',
+        error: '#B42318', codigoFondo: '#F7F6F3', codigoTxt: '#37352F', codigoBorde: '#EDECE9', kbdFondo: '#F8F7FB',
+        tkt: ['#1E4FC2', '#E4ECFF'], int: ['#0B6B62', '#DCF2EE'], doc: ['#8A4B08', '#FBEDD3'], con: ['#6127C9', '#ECE4FD'], npl: ['#A3154C', '#FCE7F0'], revisar: ['#A3154C', '#FDF0F5'], jira: ['#1A7F46', '#E3F5EA']
+      },
+      oscuro: {
+        fondo: '#141318', superficie: '#1E1D24', suave: '#26252E', borde: '#34323D', texto: '#ECEAF3', textoSec: '#A9A5B8',
+        acento: '#E8558E', acentoTxt: '#1A0A12', foco: '#5FD08F', focoFondo: '#183324', aviso: '#F2C76B', avisoFondo: '#33290F', avisoBorde: '#5A4718',
+        error: '#FF8A80', codigoFondo: '#2F2F2F', codigoTxt: '#E6E6E5', codigoBorde: '#3A3A3A', kbdFondo: '#2C2B34',
+        tkt: ['#8FB2FF', '#1C2A4A'], int: ['#6FD6C6', '#123330'], doc: ['#F2B866', '#3A2A12'], con: ['#B79BFF', '#2A2045'], npl: ['#FF8DB8', '#3D1828'], revisar: ['#FF8DB8', '#33192A'], jira: ['#5FD08F', '#183324']
+      }
+    };
+    const mk = (nombre, c) => {
+      const tag = (p) => 'display:inline-flex;align-items:center;justify-content:center;width:46px;height:18px;border-radius:5px;font-size:10px;font-weight:700;color:' + p[0] + ';background:' + p[1];
+      const pill = (p, borde) => 'display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:600;color:' + p[0] + ';background:' + p[1] + (borde ? ';border:1px solid ' + c.borde : '');
+      const tok = [
+        ['Fondo pagina', c.fondo], ['Superficie', c.superficie], ['Superficie suave', c.suave], ['Borde', c.borde],
+        ['Texto', c.texto], ['Texto secundario', c.textoSec], ['Acento', c.acento], ['En foco', c.foco],
+        ['Aviso (ambar)', c.avisoFondo], ['Error', c.error], ['Bloque de codigo', c.codigoFondo], ['Texto de codigo', c.codigoTxt],
+        ['Ticket', c.tkt[0]], ['Iniciativa', c.int[0]], ['Documentacion', c.doc[0]], ['Consulta', c.con[0]], ['Interrupcion', c.npl[0]], ['En Jira', c.jira[0]]
+      ];
+      return {
+        nombre,
+        page: 'display:flex;flex-direction:column;gap:16px;padding:24px;border-radius:20px;background:' + c.fondo + ';border:1px solid ' + c.borde,
+        titulo: 'font-size:16px;font-weight:700;color:' + c.texto,
+        card: 'display:flex;flex-direction:column;gap:12px;padding:18px 20px;border-radius:14px;background:' + c.superficie + ';border:1px solid ' + c.borde,
+        labelFoco: 'font-size:11px;font-weight:700;letter-spacing:.08em;color:' + c.foco,
+        idTxt: "font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:" + c.texto,
+        tituloTxt: 'font-size:15px;font-weight:600;color:' + c.texto + ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis',
+        timer: "font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;color:" + c.texto,
+        btnSec: 'display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:9px;font-size:13px;font-weight:500;color:' + c.texto + ';background:' + c.superficie + ';border:1px solid ' + c.borde,
+        btnPri: 'display:inline-flex;align-items:center;height:34px;padding:0 12px;border-radius:9px;font-size:13px;font-weight:600;color:' + c.acentoTxt + ';background:' + c.acento,
+        kbd: "display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;box-sizing:border-box;border-radius:4px;font:600 10px 'JetBrains Mono',monospace;color:" + c.textoSec + ';background:' + c.kbdFondo + ';border:1px solid ' + c.borde,
+        fila: 'display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid ' + c.borde,
+        textoSec: 'font-size:13px;color:' + c.textoSec,
+        textoPri: 'font-size:14px;line-height:1.5;color:' + c.texto,
+        code: "margin:0;padding:12px 14px;border-radius:6px;font:400 12.5px/1.6 'JetBrains Mono',monospace;white-space:pre;overflow-x:auto;color:" + c.codigoTxt + ';background:' + c.codigoFondo + ';border:1px solid ' + c.codigoBorde,
+        aviso: 'padding:10px 12px;border-radius:8px;font-size:13px;color:' + c.aviso + ';background:' + c.avisoFondo + ';border:1px solid ' + c.avisoBorde,
+        tokNombre: 'font-size:12px;font-weight:600;color:' + c.texto,
+        tokHex: "font-family:'JetBrains Mono',monospace;font-size:11px;color:" + c.textoSec,
+        filas: [
+          { tipo: 'TKT', tag: tag(c.tkt), id: 'PTSK0001234', proj: 'INFRAS - PRE', titulo: 'Despliegue modulo de red', estadoTxt: 'En curso', estado: pill([c.texto, c.superficie], true) },
+          { tipo: 'DOC', tag: tag(c.doc), id: 'JDOC0000000001', proj: 'INFRAS', titulo: 'Documentacion de despliegue', estadoTxt: 'Revisar y dar conforme', estado: pill(c.revisar) },
+          { tipo: 'NPL', tag: tag(c.npl), id: 'JNPL0000000005', proj: 'NEXHUB', titulo: 'Llamada con Juan Perez', estadoTxt: 'En Jira', estado: pill(c.jira) }
+        ],
+        tokens: tok.map((t) => ({ nombre: t[0], hex: t[1], sw: 'flex-shrink:0;width:28px;height:28px;border-radius:7px;background:' + t[1] + ';border:1px solid ' + c.borde }))
+      };
+    };
+    return { modos: [mk('Modo claro', C.claro), mk('Modo oscuro', C.oscuro)] };
+  }
+}
+</script>
+</body>
+</html>

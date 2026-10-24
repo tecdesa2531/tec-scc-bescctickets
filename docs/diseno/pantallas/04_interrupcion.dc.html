@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Focus Flow - Interrupcion</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#4B4760}a:hover{color:#C2185B}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F3F8; font-family: Inter, system-ui, sans-serif; color: #1C1A27; font-size: 14px">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 24px; background: #FFFFFF; border-bottom: 1px solid #E6E4EE">
+    <span style="font-size: 20px; font-weight: 700; color: #C2185B">Focus Flow</span>
+    <a href="Main.dc.html" style="{{pillStyle}}">
+      <span style="{{pillDot}}"></span>
+      {{pillLabel}} <b style="font-family: 'JetBrains Mono', monospace; font-weight: 600">JNPL0000000006</b>
+    </a>
+  </header>
+
+  <div style="max-width: 1100px; margin: 0 auto; padding: 20px 24px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+    <a href="Main.dc.html" style="font-size: 13px; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 6px; width: fit-content; min-height: 32px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+      Volver
+    </a>
+
+    <section aria-label="Interrupcion" style="background: #FFFFFF; border: 1px solid #E6E4EE; border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; gap: 20px">
+
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px">
+        <div style="flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+            <span style="display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 22px; border-radius: 6px; font-size: 11px; font-weight: 700; color: #A3154C; background: #FCE7F0">NPL</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600">JNPL0000000006</span>
+            <span style="font-size: 13px; font-weight: 600; color: #3B3850">- {{projLinea}}</span>
+            <span style="{{estadoStyle}}">{{estadoLabel}}</span>
+          </div>
+          <h1 style="margin: 0; font-size: 22px; font-weight: 600; line-height: 1.3">{{titulo}}</h1>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px">
+          <span style="{{timerStyle}}">{{timer}}</span>
+          <span style="font-size: 12px; color: #6E6A80">{{timerSub}}</span>
+        </div>
+      </div>
+
+      <sc-if value="{{soloLectura}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 8px; background: #F8F7FB; border: 1px solid #EEEDF3; font-size: 13px; color: #4B4760">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+          Esta interrupcion ya fue procesada. Solo lectura.
+        </div>
+      </sc-if>
+
+      <sc-if value="{{pendiente}}" hint-placeholder-val="{{false}}">
+        <div style="padding: 10px 12px; border-radius: 8px; background: #FFF6E5; border: 1px solid #F1D9A8; font-size: 13px; color: #5C4410">Pendiente de cerrar: falta {{faltaTxt}}. Completalo abajo y guarda de nuevo.</div>
+      </sc-if>
+
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 160px; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+          <label for="in-padre" style="font-size: 12px; font-weight: 600; color: #3B3850">Atencion padre <span style="font-weight: 400; color: #6E6A80">(opcional)</span></label>
+          <select id="in-padre" value="{{padre}}" onChange="{{setPadre}}" disabled="{{soloLectura}}" style="height: 44px; border-radius: 10px; border: 1px solid #D8D5E3; padding: 0 10px; font: 400 14px Inter, sans-serif; color: #1C1A27; background: #FFFFFF">
+            <option value="">Sin padre</option>
+            <option value="PTSK0001234">PTSK0001234 - INFRAS - Despliegue modulo de red Terraform en PRE</option>
+            <option value="TLND002998">TLND002998 - NEXHUB - Cargar datos a DynamoDB</option>
+          </select>
+        </div>
+        <sc-if value="{{sinPadre}}" hint-placeholder-val="{{true}}">
+          <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+            <label for="in-proj" style="font-size: 12px; font-weight: 600; color: #3B3850">Proyecto</label>
+            <input id="in-proj" list="in-proyectos" value="{{proj}}" onInput="{{setProj}}" readOnly="{{soloLectura}}" maxlength="6" style="height: 44px; min-width: 0; border-radius: 10px; border: 1px solid #D8D5E3; padding: 0 12px; font: 600 14px 'JetBrains Mono', monospace; letter-spacing: 0.06em; color: #1C1A27">
+            <datalist id="in-proyectos"><option value="INFRAS"></option><option value="NEXHUB"></option><option value="PROYAA"></option></datalist>
+          </div>
+        </sc-if>
+        <sc-if value="{{conPadre}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+            <span style="font-size: 12px; font-weight: 600; color: #3B3850">Proyecto</span>
+            <span style="height: 44px; display: flex; align-items: center; font: 600 14px 'JetBrains Mono', monospace; color: #6E6A80">{{projPadre}}</span>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between">
+          <label for="in-notas" style="font-size: 12px; font-weight: 600; color: #3B3850">Notas <span style="font-weight: 400; color: #6E6A80">(privadas, no van a Jira)</span></label>
+          <span style="font-size: 12px; color: #1A7F46">{{guardado}}</span>
+        </div>
+        <textarea id="in-notas" rows="5" value="{{notas}}" onInput="{{setNotas}}" onPaste="{{pegar}}" readOnly="{{soloLectura}}" placeholder="Palabras clave de lo que va saliendo en la llamada o chat..." style="border-radius: 10px; border: 1px solid #D8D5E3; padding: 12px 14px; font: 400 14px/1.5 Inter, sans-serif; color: #1C1A27; resize: vertical"></textarea>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 12px; font-weight: 600; color: #3B3850">Adjuntos</span>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch">
+          <sc-for list="{{adj}}" as="a" hint-placeholder-count="2">
+            <div style="position: relative; width: 160px; height: 100px; border-radius: 8px; border: 1px solid #E6E4EE; background: #F1EFF7; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #5F5B70">
+              <sc-if value="{{a.hasUrl}}" hint-placeholder-val="{{false}}">
+                <img src="{{a.url}}" alt="{{a.name}}" style="width: 100%; height: 100%; object-fit: cover">
+              </sc-if>
+              <sc-if value="{{a.noUrl}}" hint-placeholder-val="{{true}}">
+                <span>{{a.name}}</span>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-if value="{{editable}}" hint-placeholder-val="{{true}}">
+            <button type="button" style="width: 160px; height: 100px; border-radius: 8px; border: 1px dashed #C9C4D8; background: #FFFFFF; color: #6E6A80; font: 500 12px/1.4 Inter, sans-serif; cursor: pointer; padding: 8px">Pega con Ctrl+V, arrastra o elige un archivo</button>
+          </sc-if>
+        </div>
+      </div>
+
+      <sc-if value="{{verCierre}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 16px; padding: 18px; border-radius: 12px; background: #FAFAFC; border: 1px solid #EEEDF3">
+          <span style="font-size: 14px; font-weight: 600">Cierre de la interrupcion</span>
+          <div style="display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: flex-start">
+            <fieldset style="border: none; margin: 0; padding: 0">
+              <legend style="font-size: 12px; font-weight: 600; color: #3B3850; padding: 0; margin-bottom: 6px">Tipo de contacto</legend>
+              <div style="display: inline-flex; padding: 3px; background: #F1EFF7; border-radius: 10px">
+                <sc-for list="{{contactos}}" as="c" hint-placeholder-count="2">
+                  <button type="button" onClick="{{c.pick}}" aria-pressed="{{c.pressed}}" style="{{c.style}}">{{c.name}}</button>
+                </sc-for>
+              </div>
+            </fieldset>
+            <div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+              <label for="in-quien" style="font-size: 12px; font-weight: 600; color: #3B3850">Quien contacto</label>
+              <input id="in-quien" value="{{quien}}" onInput="{{setQuien}}" placeholder="Nombre y equipo" style="{{quienStyle}}">
+            </div>
+            <sc-if value="{{sinPadre}}" hint-placeholder-val="{{true}}">
+              <div style="flex: 0 1 200px; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+                <label for="in-tk" style="font-size: 12px; font-weight: 600; color: #3B3850">Ticket relacionado <span style="font-weight: 400; color: #6E6A80">(opcional)</span></label>
+                <input id="in-tk" placeholder="Ej. TLND002998" style="height: 40px; min-width: 0; border-radius: 10px; border: 1px solid #D8D5E3; padding: 0 12px; font: 500 14px 'JetBrains Mono', monospace; color: #1C1A27; background: #FFFFFF">
+              </div>
+            </sc-if>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <label for="in-res" style="font-size: 12px; font-weight: 600; color: #3B3850">Resumen <span style="font-weight: 400; color: #6E6A80">(admite Markdown)</span></label>
+            <textarea id="in-res" rows="4" value="{{resumen}}" onInput="{{setResumen}}" placeholder="Que se consulto y que se respondio" style="{{resumenStyle}}"></textarea>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{verCerrada}}" hint-placeholder-val="{{false}}">
+        <div style="display: grid; grid-template-columns: 140px minmax(0, 1fr); row-gap: 8px; column-gap: 12px; padding: 16px; border-radius: 12px; background: #FAFAFC; border: 1px solid #EEEDF3; font-size: 13px">
+          <span style="color: #6E6A80">Tipo de contacto</span><span>{{contacto}}</span>
+          <span style="color: #6E6A80">Quien</span><span>{{quien}}</span>
+          <span style="color: #6E6A80">Resumen</span><span style="line-height: 1.5">{{resumen}}</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{confirmando}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: #FFF1F1; border: 1px solid #F5C2C2">
+          <span style="flex: 1 1 300px; font-size: 13px; color: #8A1C1C">Se descartara la interrupcion y se borraran sus carpetas y adjuntos. No va a Jira.</span>
+          <button type="button" onClick="{{noCancelar}}" style="height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #E6E4EE; background: #FFFFFF; color: #1C1A27; font: 500 13px Inter, sans-serif; cursor: pointer">No, volver</button>
+          <a href="Main.dc.html" style="height: 36px; padding: 0 14px; border-radius: 8px; background: #B42318; color: #FFFFFF; font: 600 13px Inter, sans-serif; display: flex; align-items: center; text-decoration: none">Si, cancelar</a>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{verAcciones}}" hint-placeholder-val="{{true}}">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 4px; border-top: 1px solid #EEEDF3">
+          <button type="button" onClick="{{pedirCancelar}}" style="height: 40px; padding: 0 4px; border: none; background: transparent; color: #B42318; font: 500 13px Inter, sans-serif; cursor: pointer">Cancelar interrupcion</button>
+          <button type="button" onClick="{{accionCierre}}" style="height: 44px; padding: 0 20px; border-radius: 10px; border: none; background: #1C1A27; color: #FFFFFF; font: 600 14px Inter, sans-serif; cursor: pointer">{{cierreLabel}}</button>
+        </div>
+      </sc-if>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"estado":{"editor":"enum","options":["En curso","Pendiente de cerrar","Atendida","Procesada"],"default":"En curso","section":"Estado"},"$preview":{"width":1440,"height":1300}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tick: 0, ov: null, lastProp: null, padre: '', proj: 'INFRAS', notas: 'rate limit /v1/auth\nquieren subirlo a 500 rps\nrevisar con NEXHUB', guardado: '', contacto: 'Llamada Teams', quien: '', resumen: '', confirmando: false,
+      adj: [{ id: 1, name: 'captura_gateway.png', url: '' }] };
+  }
+  componentDidMount() { this.iv = setInterval(() => this.setState({ tick: this.state.tick + 1 }), 1000); }
+  componentWillUnmount() { clearInterval(this.iv); clearTimeout(this.tg); }
+  renderVals() {
+    const s = this.state;
+    const prop = this.props.estado || 'En curso';
+    const map = { 'En curso': 'curso', 'Pendiente de cerrar': 'pendiente', 'Atendida': 'atendida', 'Procesada': 'procesada' };
+    const fresh = s.lastProp !== prop;
+    const base = fresh ? map[prop] : (s.ov || map[prop]);
+    const set = (p) => this.setState(Object.assign({ lastProp: prop }, p));
+    const quien = (fresh && base !== 'curso') ? (base === 'pendiente' ? '' : 'Juan Perez (NEXHUB)') : (s.quien || (base === 'atendida' || base === 'procesada' ? 'Juan Perez (NEXHUB)' : ''));
+    const resumen = (fresh && base === 'pendiente') ? 'Consulta sobre el rate limit del endpoint /v1/auth del API Gateway.' : (s.resumen || (base === 'atendida' || base === 'procesada' ? 'Consulta sobre el rate limit del endpoint /v1/auth del API Gateway. Se acordo revisarlo con NEXHUB.' : (base === 'pendiente' ? 'Consulta sobre el rate limit del endpoint /v1/auth del API Gateway.' : '')));
+    const fmt = (x) => [Math.floor(x / 3600), Math.floor(x / 60) % 60, x % 60].map((n) => String(n).padStart(2, '0')).join(':');
+    const enCurso = base === 'curso';
+    const cerrando = base === 'cerrando';
+    const pendiente = base === 'pendiente';
+    const cerrada = base === 'atendida' || base === 'procesada';
+    const soloLectura = base === 'procesada';
+    const conPadre = !!s.padre;
+    const faltan = [];
+    if (!quien.trim()) faltan.push('quien contacto');
+    if (!resumen.trim()) faltan.push('resumen');
+    const PROJ = { PTSK0001234: 'INFRAS', TLND002998: 'NEXHUB' };
+    const segOn = 'height:36px;padding:0 14px;border-radius:8px;border:none;background:#FFFFFF;color:#1C1A27;font:600 13px Inter,sans-serif;cursor:pointer;box-shadow:0 1px 2px rgba(28,26,39,.12)';
+    const segOff = 'height:36px;padding:0 14px;border-radius:8px;border:none;background:transparent;color:#4B4760;font:500 13px Inter,sans-serif;cursor:pointer';
+    const inputStyle = (bad) => 'height:40px;min-width:0;border-radius:10px;padding:0 12px;font:400 14px Inter,sans-serif;color:#1C1A27;background:#FFFFFF;border:1px solid ' + (bad ? '#E5484D' : '#D8D5E3');
+    const contacto = s.contacto;
+    const estados = {
+      curso: ['En curso', '#1A7F46', '#E3F5EA'], cerrando: ['Cerrando', '#4B4760', '#F1EFF7'],
+      pendiente: ['Pendiente de cerrar', '#8A5E00', '#FFF1D6'], atendida: ['Atendida', '#4B4760', '#F1EFF7'], procesada: ['Atendida', '#4B4760', '#F1EFF7']
+    };
+    const est = estados[base];
+    const elapsed = 418 + (enCurso ? s.tick : 0);
+    return {
+      pillLabel: enCurso ? 'En foco:' : 'En pausa ·',
+      pillDot: 'width:8px;height:8px;border-radius:50%;background:' + (enCurso ? '#C2185B' : '#C98A00'),
+      pillStyle: 'display:flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:999px;text-decoration:none;font:500 13px Inter,sans-serif;' + (enCurso ? 'background:#FCE7F0;border:1px solid #F5C6DA;color:#7A0F39' : 'background:#FFF6E5;border:1px solid #F1D9A8;color:#5C4410'),
+      projLinea: conPadre ? PROJ[s.padre] + ' · hija de ' + s.padre : s.proj,
+      estadoLabel: est[0], estadoStyle: 'font-size:12px;font-weight:600;border-radius:999px;padding:2px 9px;color:' + est[1] + ';background:' + est[2],
+      titulo: cerrada ? (contacto === 'Chat Teams' ? 'Chat con ' : 'Llamada con ') + quien : 'Interrupcion 22:18',
+      timer: fmt(elapsed), timerStyle: "font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:600;color:" + (enCurso ? '#A3154C' : '#6E6A80'),
+      timerSub: enCurso ? 'en curso desde las 22:18' : 'duracion total',
+      soloLectura, editable: !soloLectura && !cerrada,
+      pendiente, faltaTxt: faltan.join(' y ') || 'datos',
+      padre: s.padre, setPadre: (e) => set({ padre: e.target.value }), conPadre, sinPadre: !conPadre, projPadre: PROJ[s.padre] || '',
+      proj: s.proj, setProj: (e) => set({ proj: e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 6) }),
+      notas: s.notas, guardado: s.guardado,
+      setNotas: (e) => { set({ notas: e.target.value, guardado: 'Guardando...' }); clearTimeout(this.tg); this.tg = setTimeout(() => this.setState({ guardado: 'Guardado' }), 800); },
+      pegar: (e) => {
+        const items = (e.clipboardData && e.clipboardData.items) || [];
+        const nuevas = [];
+        for (let i = 0; i < items.length; i++) { if (items[i].type && items[i].type.indexOf('image') === 0) { const f = items[i].getAsFile(); if (f) nuevas.push({ id: Date.now() + i, name: 'captura.png', url: URL.createObjectURL(f) }); } }
+        if (nuevas.length) { e.preventDefault(); set({ adj: s.adj.concat(nuevas) }); }
+      },
+      adj: s.adj.map((a) => ({ name: a.name, url: a.url, hasUrl: !!a.url, noUrl: !a.url })).concat([{ name: 'log_gateway.txt', url: '', hasUrl: false, noUrl: true }]),
+      verCierre: cerrando || pendiente,
+      verCerrada: cerrada,
+      contacto,
+      contactos: ['Llamada Teams', 'Chat Teams'].map((n) => ({ name: n, pressed: contacto === n ? 'true' : 'false', style: contacto === n ? segOn : segOff, pick: () => set({ contacto: n }) })),
+      quien, setQuien: (e) => set({ quien: e.target.value, ov: base }),
+      quienStyle: inputStyle(pendiente && !quien.trim()),
+      resumen, setResumen: (e) => set({ resumen: e.target.value, ov: base }),
+      resumenStyle: 'border-radius:10px;padding:10px 12px;font:400 14px/1.5 Inter,sans-serif;color:#1C1A27;background:#FFFFFF;resize:vertical;border:1px solid ' + (pendiente && !resumen.trim() ? '#E5484D' : '#D8D5E3'),
+      guardarCierre: () => set({ ov: faltan.length ? 'pendiente' : 'atendida', quien, resumen }),
+      verAcciones: !soloLectura && !s.confirmando && (enCurso || pendiente || cerrando),
+      cierreLabel: enCurso ? 'Cerrar interrupcion' : 'Guardar cierre',
+      accionCierre: () => (enCurso ? set({ ov: 'cerrando' }) : set({ ov: faltan.length ? 'pendiente' : 'atendida', quien, resumen })),
+      confirmando: s.confirmando, pedirCancelar: () => set({ confirmando: true }), noCancelar: () => set({ confirmando: false })
+    };
+  }
+}
+</script>
+</body>
+</html>

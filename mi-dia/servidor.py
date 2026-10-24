@@ -51,6 +51,7 @@ RUTAS_POST = {
     "/api/interrupcion/cerrar":   lambda p: atenciones.cerrar_interrupcion(p),
     "/api/interrupcion/cancelar": lambda p: atenciones.cancelar_interrupcion(p),
     "/api/foco/cambiar":          lambda p: foco.cambiar_foco(p),
+    "/api/foco/deshacer":         lambda p: foco.deshacer_foco(),
     "/api/foco/terminar_dia":     lambda p: foco.terminar_dia(),
     "/api/foco/cerrar_anterior":  lambda p: foco.cerrar_foco_anterior(p),
     "/api/ideas/crear":           lambda p: foco.crear_idea(p.get("texto")),

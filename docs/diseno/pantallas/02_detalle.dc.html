@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Focus Flow - Detalle de atencion</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#4B4760}a:hover{color:#C2185B}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F3F8; font-family: Inter, system-ui, sans-serif; color: #1C1A27; font-size: 14px">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 24px; background: #FFFFFF; border-bottom: 1px solid #E6E4EE">
+    <span style="font-size: 20px; font-weight: 700; color: #C2185B">Focus Flow</span>
+    <a href="Main.dc.html" title="Ir a la vista principal" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 999px; background: #F2FAF5; border: 1px solid #CDEBD8; text-decoration: none; color: #1A5E36; font: 500 13px Inter, sans-serif">
+      <span style="width: 8px; height: 8px; border-radius: 50%; background: #1F9D55"></span>
+      En foco: <b style="font-family: 'JetBrains Mono', monospace; font-weight: 600">{{focoId}}</b>
+      <span style="font-family: 'JetBrains Mono', monospace">{{focoTimer}}</span>
+    </a>
+  </header>
+
+  <sc-if value="{{toast}}" hint-placeholder-val="{{true}}">
+    <div role="status" style="position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 10; display: flex; align-items: center; gap: 14px; padding: 10px 10px 10px 18px; border-radius: 12px; background: #1C1A27; color: #FFFFFF; font: 500 14px Inter, sans-serif; box-shadow: 0 8px 24px rgba(28,26,39,.25)">
+      <span>{{toastText}}</span>
+      <sc-if value="{{puedeDeshacer}}" hint-placeholder-val="{{true}}">
+        <button type="button" onClick="{{deshacer}}" style="height: 34px; padding: 0 12px; border-radius: 8px; border: none; background: #FFFFFF; color: #1C1A27; font: 600 13px Inter, sans-serif; cursor: pointer">Deshacer</button>
+      </sc-if>
+      <button type="button" onClick="{{cerrarToast}}" aria-label="Cerrar aviso" style="width: 34px; height: 34px; border-radius: 8px; border: none; background: transparent; color: #FFFFFF; cursor: pointer; display: flex; align-items: center; justify-content: center">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+      </button>
+    </div>
+  </sc-if>
+
+  <div style="max-width: 1360px; margin: 0 auto; padding: 20px 24px 40px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px">
+    <a href="Main.dc.html" style="font-size: 13px; font-weight: 500; text-decoration: none; display: flex; align-items: center; gap: 6px; width: fit-content; min-height: 32px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path></svg>
+      Volver
+    </a>
+
+    <section style="background: #FFFFFF; border: 1px solid #E6E4EE; border-radius: 16px; padding: 20px 24px; display: flex; flex-direction: column; gap: 18px">
+      <sc-if value="{{editando}}" hint-placeholder-val="{{false}}">
+        <div style="display: flex; flex-direction: column; gap: 16px">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+            <span style="font-size: 13px; font-weight: 600; color: #3B3850">Editar datos</span>
+            <sc-if value="{{bloqueado}}" hint-placeholder-val="{{true}}">
+              <span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #6E6A80">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+                Tracking ID, proyecto y entornos fijos: la atencion ya tiene carpetas definitivas
+              </span>
+            </sc-if>
+          </div>
+          <div style="display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 16px">
+            <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+              <label for="ed-tid" style="font-size: 12px; font-weight: 600; color: #3B3850">Tracking ID · ServiceNow</label>
+              <input id="ed-tid" value="{{edTid}}" readOnly="{{bloqueado}}" placeholder="Ej. PTSK0000123" style="{{fijoStyle}}">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+              <label for="ed-tit" style="font-size: 12px; font-weight: 600; color: #3B3850">Titulo</label>
+              <input id="ed-tit" value="Despliegue modulo de red Terraform en PRE" style="height: 44px; min-width: 0; border-radius: 10px; border: 1px solid #D8D5E3; padding: 0 12px; font: 400 14px Inter, sans-serif; color: #1C1A27">
+            </div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px 28px; padding: 16px; border-radius: 12px; background: #FAFAFC; border: 1px solid #EEEDF3">
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <label for="ed-proj" style="font-size: 12px; font-weight: 600; color: #3B3850">Proyecto</label>
+              <input id="ed-proj" value="INFRAS" readOnly="{{bloqueado}}" style="{{projStyle}}">
+            </div>
+            <fieldset style="border: none; margin: 0; padding: 0">
+              <legend style="font-size: 12px; font-weight: 600; color: #3B3850; padding: 0; margin-bottom: 6px">Entornos</legend>
+              <div style="display: flex; gap: 8px">
+                <sc-for list="{{edEnvs}}" as="e" hint-placeholder-count="3">
+                  <button type="button" disabled="{{bloqueado}}" aria-pressed="{{e.pressed}}" style="{{e.style}}">{{e.name}}</button>
+                </sc-for>
+              </div>
+            </fieldset>
+            <fieldset style="border: none; margin: 0; padding: 0">
+              <legend style="font-size: 12px; font-weight: 600; color: #3B3850; padding: 0; margin-bottom: 6px">HU</legend>
+              <div style="display: inline-flex; padding: 3px; background: #F1EFF7; border-radius: 10px">
+                <sc-for list="{{edHus}}" as="h" hint-placeholder-count="2">
+                  <button type="button" onClick="{{h.pick}}" aria-pressed="{{h.pressed}}" style="{{h.style}}">{{h.name}}</button>
+                </sc-for>
+              </div>
+            </fieldset>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px">
+            <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+              <label for="ed-url" style="font-size: 12px; font-weight: 600; color: #3B3850">URL ServiceNow</label>
+              <input id="ed-url" value="https://servicenow.empresa.com/incident?id=PTSK0001234" style="height: 44px; min-width: 0; border-radius: 10px; border: 1px solid #D8D5E3; padding: 0 12px; font: 400 14px Inter, sans-serif; color: #1C1A27">
+            </div>
+            <sc-if value="{{noBloqueado}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+                <label for="ed-padre" style="font-size: 12px; font-weight: 600; color: #3B3850">Atencion padre</label>
+                <select id="ed-padre" style="height: 44px; border-radius: 10px; border: 1px solid #D8D5E3; padding: 0 10px; font: 400 14px Inter, sans-serif; color: #1C1A27; background: #FFFFFF">
+                  <option>Sin padre</option>
+                  <option>TLND002998 - NEXHUB - Cargar datos a DynamoDB</option>
+                </select>
+              </div>
+            </sc-if>
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: 8px">
+            <button type="button" onClick="{{cancelarEdicion}}" style="height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid #E6E4EE; background: #FFFFFF; color: #1C1A27; font: 500 14px Inter, sans-serif; cursor: pointer">Cancelar</button>
+            <button type="button" onClick="{{cancelarEdicion}}" style="height: 40px; padding: 0 18px; border-radius: 10px; border: none; background: #1C1A27; color: #FFFFFF; font: 600 14px Inter, sans-serif; cursor: pointer">Guardar</button>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{leyendo}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px">
+        <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+            <span style="{{hTagStyle}}">{{hTag}}</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: #1C1A27">{{hId}}</span>
+            <span style="font-size: 13px; font-weight: 600; color: #3B3850">{{hLinea}}</span>
+            <span style="font-size: 13px; color: #6E6A80">· {{hHu}}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <h1 style="margin: 0; font-size: 22px; font-weight: 600; line-height: 1.3">{{hTitulo}}</h1>
+            <button type="button" onClick="{{editar}}" aria-label="Editar datos" title="Editar datos" style="flex-shrink: 0; width: 34px; height: 34px; border-radius: 8px; border: none; background: transparent; color: #6E6A80; cursor: pointer; display: flex; align-items: center; justify-content: center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
+            </button>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-left: -8px">
+            <sc-if value="{{esTicketV}}" hint-placeholder-val="{{true}}">
+            <a href="#" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px; border-radius: 7px; font-size: 13px; color: #4B4760; text-decoration: none">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><path d="M15 3h6v6"></path><path d="M10 14L21 3"></path></svg>
+              ServiceNow
+            </a>
+            <button type="button" onClick="{{copiarEdge}}" title="PTSK0001234-INFRAS" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px; border-radius: 7px; border: none; background: transparent; font: 400 13px Inter, sans-serif; color: #4B4760; cursor: pointer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"></rect><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"></path></svg>
+              {{edgeLabel}}
+            </button>
+            </sc-if>
+            <button type="button" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px; border-radius: 7px; border: none; background: transparent; font: 400 13px Inter, sans-serif; color: #4B4760; cursor: pointer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+              Trabajo
+            </button>
+            <button type="button" style="display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 8px; border-radius: 7px; border: none; background: transparent; font: 400 13px Inter, sans-serif; color: #4B4760; cursor: pointer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+              Proceso
+            </button>
+          </div>
+          <sc-if value="{{avisoProj}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 4px; padding: 10px 12px; border-radius: 10px; background: #FFF6E5; border: 1px solid #F1D9A8; width: fit-content; max-width: 100%; box-sizing: border-box">
+              <label for="r-proj" style="font-size: 13px; color: #5C4410">Falta el proyecto del equipo que te llamo</label>
+              <input id="r-proj" list="r-proyectos" value="{{projR}}" onInput="{{setProjR}}" maxlength="6" placeholder="6 letras" style="width: 120px; height: 36px; box-sizing: border-box; border-radius: 8px; border: 1px solid #E3C98F; padding: 0 10px; font: 600 14px 'JetBrains Mono', monospace; letter-spacing: 0.06em; color: #1C1A27; background: #FFFFFF">
+              <datalist id="r-proyectos"><option value="INFRAS"></option><option value="NEXHUB"></option><option value="PROYAA"></option></datalist>
+              <button type="button" onClick="{{guardarProj}}" disabled="{{projInvalido}}" style="{{projBtnStyle}}">Guardar</button>
+            </div>
+          </sc-if>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+          <sc-if value="{{trabajando}}" hint-placeholder-val="{{true}}">
+            <label for="estado" style="font-size: 12px; font-weight: 600; color: #4B4760">Estado</label>
+            <select id="estado" style="height: 40px; border-radius: 10px; border: 1px solid #E6E4EE; padding: 0 10px; font: 500 14px Inter, sans-serif; background: #FFFFFF; color: #1C1A27">
+              <option>En curso</option>
+              <option>En espera</option>
+              <option>Descartado</option>
+            </select>
+          </sc-if>
+          <sc-if value="{{noTrabajando}}" hint-placeholder-val="{{false}}">
+            <span style="font-size: 13px; color: #4B4760; display: flex; align-items: center; gap: 6px"><span style="width: 7px; height: 7px; border-radius: 50%; background: #8A869A"></span>Atendido</span>
+            <button type="button" style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #E6E4EE; background: #FFFFFF; color: #1C1A27; font: 500 14px Inter, sans-serif; cursor: pointer">Reabrir</button>
+          </sc-if>
+        </div>
+      </div>
+      </sc-if>
+
+      <ol aria-label="Camino a Jira" style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{pasos}}" as="p" hint-placeholder-count="4">
+          <li style="{{p.box}}">
+            <span style="{{p.num}}">{{p.n}}</span>
+            <span style="display: flex; flex-direction: column; gap: 1px; min-width: 0">
+              <span style="{{p.titleStyle}}">{{p.titulo}}</span>
+              <span style="font-size: 12px; color: #5F5B70">{{p.sub}}</span>
+            </span>
+          </li>
+        </sc-for>
+      </ol>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; background: #F8F7FB">
+        <span style="flex: 1 1 320px; font-size: 14px; color: #3B3850">{{guia}}</span>
+        <sc-if value="{{pidiendo}}" hint-placeholder-val="{{false}}">
+          <input aria-label="Proyecto" list="r-proyectos2" value="{{projR}}" onInput="{{setProjR}}" maxlength="6" placeholder="6 letras" style="width: 120px; height: 40px; box-sizing: border-box; border-radius: 8px; border: 1px solid #D8D5E3; padding: 0 10px; font: 600 14px 'JetBrains Mono', monospace; letter-spacing: 0.06em; color: #1C1A27; background: #FFFFFF">
+          <datalist id="r-proyectos2"><option value="INFRAS"></option><option value="NEXHUB"></option><option value="PROYAA"></option></datalist>
+          <button type="button" onClick="{{noTerminar}}" style="height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid #E6E4EE; background: #FFFFFF; color: #1C1A27; font: 500 14px Inter, sans-serif; cursor: pointer">Cancelar</button>
+          <button type="button" onClick="{{guardarYTerminar}}" disabled="{{projInvalido}}" style="{{terminarProjStyle}}">Guardar y terminar</button>
+        </sc-if>
+        <sc-if value="{{verTerminar}}" hint-placeholder-val="{{true}}">
+          <sc-if value="{{esTicketV}}" hint-placeholder-val="{{true}}">
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #1A7F46">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>
+            Correo de respuesta adjunto
+          </span>
+          </sc-if>
+          <button type="button" onClick="{{terminar}}" style="height: 44px; padding: 0 20px; border-radius: 10px; border: none; background: #C2185B; color: #FFFFFF; font: 600 14px Inter, sans-serif; cursor: pointer">Terminar atencion</button>
+        </sc-if>
+        <sc-if value="{{conConforme}}" hint-placeholder-val="{{false}}">
+          <button type="button" disabled="{{conformeOff}}" title="{{conformeTip}}" style="{{conformeStyle}}">Dar conforme</button>
+        </sc-if>
+      </div>
+    </section>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <section aria-label="Bitacora" style="flex: 999 1 600px; min-width: 0; background: #FFFFFF; border: 1px solid #E6E4EE; border-radius: 16px; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px">
+          <h2 style="margin: 0; font-size: 16px; font-weight: 600">Bitacora</h2>
+          <sc-if value="{{revisar}}" hint-placeholder-val="{{false}}">
+            <span style="font-size: 13px; color: #5F5B70">Original a la izquierda · lo que ira a Jira a la derecha</span>
+          </sc-if>
+        </div>
+
+        <sc-for list="{{entradas}}" as="e" hint-placeholder-count="3">
+          <article style="border: 1px solid #EEEDF3; border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+              <span style="font-size: 12px; font-weight: 700; color: #3B3850">{{e.n}}. {{e.tipo}}</span>
+              <span style="font-size: 12px; color: #5F5B70">{{e.fecha}}</span>
+              <span style="{{e.destStyle}}">{{e.dest}}</span>
+              <span style="flex: 1"></span>
+              <sc-if value="{{e.bloqueada}}" hint-placeholder-val="{{false}}">
+                <span style="font-size: 12px; color: #5F5B70; display: flex; align-items: center; gap: 4px">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+                  Subida a Jira
+                </span>
+              </sc-if>
+              <sc-if value="{{e.editable}}" hint-placeholder-val="{{true}}">
+                <button type="button" style="height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid #E6E4EE; background: #FFFFFF; font: 500 12px Inter, sans-serif; cursor: pointer">Editar</button>
+              </sc-if>
+            </div>
+            <sc-if value="{{e.comparar}}" hint-placeholder-val="{{false}}">
+              <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+                <div style="padding: 10px 12px; border-radius: 8px; background: #F8F7FB; font-size: 13px; line-height: 1.5; color: #4B4760">{{e.texto}}</div>
+                <div style="padding: 10px 12px; border-radius: 8px; background: #EEF8F2; border: 1px solid #CDEBD8; font-size: 13px; line-height: 1.5; color: #1C1A27">{{e.corregido}}</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{e.simple}}" hint-placeholder-val="{{true}}">
+              <p style="margin: 0; font-size: 14px; line-height: 1.5">{{e.texto}}</p>
+            </sc-if>
+            <sc-if value="{{e.hasCode}}" hint-placeholder-val="{{false}}">
+              <pre style="margin: 0; padding: 14px 16px; border-radius: 6px; background: #F7F6F3; color: #37352F; border: 1px solid #EDECE9; font: 400 12.5px/1.65 'JetBrains Mono', monospace; overflow-x: auto; white-space: pre">{{e.codigo}}</pre>
+            </sc-if>
+            <sc-if value="{{e.hasCaps}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; gap: 12px; flex-wrap: wrap">
+                <sc-for list="{{e.caps}}" as="c" hint-placeholder-count="1">
+                  <figure style="margin: 0; width: 200px; display: flex; flex-direction: column; gap: 6px">
+                    <div style="width: 200px; height: 120px; border-radius: 8px; border: 1px solid #E6E4EE; background: #F1EFF7; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #5F5B70">{{c.name}}</div>
+                    <figcaption style="font-size: 13px; color: #3B3850; line-height: 1.4">{{c.desc}}</figcaption>
+                  </figure>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{e.hasAdj}}" hint-placeholder-val="{{false}}">
+              <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                <sc-for list="{{e.adj}}" as="a" hint-placeholder-count="1">
+                  <span style="font-size: 12px; color: #3B3850; background: #F1EFF7; border-radius: 6px; padding: 4px 8px">{{a}}</span>
+                </sc-for>
+              </div>
+            </sc-if>
+          </article>
+        </sc-for>
+
+        <sc-if value="{{trabajando}}" hint-placeholder-val="{{true}}">
+          <div style="position: sticky; bottom: 16px; z-index: 5; border: 1px solid #D8D5E3; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; background: #FFFFFF; box-shadow: 0 6px 24px rgba(28,26,39,.14)">
+            <sc-if value="{{cerrado}}" hint-placeholder-val="{{true}}">
+              <button type="button" onClick="{{abrir}}" style="display: flex; align-items: center; gap: 10px; width: 100%; height: 44px; padding: 0 14px; border-radius: 10px; border: 1px solid #E6E4EE; background: #FAFAFC; color: #6E6A80; font: 400 14px Inter, sans-serif; cursor: text; text-align: left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+                Escribe una entrada...
+              </button>
+            </sc-if>
+            <sc-if value="{{abierto}}" hint-placeholder-val="{{false}}">
+            <div style="display: flex; flex-direction: column; gap: 10px">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+              <span style="display: flex; align-items: center; gap: 8px">
+                <button type="button" onClick="{{cerrar}}" aria-label="Minimizar" style="width: 30px; height: 30px; border-radius: 7px; border: none; background: transparent; color: #4B4760; cursor: pointer; display: flex; align-items: center; justify-content: center">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+                </button>
+                <span style="font-size: 13px; font-weight: 600">Nueva entrada</span>
+              </span>
+              <sc-if value="{{noEsFoco}}" hint-placeholder-val="{{false}}">
+                <span style="display: flex; align-items: center; gap: 8px; font-size: 12px; color: #8A5E00">No es tu foco actual
+                  <button type="button" onClick="{{enfocarAqui}}" style="height: 28px; padding: 0 10px; border-radius: 7px; border: 1px solid #F1D9A8; background: #FFF6E5; color: #5C4410; font: 600 12px Inter, sans-serif; cursor: pointer">Enfocar</button>
+                </span>
+              </sc-if>
+            </div>
+            <div role="group" aria-label="Tipo de entrada" style="display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{tiposEntrada}}" as="t" hint-placeholder-count="4">
+                <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="{{t.style}}">{{t.label}}</button>
+              </sc-for>
+            </div>
+            <sc-if value="{{avisoCorreo}}" hint-placeholder-val="{{false}}">
+              <div style="padding: 10px 12px; border-radius: 8px; background: #FFF6E5; border: 1px solid #F1D9A8; font-size: 13px; color: #5C4410">Este ticket aun no tiene correo recibido. Primero registra el correo de <b>Solicitud</b> o <b>Asignacion</b>.</div>
+            </sc-if>
+            <sc-if value="{{esCierre}}" hint-placeholder-val="{{false}}">
+              <div style="padding: 10px 12px; border-radius: 8px; background: #F3F6FF; border: 1px solid #DCE5FB; font-size: 13px; color: #1E3F8F">Adjunta el correo de respuesta al solicitante. Al guardar, la atencion pasa a <b>Atendido</b>.</div>
+            </sc-if>
+            <label for="nueva" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Texto de la entrada</label>
+            <textarea id="nueva" rows="3" value="{{texto}}" onInput="{{setTexto}}" onPaste="{{pegar}}" placeholder="{{placeholder}}" style="border-radius: 8px; border: 1px solid #E6E4EE; padding: 10px 12px; font: 400 14px Inter, sans-serif; resize: vertical"></textarea>
+            <span style="font-size: 12px; color: #6E6A80; margin-top: -4px">Admite Markdown: <code style="font-family: 'JetBrains Mono', monospace; background: #F1EFF7; border-radius: 4px; padding: 1px 5px">**negrita**</code> <code style="font-family: 'JetBrains Mono', monospace; background: #F1EFF7; border-radius: 4px; padding: 1px 5px">- listas</code> <code style="font-family: 'JetBrains Mono', monospace; background: #F1EFF7; border-radius: 4px; padding: 1px 5px">`codigo`</code> <code style="font-family: 'JetBrains Mono', monospace; background: #F1EFF7; border-radius: 4px; padding: 1px 5px">```bloques```</code></span>
+            <sc-if value="{{hayImgs}}" hint-placeholder-val="{{true}}">
+              <div style="display: flex; flex-direction: column; gap: 10px">
+                <sc-for list="{{imgs}}" as="im" hint-placeholder-count="1">
+                  <div style="display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; padding: 10px; border-radius: 10px; background: #FAFAFC; border: 1px solid #EEEDF3">
+                    <div style="position: relative; flex-shrink: 0; width: 220px; height: 136px; border-radius: 8px; overflow: hidden; border: 1px solid #E6E4EE; background: #F1EFF7">
+                      <sc-if value="{{im.hasUrl}}" hint-placeholder-val="{{false}}">
+                        <img src="{{im.url}}" alt="{{im.name}}" style="width: 100%; height: 100%; object-fit: cover">
+                      </sc-if>
+                      <sc-if value="{{im.noUrl}}" hint-placeholder-val="{{true}}">
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #5F5B70">{{im.name}}</div>
+                      </sc-if>
+                      <button type="button" onClick="{{im.quitar}}" aria-label="Quitar captura" style="position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; border-radius: 6px; border: none; background: rgba(28,26,39,.75); color: #FFFFFF; cursor: pointer; display: flex; align-items: center; justify-content: center">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+                      </button>
+                    </div>
+                    <div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+                      <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #3B3850; cursor: pointer; min-height: 28px">
+                        <input type="checkbox" checked="{{im.deCorreo}}" onChange="{{im.toggleCorreo}}" style="width: 16px; height: 16px; margin: 0">
+                        Captura del correo
+                      </label>
+                      <textarea aria-label="Descripcion de la captura" rows="3" value="{{im.desc}}" onInput="{{im.setDesc}}" placeholder="{{im.descPh}}" style="{{im.descStyle}}"></textarea>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #3B3850; cursor: pointer; min-height: 36px">
+                <input type="checkbox" checked="{{paraJiraOn}}" onChange="{{toggleJira}}" style="width: 16px; height: 16px; margin: 0">
+                Para Jira
+              </label>
+              <button type="button" style="height: 36px; padding: 0 12px; border-radius: 8px; border: 1px solid #E6E4EE; background: #FFFFFF; font: 500 13px Inter, sans-serif; cursor: pointer">Adjuntar archivo</button>
+              <span style="flex: 1"></span>
+              <button type="button" disabled="{{guardarOff}}" title="{{guardarTip}}" style="{{guardarStyle}}">Agregar entrada</button>
+            </div>
+            </div>
+            </sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{noTrabajando}}" hint-placeholder-val="{{false}}">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 16px; border-radius: 12px; background: #F8F7FB; border: 1px solid #EEEDF3">
+            <span style="font-size: 13px; color: #4B4760">Atencion atendida. Reabrela para agregar entradas.</span>
+            <button type="button" style="height: 36px; padding: 0 14px; border-radius: 8px; border: 1px solid #E6E4EE; background: #FFFFFF; font: 500 13px Inter, sans-serif; cursor: pointer">Reabrir</button>
+          </div>
+        </sc-if>
+      </section>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"paso":{"editor":"enum","options":["Trabajando","Pendiente de limpieza","Revisar y dar conforme","Pendiente de subir a Jira","En Jira"],"default":"Trabajando","section":"Estado"},"avisoFoco":{"editor":"boolean","default":true,"section":"Estado"},"ticketSinCorreo":{"editor":"boolean","default":false,"section":"Estado"},"temporal":{"editor":"boolean","default":false,"section":"Estado"},"vista":{"editor":"enum","options":["Ticket","Reunion sin proyecto"],"default":"Ticket","section":"Estado"},"$preview":{"width":1440,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { dest: 'jira', tick: 0, deshecho: false, toastOff: false, tipoE: 'Avance', texto: '', abierto: false, editando: false, copiado: false, edHu: 'Independiente', paraJira: true, imgs: [{ id: 1, name: 'captura_plan.png', url: '', desc: '', deCorreo: false }] }; }
+  componentDidMount() { this.iv = setInterval(() => this.setState({ tick: this.state.tick + 1 }), 1000); }
+  componentWillUnmount() { clearInterval(this.iv); }
+  renderVals() {
+    const st = this.state;
+    const fmtHM = (x) => Math.floor(x / 3600) + 'h ' + String(Math.floor(x / 60) % 60).padStart(2, '0') + 'm';
+    const avisoFoco = this.props.avisoFoco !== false;
+    const focoAqui = avisoFoco && !st.deshecho;
+    const focoVals = {
+      focoId: focoAqui ? 'PTSK0001234' : 'TLND002998',
+      focoTimer: focoAqui ? fmtHM(st.tick) : fmtHM(1520 + st.tick),
+      toast: avisoFoco && !st.toastOff,
+      toastText: st.deshecho ? 'Foco devuelto a TLND002998' : 'Foco en PTSK0001234',
+      puedeDeshacer: !st.deshecho,
+      deshacer: () => this.setState({ deshecho: true }),
+      cerrarToast: () => this.setState({ toastOff: true }),
+      pegar: (e) => {
+        const items = (e.clipboardData && e.clipboardData.items) || [];
+        const nuevas = [];
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type && items[i].type.indexOf('image') === 0) {
+            const f = items[i].getAsFile();
+            if (f) nuevas.push({ id: Date.now() + i, name: 'captura_pegada.png', url: URL.createObjectURL(f), desc: '', deCorreo: st.tipoE !== 'Avance' });
+          }
+        }
+        if (nuevas.length) { e.preventDefault(); this.setState({ imgs: st.imgs.concat(nuevas) }); }
+      }
+    };
+    const updImg = (id, patch) => this.setState({ imgs: this.state.imgs.map((x) => (x.id === id ? Object.assign({}, x, patch) : x)) });
+    const imgs = st.imgs.map((im) => {
+      const falta = !im.deCorreo && !im.desc.trim();
+      return {
+        name: im.name, url: im.url, hasUrl: !!im.url, noUrl: !im.url, desc: im.desc, deCorreo: im.deCorreo, falta,
+        descPh: im.deCorreo ? 'Descripcion (opcional en capturas del correo)' : 'Describe que muestra la captura (obligatoria)',
+        descStyle: 'border-radius:8px;padding:8px 10px;font:400 13px Inter,sans-serif;resize:vertical;border:1px solid ' + (falta ? '#E5484D;background:#FFF8F8' : '#E6E4EE;background:#FFFFFF'),
+        setDesc: (e) => updImg(im.id, { desc: e.target.value }),
+        toggleCorreo: () => updImg(im.id, { deCorreo: !im.deCorreo }),
+        quitar: () => this.setState({ imgs: this.state.imgs.filter((x) => x.id !== im.id) })
+      };
+    });
+    const sinCorreo = !!this.props.ticketSinCorreo;
+    const avisoCorreo = sinCorreo && (st.tipoE === 'Avance' || st.tipoE === 'Cierre');
+    const vacia = !st.texto.trim() && st.imgs.length === 0;
+    const faltaDesc = imgs.some((i) => i.falta);
+    const guardarOff = vacia || faltaDesc || avisoCorreo;
+    const segT = (on) => 'height:34px;padding:0 14px;border-radius:999px;font:' + (on ? '600' : '500') + ' 13px Inter,sans-serif;cursor:pointer;' + (on ? 'background:#1C1A27;color:#FFFFFF;border:1px solid #1C1A27' : 'background:#FFFFFF;color:#3B3850;border:1px solid #E6E4EE');
+    const phs = { Avance: 'Que hiciste, que paso, que falta. Pega capturas con Ctrl+V.', Solicitud: 'Adjunta o arrastra el correo del solicitante.', Asignacion: 'Adjunta o arrastra el correo de asignacion.', Cierre: 'Resumen del cierre. Adjunta el correo de respuesta.' };
+    Object.assign(focoVals, {
+      tiposEntrada: ['Avance', 'Solicitud', 'Asignacion', 'Cierre'].map((t) => ({
+        label: t, pressed: st.tipoE === t ? 'true' : 'false', style: segT(st.tipoE === t),
+        pick: () => this.setState({ tipoE: t, imgs: this.state.imgs.map((x) => Object.assign({}, x, { deCorreo: t !== 'Avance' })) })
+      })),
+      editando: st.editando, leyendo: !st.editando,
+      editar: () => this.setState({ editando: true }), cancelarEdicion: () => this.setState({ editando: false }),
+      bloqueado: !this.props.temporal, noBloqueado: !!this.props.temporal,
+      edTid: this.props.temporal ? '' : 'PTSK0001234',
+      fijoStyle: 'height:44px;min-width:0;border-radius:10px;padding:0 12px;font:600 14px \'JetBrains Mono\',monospace;' + (this.props.temporal ? 'border:1px solid #D8D5E3;background:#FFFFFF;color:#1C1A27' : 'border:1px solid #EEEDF3;background:#F1EFF7;color:#6E6A80'),
+      projStyle: 'width:130px;height:40px;box-sizing:border-box;border-radius:10px;padding:0 12px;font:600 14px \'JetBrains Mono\',monospace;letter-spacing:.06em;' + (this.props.temporal ? 'border:1px solid #D8D5E3;background:#FFFFFF;color:#1C1A27' : 'border:1px solid #EEEDF3;background:#F1EFF7;color:#6E6A80'),
+      edEnvs: ['DEV', 'PRE', 'PRO'].map((n) => ({ name: n, pressed: n === 'PRE' ? 'true' : 'false', style: 'height:40px;min-width:64px;padding:0 14px;border-radius:10px;font:600 13px Inter,sans-serif;' + (n === 'PRE' ? (this.props.temporal ? 'background:#1C1A27;color:#FFFFFF;border:1px solid #1C1A27;cursor:pointer' : 'background:#B4B0C2;color:#FFFFFF;border:1px solid #B4B0C2;cursor:not-allowed') : 'background:#FFFFFF;color:' + (this.props.temporal ? '#3B3850' : '#B4B0C2') + ';border:1px solid #E6E4EE;cursor:' + (this.props.temporal ? 'pointer' : 'not-allowed')) })),
+      edHus: ['Semanal', 'Independiente'].map((n) => ({ name: n, pressed: st.edHu === n ? 'true' : 'false', style: st.edHu === n ? 'height:36px;padding:0 16px;border-radius:8px;border:none;background:#FFFFFF;color:#1C1A27;font:600 13px Inter,sans-serif;cursor:pointer;box-shadow:0 1px 2px rgba(28,26,39,.12)' : 'height:36px;padding:0 16px;border-radius:8px;border:none;background:transparent;color:#4B4760;font:500 13px Inter,sans-serif;cursor:pointer', pick: () => this.setState({ edHu: n }) })),
+      edgeLabel: st.copiado ? 'Copiado' : 'Area Edge',
+      copiarEdge: () => { this.setState({ copiado: true }); setTimeout(() => this.setState({ copiado: false }), 1500); },
+      abierto: st.abierto, cerrado: !st.abierto,
+      abrir: () => this.setState({ abierto: true }), cerrar: () => this.setState({ abierto: false }),
+      esCierre: st.tipoE === 'Cierre', avisoCorreo, placeholder: phs[st.tipoE],
+      texto: st.texto, setTexto: (e) => this.setState({ texto: e.target.value }),
+      paraJiraOn: st.paraJira, toggleJira: () => this.setState({ paraJira: !st.paraJira }),
+      noEsFoco: !focoAqui, enfocarAqui: () => this.setState({ deshecho: false }),
+      hayImgs: st.imgs.length > 0, imgs,
+      guardarOff,
+      guardarTip: vacia ? 'Escribe algo o adjunta una captura o archivo' : (faltaDesc ? 'Falta la descripcion de una captura' : (avisoCorreo ? 'Primero registra el correo de solicitud o asignacion' : 'Guardar la entrada')),
+      guardarStyle: 'height:40px;padding:0 16px;border-radius:10px;border:none;font:600 14px Inter,sans-serif;' + (guardarOff ? 'background:#E6E4EE;color:#6E6A80;cursor:not-allowed' : 'background:#1C1A27;color:#FFFFFF;cursor:pointer')
+    });
+    const esReunion = this.props.vista === 'Reunion sin proyecto';
+    const faltaProj = esReunion && !st.projGuardado;
+    const projValido = /^[A-Z]{6}$/.test(st.projR || '');
+    const btnS = (ok, bg) => 'height:' + (bg ? '44px;padding:0 20px;border-radius:10px;' : '36px;padding:0 14px;border-radius:8px;') + 'border:none;font:600 14px Inter,sans-serif;' + (ok ? 'background:' + (bg || '#1C1A27') + ';color:#FFFFFF;cursor:pointer' : 'background:#E6E4EE;color:#6E6A80;cursor:not-allowed');
+    Object.assign(focoVals, {
+      esTicketV: !esReunion,
+      hTag: esReunion ? 'CON' : 'TICKET',
+      hTagStyle: 'display:inline-flex;align-items:center;height:22px;padding:0 7px;border-radius:6px;font-size:11px;font-weight:700;' + (esReunion ? 'color:#6127C9;background:#ECE4FD' : 'color:#1E4FC2;background:#E4ECFF'),
+      hId: esReunion ? 'JCON0000000002' : 'PTSK0001234',
+      hLinea: esReunion ? (faltaProj ? '- Sin proyecto' : '- ' + st.projR) : '- INFRAS - PRE',
+      hHu: esReunion ? 'HU semanal' : 'HU independiente',
+      hTitulo: esReunion ? 'Reunion con equipo de datos' : 'Despliegue modulo de red Terraform en PRE',
+      avisoProj: faltaProj && !st.pidiendo,
+      pidiendo: faltaProj && !!st.pidiendo,
+      projR: st.projR || '', setProjR: (e) => this.setState({ projR: e.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 6) }),
+      projInvalido: !projValido,
+      projBtnStyle: btnS(projValido),
+      terminarProjStyle: btnS(projValido, '#C2185B'),
+      guardarProj: () => { if (projValido) this.setState({ projGuardado: true }); },
+      guardarYTerminar: () => { if (projValido) this.setState({ projGuardado: true, pidiendo: false }); },
+      noTerminar: () => this.setState({ pidiendo: false }),
+      terminar: () => { if (faltaProj) this.setState({ pidiendo: true }); },
+      guiaOv: faltaProj && st.pidiendo ? 'Antes de terminar, asigna el proyecto del equipo que te llamo.' : ''
+    });
+    const paso = this.props.paso || 'Trabajando';
+    const idx = { 'Trabajando': 0, 'Pendiente de limpieza': 1, 'Revisar y dar conforme': 2, 'Pendiente de subir a Jira': 3, 'En Jira': 4 }[paso];
+    const defs = [
+      ['Trabajo', ['Bitacora abierta', 'Terminada', 'Terminada', 'Terminada', 'Terminada']],
+      ['Limpieza', ['Pendiente', 'Pendiente', 'Bitacora corregida', 'Hecha', 'Hecha']],
+      ['Conforme', ['Tu revision', 'Tu revision', 'Te toca revisar', 'Dado', 'Dado']],
+      ['Jira', ['Pendiente', 'Pendiente', 'Pendiente', 'Pendiente de subir', 'Subido']]
+    ];
+    const activo = idx;
+    const pasos = defs.map((d, i) => {
+      const done = i < activo || idx === 4;
+      const cur = i === activo && idx !== 4;
+      const accent = cur ? '#C2185B' : (done ? '#1F9D55' : '#C9C4D8');
+      return {
+        n: done ? '✓' : String(i + 1), titulo: d[0], sub: d[1][idx],
+        box: 'display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;min-width:0;' + (cur ? 'background:#FDF2F7;border:1px solid #F5C6DA' : 'background:#FFFFFF;border:1px solid #EEEDF3'),
+        num: 'flex-shrink:0;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;' + (done ? 'background:#1F9D55;color:#FFFFFF' : (cur ? 'background:#C2185B;color:#FFFFFF' : 'background:#F1EFF7;color:#5F5B70')),
+        titleStyle: 'font-size:13px;font-weight:' + (cur ? 700 : 600) + ';color:' + (cur ? '#A3154C' : '#1C1A27')
+      };
+    });
+    const guias = [
+      'Registra lo que haces. Cuando termines, adjunta el correo de respuesta y pulsa Terminar.',
+      'Terminada. Pendiente de limpieza de la bitacora; luego podras dar el conforme.',
+      'La bitacora ya esta corregida. Revisa lo que ira a Jira y da el conforme.',
+      'Conforme dado. Pendiente de subir a Jira.',
+      'Subida a Jira. Si hay algo nuevo, reabre la atencion y volvera a pasar por limpieza y conforme.'
+    ];
+    const E = [
+      { n: 1, tipo: 'Asignacion', fecha: '18 oct 16:36', jira: true, texto: 'se asigno el ticket, el correo no trae adjuntos del cliente', corregido: 'Se recibio la asignacion del ticket. El correo no incluye adjuntos del cliente.', adj: ['correo_asignacion.eml'] },
+      { n: 2, tipo: 'Avance', fecha: '18 oct 17:42', jira: true, texto: 'se verifico el secreto en secrets manager version desactualizada v3 vs v4. Comando usado:', corregido: 'Se verifico el secreto en AWS Secrets Manager: la version estaba desactualizada (v3 frente a v4). Comando usado:', codigo: 'aws secretsmanager describe-secret \\\n  --secret-id flux/github-token \\\n  --query "VersionIdsToStages"', adj: [], caps: [{ name: 'captura_secreto.png', desc: 'Version del secreto en Secrets Manager' }, { name: 'captura_flux.png', desc: 'Error de sincronizacion en Flux' }] },
+      { n: 3, tipo: 'Avance', fecha: '18 oct 18:05', jira: false, texto: 'Nota para mi: revisar con Hector la rotacion automatica.', corregido: '', adj: [] },
+      { n: 4, tipo: 'Atendido', fecha: '19 oct 09:10', jira: true, texto: 'se aplico el plan y se respondio al solicitante', corregido: 'Se aplico el plan de Terraform en PRE y se respondio al solicitante.', adj: ['correo_atendido.eml'] }
+    ];
+    const comparar = idx === 2;
+    const entradas = E.map((e) => ({
+      n: String(e.n), tipo: e.tipo, fecha: e.fecha, texto: e.texto, corregido: e.corregido,
+      dest: e.jira ? 'Para Jira' : 'Privada',
+      destStyle: 'font-size:11px;font-weight:600;border-radius:6px;padding:2px 7px;' + (e.jira ? 'color:#1E4FC2;background:#E4ECFF' : 'color:#4B4760;background:#F1EFF7'),
+      comparar: comparar && e.jira, simple: !(comparar && e.jira),
+      bloqueada: idx === 4 && e.jira, editable: idx < 4 && !(idx === 3 && e.jira),
+      hasAdj: e.adj.length > 0, adj: e.adj,
+      hasCaps: !!(e.caps && e.caps.length), caps: e.caps || [],
+      hasCode: !!e.codigo, codigo: e.codigo || ''
+    }));
+    const segOn = 'height:30px;padding:0 12px;border-radius:8px;border:none;background:#FFFFFF;color:#1C1A27;font:600 13px Inter,sans-serif;cursor:pointer;box-shadow:0 1px 2px rgba(28,26,39,.12)';
+    const segOff = 'height:30px;padding:0 12px;border-radius:8px;border:none;background:transparent;color:#4B4760;font:500 13px Inter,sans-serif;cursor:pointer';
+    const conformeOff = idx === 1;
+    return Object.assign(focoVals, {
+      trabajando: idx === 0, noTrabajando: idx > 0, revisar: comparar,
+      pasos, guia: focoVals.guiaOv || guias[idx], entradas,
+      verTerminar: idx === 0 && !focoVals.pidiendo,
+      conConforme: idx === 1 || idx === 2,
+      conformeOff,
+      conformeTip: conformeOff ? 'Disponible cuando la bitacora este corregida' : 'Marca la bitacora corregida como lista para subir a Jira',
+      conformeStyle: 'height:44px;padding:0 20px;border-radius:10px;border:none;font:600 14px Inter,sans-serif;' + (conformeOff ? 'background:#E6E4EE;color:#6E6A80;cursor:not-allowed' : 'background:#C2185B;color:#FFFFFF;cursor:pointer'),
+      paraJira: () => this.setState({ dest: 'jira' }), privada: () => this.setState({ dest: 'priv' }),
+      jiraPressed: this.state.dest === 'jira' ? 'true' : 'false', privPressed: this.state.dest === 'priv' ? 'true' : 'false',
+      segJira: this.state.dest === 'jira' ? segOn : segOff, segPriv: this.state.dest === 'priv' ? segOn : segOff
+    });
+  }
+}
+</script>
+</body>
+</html>

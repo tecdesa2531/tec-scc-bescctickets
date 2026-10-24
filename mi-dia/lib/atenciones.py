@@ -785,6 +785,9 @@ def cancelar_interrupcion(parametros):
         _eliminar_vacias_hacia_arriba(carpeta_trabajo, config.RAIZ_TRABAJO)
         _eliminar_vacias_hacia_arriba(carpeta_proceso, config.RAIZ_PROCESO)
         indice.desindexar_atencion(registro["id"])
+        # Si esta interrupcion era el foco, quitarla deja el dia sin foco
+        import lib.foco as foco
+        foco.quitar_tramo_abierto_de(registro["id"])
         _regenerar_cola()
 
 
@@ -813,6 +816,24 @@ def tiempo_por_atencion():
 # Consultas para la pantalla
 # ---------------------------------------------------------------------------
 
+def paso_atencion(datos, entradas, pendientes):
+    # Combina el estado con el camino a Jira para la etiqueta de la lista.
+    # El estado manda: una atencion abierta nunca muestra un paso de Jira.
+    estado = datos.get("estado", "")
+    if estado in ("en_curso", "en_espera", "reabierto"):
+        return estado
+    if estado == "descartado":
+        return "descartado"
+    # Solo las atenciones atendidas muestran el paso hacia Jira.
+    hay_corregido = any(
+        e.get("texto_corregido") and not e.get("correccion_vencida") for e in entradas)
+    if datos.get("listo_para_jira"):
+        return "jira" if pendientes == 0 else "procede"
+    if hay_corregido:
+        return "revisar"
+    return "limpia"
+
+
 def resumen_atenciones():
     lista = []
     tiempos = tiempo_por_atencion()
@@ -820,6 +841,8 @@ def resumen_atenciones():
         datos = registro["datos"]
         datos_bitacora = bitacora.leer_bitacora(registro)
         enviados = bitacora.ids_enviados(registro)
+        entradas = datos_bitacora.get("entradas", [])
+        pendientes = bitacora.contar_pendientes(registro, entradas, enviados)
         lista.append({
             "id": registro["id"],
             "numero": datos.get("numero", ""),
@@ -830,10 +853,11 @@ def resumen_atenciones():
             "tracking_id": datos.get("tracking_id", ""),
             "titulo": datos.get("titulo", ""),
             "estado": datos.get("estado", ""),
+            "entornos": datos.get("entornos", []),
+            "paso": paso_atencion(datos, entradas, pendientes),
             "npl_pendiente_cierre": bool((datos.get("npl") or {}).get("pendiente_cierre")),
             "segundos": tiempos.get(registro["id"], 0),
-            "pendientes": bitacora.contar_pendientes(
-                registro, datos_bitacora.get("entradas", []), enviados),
+            "pendientes": pendientes,
             "actualizado": datos.get("actualizado", ""),
         })
     orden_estado = {"reabierto": 0, "en_curso": 1, "en_espera": 2, "atendido": 3, "descartado": 4}
