@@ -40,16 +40,16 @@ function tieneDescendienteFoco(id, idFoco) {
 function badgePaso(paso) {
   var etiquetas = {
     en_curso: "En curso", en_espera: "En espera", reabierto: "Reabierto", descartado: "Descartado",
-    limpia: "Pendiente de limpieza", revisar: "Revisar y dar conforme",
-    procede: "Pendiente de subir", jira: "En Jira"
+    limpia: "Por limpiar", revisar: "Por revisar", procede: "Por subir", jira: "En Jira"
   };
   var label = etiquetas[paso] || paso;
   if (paso === "en_curso" || paso === "en_espera" || paso === "reabierto" || paso === "descartado") {
     return '<span class="at-pill at-pill-estado at-mark-' + paso + '">' + esc(label) + "</span>";
   }
   if (paso === "revisar") return '<span class="at-pill at-pill-revisar">' + esc(label) + "</span>";
+  if (paso === "procede") return '<span class="at-pill at-pill-subir">' + esc(label) + "</span>";
   if (paso === "jira")    return '<span class="at-pill at-pill-jira">' + SVG_CHECK + esc(label) + "</span>";
-  return '<span class="at-pill at-pill-gris">' + esc(label) + "</span>";
+  return '<span class="at-pill at-pill-limpiar">' + esc(label) + "</span>";
 }
 
 // -- Una fila de la lista

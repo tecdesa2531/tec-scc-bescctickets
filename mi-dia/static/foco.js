@@ -19,6 +19,15 @@ function ultimaAtencionFoco() {
   return "";
 }
 
+// La ultima atencion solo se puede reanudar si sigue abierta (no atendida/descartada)
+function ultimaAtencionAbierta() {
+  var id = ultimaAtencionFoco();
+  if (!id) return "";
+  var a = atencionPorId(id);
+  if (a && (a.estado === "en_curso" || a.estado === "en_espera" || a.estado === "reabierto")) return id;
+  return "";
+}
+
 function fmtSegundos(segundos) {
   var h = Math.floor(segundos / 3600);
   var m = Math.floor(segundos / 60) % 60;
@@ -48,15 +57,15 @@ function pintarPildora() {
   var codeEl = document.getElementById("pildora-code");
   var tEl  = document.getElementById("pildora-timer");
   pil.className = "pildora";
-  if (!foco.actual) {
+  var enPausa = foco.actual && foco.actual.tipo === "pausa";
+  var id = foco.actual ? (enPausa ? ultimaAtencionAbierta() : foco.actual.atencion_id) : "";
+  if (!foco.actual || (enPausa && !id)) {
     pil.classList.add("pildora-sin");
     lbl.textContent = "Sin foco";
     idEl.hidden = true; codeEl.hidden = true; tEl.hidden = true;
     pildoraDestino = null;
     return;
   }
-  var enPausa = foco.actual.tipo === "pausa";
-  var id  = enPausa ? ultimaAtencionFoco() : foco.actual.atencion_id;
   var reg = id ? atencionPorId(id) : null;
   var corto  = reg ? (reg.tracking_id || reg.numero || "") : "";
   var codigo = reg ? (reg.tracking_code || "") : "";
@@ -97,10 +106,13 @@ function pintarFoco() {
 
   var enPausa = foco.actual && foco.actual.tipo === "pausa";
   var enFoco  = foco.actual && foco.actual.atencion_id && !enPausa;
+  // En pausa solo es "activo" si la ultima atencion sigue abierta; si se termino
+  // o descarto, el panel queda Sin foco (y sin boton Reanudar).
+  var idPausa = enPausa ? ultimaAtencionAbierta() : "";
 
-  if (enFoco || enPausa) {
+  if (enFoco || (enPausa && idPausa)) {
     sin.hidden = true; act.hidden = false;
-    var id  = enPausa ? ultimaAtencionFoco() : foco.actual.atencion_id;
+    var id  = enFoco ? foco.actual.atencion_id : idPausa;
     var reg = id ? atencionPorId(id) : null;
     document.getElementById("foco-kicker").textContent = enPausa ? "EN PAUSA / ULTIMA ATENCION" : "EN FOCO";
     document.getElementById("foco-id").textContent = reg ? (reg.tracking_id || reg.numero || "") : "";
@@ -108,9 +120,8 @@ function pintarFoco() {
     document.getElementById("foco-timer").textContent = duracion(segundosDesde(foco.actual.inicio));
     act.classList.toggle("foco-activo-pausa", !!enPausa);
 
-    var hayUltima = foco.hoy.some(function (t) { return !!t.atencion_id; });
     btn.hidden = false;
-    if (enPausa && hayUltima) {
+    if (enPausa) {
       btn.classList.add("btn-reanudar");
       btn.title   = "Reanudar";
       btn.onclick = focoReanudar;
@@ -223,7 +234,7 @@ async function deshacerFoco() {
 }
 
 function focoReanudar() {
-  var ultimo = ultimaAtencionFoco();
+  var ultimo = ultimaAtencionAbierta();
   if (ultimo) focoAtencion(ultimo);
 }
 

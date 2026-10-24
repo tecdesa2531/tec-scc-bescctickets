@@ -19,9 +19,10 @@ async function cargarPaginaDetalle(numero) {
     document.getElementById("vista-atencion").hidden = false;
     limpiarRedactor();
     pintarDetalle();
-    window.scrollTo(0, 0);
+    scrollUltimaEntrada();
     await cargarFoco();
     await focoAlAbrir(detalle.id);
+    actualizarRedactor();
   } catch (error) {
     mostrarError(error);
   }
@@ -42,20 +43,19 @@ document.addEventListener("paste", async function (evento) {
   }
 });
 
-var zona = document.getElementById("r-zona");
-zona.addEventListener("dragover",  function (e) { e.preventDefault(); zona.classList.add("encima"); });
-zona.addEventListener("dragleave", function ()  { zona.classList.remove("encima"); });
-zona.addEventListener("drop", async function (e) {
+var barra = document.getElementById("r-barra");
+barra.addEventListener("dragover",  function (e) { e.preventDefault(); barra.classList.add("encima"); });
+barra.addEventListener("dragleave", function ()  { barra.classList.remove("encima"); });
+barra.addEventListener("drop", async function (e) {
   e.preventDefault();
-  zona.classList.remove("encima");
+  barra.classList.remove("encima");
+  abrirRedactor();
   var archivos = e.dataTransfer.files;
   for (var i = 0; i < archivos.length; i++) {
     var archivo = archivos[i];
-    if (archivo.type.startsWith("image/") && confirm("Agregar " + archivo.name + " como captura? (Cancelar = adjuntarlo como archivo)")) {
-      await agregarCaptura(archivo);
-    } else {
-      await agregarArchivo(archivo);
-    }
+    // Las imagenes entran como captura; el resto como archivo adjunto
+    if (archivo.type.startsWith("image/")) await agregarCaptura(archivo);
+    else await agregarArchivo(archivo);
   }
 });
 

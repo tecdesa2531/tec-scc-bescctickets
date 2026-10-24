@@ -42,12 +42,12 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 ### Panel de foco
 - **Estados:**
   - **En foco:** muestra el Tracking ID, el título y el tiempo en **horas y minutos** ("1h 22m").
-  - **En pausa:** el botón Pausa pasa a ser **Reanudar** (botón principal).
-  - **Sin foco:** "¿En qué trabajas ahora?". El botón Pausa se oculta.
+  - **En pausa:** el botón Pausa pasa a ser **Reanudar** (botón principal). Reanudar solo se ofrece si la última atención sigue abierta (en curso, en espera o reabierto).
+  - **Sin foco:** "¿En qué trabajas ahora?". El botón Pausa se oculta. Al **terminar** (o descartar) la atención en foco, el panel pasa a este estado "Sin foco" aunque internamente el tramo quede en pausa.
   - **Foco abierto de ayer:** el panel queda bloqueado y pide la hora de cierre antes de continuar.
-- **Botones:** Pausa/Reanudar, Idea `I`, Reunión, Interrupción `N` y, separado a la derecha, **Terminar día** (botón con borde e ícono de luna).
-- **Idea:** abre un campo dentro del panel, sin `prompt()`. Enter guarda, Esc cierra.
-- **Reunión:** abre un campo "Título de la reunión (el proyecto lo asignas al terminar)" dentro del panel, sin `prompt()`. "Iniciar" crea la atención CON, pasa el foco a ella y abre su detalle. Esc cierra.
+- **Botones:** Pausa/Reanudar, Idea `I`, Reunión, Interrupción `N` y, separado a la derecha, **Terminar día** (botón con borde e ícono de luna). Terminar día pide confirmación **en línea** dentro del panel ("¿Terminar el día? Se cerrará el foco actual a las HH:MM") con Cancelar y Terminar día; sin `confirm()`.
+- **Idea:** abre un campo **crema** dentro del panel, sin `prompt()`. Enter guarda (se añade a Ideas pendientes, no cambia el foco), Esc cierra y, si queda vacío, se cierra al perder el foco. El botón Guardar es oscuro.
+- **Reunión:** abre un campo **lila** "Título de la reunión (el proyecto lo asignas al terminar)" dentro del panel, sin `prompt()`. "Iniciar" (botón oscuro) crea la atención CON, pasa el foco a ella y abre su detalle. Esc cierra y, si queda vacío, se cierra al perder el foco.
 - **Atajos de teclado:** `I` abre Idea y `N` inicia una interrupción. Solo funcionan cuando el cursor **no** está en un campo de texto. Los botones muestran la tecla en un pequeño `<kbd>`.
 
 ### Lista de atenciones
@@ -56,14 +56,13 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
   1. Línea 1: etiqueta de tipo (ancho fijo, 46 px), **Tracking ID** en negrita, `- PROYECTO - ENTORNO`. En DOC, CON y NPL no se muestra el entorno.
   2. Línea 2: el tiempo de foco debajo de la etiqueta de tipo, alineado con ella, y el título alineado con el Tracking ID.
   3. A la derecha: una sola etiqueta de estado y la acción (Enfocar / En foco).
-- **Etiqueta de estado:** une el estado y el camino a Jira:
-  - En curso / En espera / Reabierto: etiqueta con borde y una marca de color a la izquierda.
-  - Pendiente de limpieza / Pendiente de subir: gris.
-  - Revisar y dar conforme: rosado suave (no sólido).
-  - ✓ En Jira: verde suave.
+- **Etiqueta de estado:** una sola etiqueta de **ancho fijo (112 px)**, alto 24 px, texto centrado. Une el estado y el camino a Jira:
+  - En curso / En espera / Reabierto / Descartado: fondo de superficie, borde de 1 px y una **marca de color a la izquierda**; texto en gris medio.
+  - **Por limpiar** (ámbar), **Por revisar** (rosado), **Por subir** (azul), **En Jira** (verde con ✓). Textos cortos.
+  - La columna de la etiqueta de estado mide **120 px**.
 - **Fila en foco:** fondo verde suave, barra verde de 4 px a la izquierda y etiqueta "En foco" en verde sólido.
 - **Terminadas** (En Jira) y **descartadas:** la fila se ve atenuada (opacidad ~55 %). Las descartadas además llevan el título tachado. Solo aparecen con el filtro "Todas".
-- **Hijas:** van indentadas, con una línea a la izquierda.
+- **Hijas:** van indentadas, con una línea a la izquierda. En una fila con hijas, **la columna izquierda** (etiqueta de tipo y, debajo, el tiempo) es el botón para contraer y expandir; la etiqueta de tipo lleva en su esquina un círculo con el número de hijas (borde del color del tipo = expandida; sólido = contraída; verde si hay una hija en foco con el padre contraído). El estado contraído/expandido se guarda por atención.
 - **Temporales:** etiqueta "Temporal" y "Sin Tracking ID" / "Sin proyecto".
 - **Espacio:** las filas tienen bastante aire entre sí (16 px arriba y abajo en las principales).
 
@@ -86,7 +85,7 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 ## 2. Detalle de una atención
 
 ### Cabecera (modo lectura)
-- Línea 1: `[TIPO] TRACKING_ID - PROYECTO - ENTORNO · HU`, y el selector de estado a la derecha (En curso, En espera, Descartado).
+- Línea 1: `[TIPO] TRACKING_ID - PROYECTO - ENTORNO · HU`, y el selector de estado a la derecha (En curso, En espera, Descartado; si está reabierta, "Reabierto" aparece seleccionado). Elegir **Descartado** pide confirmación **en línea** en la cabecera (Cancelar / Descartar); En curso y En espera se guardan directo. En **atendido**, en vez del selector se muestra "Atendido" y el botón **Reabrir**.
 - Línea 2: título y lápiz ✎ para editar.
 - Línea 3: accesos pequeños en gris: ServiceNow ↗, Área Edge (copia el nombre y muestra "Copiado"), Trabajo y Proceso (abren las carpetas).
 - ServiceNow y Área Edge **solo aparecen en tickets**.
@@ -188,8 +187,20 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 | Interrupción | `#A3154C` / `#FCE7F0` | `#FF8DB8` / `#3D1828` |
 | Revisar y dar conforme | `#A3154C` / `#FDF0F5` | `#FF8DB8` / `#33192A` |
 | En Jira | `#1A7F46` / `#E3F5EA` | `#5FD08F` / `#183324` |
+| Texto medio | `#3B3850` | `#CFCBDB` |
+| En foco (sólido) | `#1F9D55` | `#5FD08F` |
+| Texto sobre foco sólido | `#FFFFFF` | `#0B1F14` |
+| Fondo fila en foco | `#EAF7EF` | `#183324` |
+| Píldora foco (fondo / borde / texto) | `#F2FAF5 / #CDEBD8 / #1A5E36` | `#183324 / #2A5A3D / #8FE3B1` |
+| Por limpiar | `#8A5E00` / `#FFF4DC` | `#F2C76B` / `#33290F` |
+| Por revisar | `#A3154C` / `#FDF0F5` | `#FF8DB8` / `#33192A` |
+| Por subir | `#1E4FC2` / `#EEF3FF` | `#8FB2FF` / `#1C2A4A` |
+| Campo Idea (fondo) | `#FFFCF2` | `#2A2516` |
+| Campo Reunión (fondo) | `#F6F2FE` | `#2A2045` |
 
-Tipografía: Inter para el texto y JetBrains Mono para los Tracking ID, el código y los cronómetros.
+Los tokens del foco se exponen como variables CSS: `--foco` (texto verde), `--foco-solido` (barra de la fila, fondo de la etiqueta "En foco" y puntos), `--foco-sobre-solido` (texto y punto dentro de la etiqueta) y `--foco-fila` (fondo de la fila en foco).
+
+Tipografía: **fuentes del sistema** (no se usan Google Fonts por la laptop corporativa). Texto: `Segoe UI`, `system-ui`. Monoespaciada (Tracking ID, código y cronómetros): `Consolas`, `Cascadia Mono`. Definidas en `--fuente` y `--fuente-mono`.
 
 ---
 
@@ -201,6 +212,6 @@ Tipografía: Inter para el texto y JetBrains Mono para los Tracking ID, el códi
 - El tiempo de foco se calcula desde la hora de inicio guardada, no con un contador.
 - Queda fuera de este rediseño el resumen del día ("Ver mi día").
 
-## Por confirmar en el código
+## Confirmado en el código
 
-- El formato real de los correlativos. En un análisis apareció `JCON-001` y en el formulario `JINT000000002` (9 dígitos). Debe ser `JCON0000000001` (10 dígitos).
+- **Correlativos:** el `tracking_id` de los tipos propios es de **10 dígitos** (`JINT0000000001`), como pide este diseño. Existe además un campo interno `numero` de 9 dígitos que no se muestra en la interfaz (en la fase 4 el formulario previsualiza el Tracking ID, no el `numero`).
