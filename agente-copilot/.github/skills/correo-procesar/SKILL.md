@@ -9,6 +9,10 @@ Sigue `.github/copilot-instructions.md`. La herramienta ya organizo las carpetas
 
 Esta etapa corre cuando Jhans marca la atencion como *atendida* (`accion: pendiente_limpieza` en la cola). Tomas la atencion por su ID o, sin ID, todas las `pendiente_limpieza`: si son **5 o menos**, confirma cuales antes de empezar; si son **mas de 5**, listalas y procede.
 
+## 0. Atencion tipo `npl` (interrupcion)
+
+Una interrupcion no sigue los pasos 2, 4 y 5: no tiene correos que leer ni issue propio que describir. Corrige unicamente el campo `resumen` del objeto `npl` en `ticket-datos.json` (redaccion clara, ortografia) y guarda la version corregida en `bitacora-correccion.json`, enganchada por el `bitacora_id` de su unica entrada (tipo `interrupcion`), igual que cualquier otra entrada. Las "notas" (`texto` de esa entrada) no se corrigen: son apuntes propios de Jhans, nunca suben a Jira. No escribas `descripcion` ni `titulo_jira`: una NPL nunca tiene issue propio (ver "Interrupciones" en `copilot-instructions.md`). Avisa en una linea que dejaste el resumen corregido para revisar.
+
 ## 1. Ubicar la atencion
 
 De `agente-cola.json`: `relativa`, `raiz_trabajo`, `raiz_proceso`. La carpeta de la atencion es `<raiz>/<relativa>` en cada raiz. Lees:

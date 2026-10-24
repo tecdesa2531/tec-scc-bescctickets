@@ -18,7 +18,8 @@
                 {
                     "inicio": "2026-01-05",
                     "fin": "2026-01-09",
-                    "key": "PRYA-999"
+                    "key": "PRYA-999",
+                    "subtarea_interrupciones_key": "PRYA-1000"
                 }
             ],
             "prioridad": "",

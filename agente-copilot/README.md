@@ -19,12 +19,14 @@ Le hablas en corto. Cada comando acepta un ID (Tracking ID) o, sin ID, toma de l
 | Limpiar el texto y proponer descripción y título (cuando marcas *Terminar* en Focus Flow) | `/limpia` o `/limpia PTSK0000123` |
 | Subir a Jira lo que diste por conforme | `/procede` o `/procede PTSK0000123` |
 | Corregir título y descripción de issues ya creados | `/corrige PTSK0000123` |
-| Crear las HU semanales del sprint | `crea las HU semanales del sprint` |
+| Crear las HU semanales del sprint (cada una con su subtarea fija de interrupciones) | `crea las HU semanales del sprint` |
 | Cierre de semana o de sprint | `cierre de semana` / `cierre de sprint` |
 
 En `/limpia`, el agente deja **su propuesta** de descripción y título en `ticket-datos.json`; tú la revisas en la herramienta y, si quieres cambios, se los pides por el chat.
 
 Si una atención semanal no tiene HU semanal que cubra su fecha, `/inicia` te avisa y la salta: primero crea las HU semanales del sprint.
+
+Las **interrupciones** (llamadas y chats sin agendar, tipo NPL) nunca tienen issue propio: en `/limpia` solo se corrige su resumen y en `/procede` se suben como un comentario, en la subtarea fija de interrupciones de la semana (sin padre), en la fase "Consultas y seguimiento" de la HU independiente del padre, o directo en la subtarea del padre si es semanal.
 
 ## Lo que haces tú
 

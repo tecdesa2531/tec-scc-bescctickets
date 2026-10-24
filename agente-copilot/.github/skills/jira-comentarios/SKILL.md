@@ -22,6 +22,16 @@ Solo entran las entradas con `para_jira: true` que aun no figuran como subidas. 
 
 **Comentarios de un hijo de raiz independiente:** registralos en un `jira-comentarios_<fase>.json` dentro del `040_ProcesoJira` **del propio hijo** (no en el de la raiz), con la `key` de la fase de la raiz. La herramienta solo marca como enviada una entrada si la encuentra en la carpeta de esa misma atencion; si la registras en la carpeta de la raiz, el hijo quedara con pendientes para siempre.
 
+**Interrupcion (tipo `npl`).** El texto del comentario es el `resumen` corregido (`bitacora-correccion.json`, mismo `bitacora_id` de su unica entrada tipo `interrupcion`); antepon una linea de contexto, p. ej. `*Llamada Teams con Maria:*` o `*Chat Teams con Maria:*` segun `npl.tipo_contacto` y `npl.quien`. Segun su `padre_id` y `hu_tipo_raiz` (ver "Interrupciones" en `copilot-instructions.md`):
+
+- **Sin padre:** va a la subtarea fija de interrupciones (`subtarea_interrupciones_key` del `hu_semanales` que cubre la fecha de la NPL; si falta la key, creala primero, ver `jira-historia-usuario`).
+- **Con padre y raiz independiente:** va a la fase fija "Consultas y seguimiento" de esa HU (creala primero si falta; ver `jira-subtareas`).
+- **Con padre y raiz semanal:** va directo a las subtareas propias del padre; si tiene una por entorno (p. ej. PRE y PRO), repite el comentario en **cada una**, igual que una entrada que aplica a varios entornos. No crea nada.
+
+Registra el comentario en el `040_ProcesoJira` **de la propia NPL** (nunca en la carpeta del padre ni de la subtarea fija), un archivo por destino: `jira-comentarios_interrupcion.json` cuando hay un solo destino, o `jira-comentarios_interrupcion_<entorno>.json` (uno por cada subtarea de entorno del padre), cada uno con la `key` de su destino y el mismo `bitacora_id`. Una NPL nunca lleva capturas de correo (no tiene correos); si tiene adjuntos pegados durante la llamada, van como `capturas`/`adjuntos` igual que cualquier otro comentario. Si hay `npl.ticket_relacionado` (solo cuando no hay padre), mencionalo en una linea del comentario como referencia.
+
+El comentario de una NPL **siempre se sube**: no aplica el criterio de seleccion de la seccion 2. Si el destino aun no existe en Jira (padre semanal sin subtarea, raiz independiente sin HU, o semana sin HU semanal), avisa y salta esa NPL.
+
 ## 4. Archivo por subtarea
 
 Uno por subtarea en `040_ProcesoJira`, con la `key` de su subtarea. Nombre segun la fase o el entorno (`jira-comentarios_<fase>.json`, `jira-comentarios_<entorno>.json`):

@@ -22,6 +22,8 @@ Las subtareas semanales que siguen abiertas al terminar una semana **cambian de 
 
 Las atenciones con **HU independiente** no se tocan en el cierre de semana.
 
+**Subtarea fija de interrupciones.** La de la semana que cierra (`subtarea_interrupciones_key` en su entrada de `hu_semanales`) **no** cambia de padre ni continua: pasa a `FINALIZADO` (transicion del skill `jira-subtareas`), en el mismo `--dry-run`/"crear" del cierre. La semana siguiente usa la suya propia. Si la entrada no tiene esa key (no hubo interrupciones sin padre esa semana), no hay nada que cerrar.
+
 ```python
 import json
 import os
@@ -62,6 +64,7 @@ Un trimestre (la **epica**) tiene varios sprints (unos tres, de ~5 semanas). Jha
    - **Semanal:** la subtarea abierta se cierra en FINALIZADO con un comentario de continuidad, y se crea su continuacion (Parte 02) bajo la HU de la primera semana del nuevo sprint.
    - **Independiente:** si la atencion sigue abierta, crea una **HU independiente nueva** (Parte 02) para el nuevo sprint; sus subtareas pendientes cuelgan de ella.
 3. Las descripciones de la Parte 02 referencian la subtarea/HU anterior (key y resumen del avance).
+   - La **subtarea fija de interrupciones** de la ultima semana del sprint no tiene Parte 02: pasa a `FINALIZADO` (igual que en el cierre de semana); las HU semanales del nuevo sprint traen la suya. La fase "Consultas y seguimiento" de una HU independiente que continua pasa a la Parte 02 como cualquier subtarea pendiente.
 4. **Dentro del mismo trimestre la epica no cambia.** Solo al cambiar de trimestre Jhans crea una epica nueva; la asociacion de las HU a la epica y al sprint la hace Jhans en el tablero.
 
 ## Cerrar

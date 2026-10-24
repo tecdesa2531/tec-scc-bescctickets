@@ -10,7 +10,9 @@ Sigue `.github/copilot-instructions.md`. Esta es la etapa `pendiente_jira`.
 - Si en la peticion viene un ID, trabaja solo sobre esa atencion.
 - Si no viene ID, lee `003_Herramienta/agente-cola.json` y toma las atenciones con `accion: "pendiente_jira"`. Si son **5 o menos**, confirmame cuales vas a subir antes de empezar; si son **mas de 5**, listalas y procede. (Esto es aparte del "crear" de cada script.)
 
-Antes de subir, **si el padre aun no existe en Jira (no se corrio `/inicia`), crealo primero**: la HU independiente o las subtareas semanales (revisa `jira.padre_key` y las `key` de `subtareas[]`).
+Antes de subir, **si el padre aun no existe en Jira (no se corrio `/inicia`), crealo primero**: la HU independiente o las subtareas semanales (revisa `jira.padre_key` y las `key` de `subtareas[]`). Esto **no** aplica a una interrupcion (ver abajo).
+
+**Interrupcion (tipo `npl`):** nunca tiene padre propio. **No** le crees HU ni subtareas, y **no** la trates como atencion hija aunque tenga `padre_id`. Sube su unico comentario al destino que le corresponde (ver "Interrupciones" en `copilot-instructions.md` y el skill `jira-comentarios`), sin aplicar criterio de descarte. Al terminar **no** transiciones ninguna subtarea: el destino es compartido o pertenece a otra atencion.
 
 Usa el texto corregido de `bitacora-correccion.json`. Entre las entradas `para_jira: true` aplica criterio: no subas todas, deja solo lo coherente.
 
@@ -22,7 +24,7 @@ Genera los scripts `.py` en `040_ProcesoJira`, corre primero un `--dry-run` y mu
 
 ## Cierre de subtareas al terminar
 
-Una vez subidos todos los comentarios de una atencion (incluido el comentario de cierre), **transiciona cada subtarea a `FINALIZADO`** usando el skill `jira-subtareas` (seccion "Cambio de estado"). El comentario de cierre debe quedar subido **antes** de cambiar el estado. Actualiza tambien el campo `estado` de cada entrada en `subtareas[]` de `ticket-datos.json` a `"FINALIZADO"`.
+Una vez subidos todos los comentarios de una atencion (incluido el comentario de cierre), **transiciona cada subtarea a `FINALIZADO`** (nunca en una interrupcion) usando el skill `jira-subtareas` (seccion "Cambio de estado"). El comentario de cierre debe quedar subido **antes** de cambiar el estado. Actualiza tambien el campo `estado` de cada entrada en `subtareas[]` de `ticket-datos.json` a `"FINALIZADO"`.
 
 - **Semanal** (y todo hijo): cierra cada subtarea de entorno de esta atencion. Las de sus hijos las cierra el `/procede` de cada hijo.
 - **Independiente**: cierra cada subtarea de fase (lo hace el `/procede` de la raiz, no el de un hijo).
