@@ -12,7 +12,7 @@ Variables de entorno: AT_RAIZ_PROCESO, AT_RAIZ_TRABAJO
 
 import json
 import os
-import shutil
+import stat
 import sqlite3
 import sys
 
@@ -39,6 +39,33 @@ def _leer(ruta):
             return json.load(f)
     except Exception:
         return None
+
+
+def _rmtree_robusto(ruta):
+    # os.walk bottom-up: primero archivos, luego directorios, finalmente la raiz.
+    # En OneDrive (Windows) las carpetas pueden tener solo lectura; chmod fuerza el borrado.
+    if not os.path.isdir(ruta):
+        return
+    for raiz_actual, dirs, archivos in os.walk(ruta, topdown=False):
+        for nombre in archivos:
+            p = os.path.join(raiz_actual, nombre)
+            try:
+                os.chmod(p, stat.S_IWRITE)
+                os.remove(p)
+            except Exception:
+                pass
+        for nombre in dirs:
+            p = os.path.join(raiz_actual, nombre)
+            try:
+                os.chmod(p, stat.S_IWRITE)
+                os.rmdir(p)
+            except Exception:
+                pass
+    try:
+        os.chmod(ruta, stat.S_IWRITE)
+        os.rmdir(ruta)
+    except Exception:
+        pass
 
 
 def _eliminar_vacias(ruta_borrada, raiz):
@@ -82,10 +109,10 @@ def borrar(canceladas, en_seco):
 
         if not en_seco:
             if os.path.isdir(carpeta_trabajo):
-                shutil.rmtree(carpeta_trabajo)
+                _rmtree_robusto(carpeta_trabajo)
                 _eliminar_vacias(carpeta_trabajo, RAIZ_TRABAJO)
             if os.path.isdir(carpeta_proceso):
-                shutil.rmtree(carpeta_proceso)
+                _rmtree_robusto(carpeta_proceso)
                 _eliminar_vacias(carpeta_proceso, RAIZ_PROCESO)
             if id_h and os.path.isfile(ruta_db):
                 try:
