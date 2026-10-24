@@ -1,6 +1,7 @@
 import os
 import re
 import shutil
+import stat
 
 import lib.config as config
 import lib.proyectos as proyectos
@@ -365,6 +366,32 @@ def _reubicar(registro, relativa_nueva, carpeta_entorno, cambios):
     _cascadear_carpeta_entorno(registro["id"], carpeta_entorno)
     _regenerar_cola()
     return registro["id"]
+
+
+def _rmtree_robusto(ruta):
+    # En OneDrive (Windows) las carpetas tienen atributo solo lectura; chmod fuerza el borrado.
+    if not os.path.isdir(ruta):
+        return
+    for raiz_actual, dirs, archivos in os.walk(ruta, topdown=False):
+        for nombre in archivos:
+            p = os.path.join(raiz_actual, nombre)
+            try:
+                os.chmod(p, stat.S_IWRITE)
+                os.remove(p)
+            except Exception:
+                pass
+        for nombre in dirs:
+            p = os.path.join(raiz_actual, nombre)
+            try:
+                os.chmod(p, stat.S_IWRITE)
+                os.rmdir(p)
+            except Exception:
+                pass
+    try:
+        os.chmod(ruta, stat.S_IWRITE)
+        os.rmdir(ruta)
+    except Exception:
+        pass
 
 
 def _eliminar_vacias_hacia_arriba(ruta_movida, raiz):
@@ -753,10 +780,8 @@ def cancelar_interrupcion(parametros):
         if atencion_procesada(registro):
             raise ErrorUsuario("El agente ya proceso esta interrupcion; ya no se puede cancelar")
         carpeta_trabajo, carpeta_proceso = carpetas_de(registro)
-        if os.path.isdir(carpeta_trabajo):
-            shutil.rmtree(carpeta_trabajo)
-        if os.path.isdir(carpeta_proceso):
-            shutil.rmtree(carpeta_proceso)
+        _rmtree_robusto(carpeta_trabajo)
+        _rmtree_robusto(carpeta_proceso)
         _eliminar_vacias_hacia_arriba(carpeta_trabajo, config.RAIZ_TRABAJO)
         _eliminar_vacias_hacia_arriba(carpeta_proceso, config.RAIZ_PROCESO)
         indice.desindexar_atencion(registro["id"])
