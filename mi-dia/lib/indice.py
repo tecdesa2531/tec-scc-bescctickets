@@ -62,6 +62,13 @@ def indexar_atencion(datos):
     conn.close()
 
 
+def desindexar_atencion(id_atencion):
+    conn = _conectar()
+    conn.execute("DELETE FROM atenciones WHERE id = ?", (id_atencion,))
+    conn.commit()
+    conn.close()
+
+
 def buscar(q):
     q = (q or "").strip()
     if not q:

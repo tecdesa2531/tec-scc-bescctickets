@@ -752,8 +752,14 @@ def cancelar_interrupcion(parametros):
             raise ErrorUsuario("Esta atencion no es una interrupcion")
         if atencion_procesada(registro):
             raise ErrorUsuario("El agente ya proceso esta interrupcion; ya no se puede cancelar")
-        actualizar_datos(registro, {"estado": "descartado"})
-        indice.indexar_atencion(registro["datos"])
+        carpeta_trabajo, carpeta_proceso = carpetas_de(registro)
+        if os.path.isdir(carpeta_trabajo):
+            shutil.rmtree(carpeta_trabajo)
+        if os.path.isdir(carpeta_proceso):
+            shutil.rmtree(carpeta_proceso)
+        _eliminar_vacias_hacia_arriba(carpeta_trabajo, config.RAIZ_TRABAJO)
+        _eliminar_vacias_hacia_arriba(carpeta_proceso, config.RAIZ_PROCESO)
+        indice.desindexar_atencion(registro["id"])
         _regenerar_cola()
 
 
