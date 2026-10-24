@@ -55,12 +55,13 @@ Los nombres de proyectos, tickets, claves de Jira y herramientas internas que ap
 
 **Herramienta** (`organizador-atenciones/`): `servidor.py` (biblioteca estándar, `ThreadingHTTPServer`) + `index.html` (JavaScript sin librerías). Datos en JSON, sin base de datos. Su `README.md` documenta uso, formato de datos y la lista de prueba.
 
-**Agente Copilot** (`agente-copilot/.github/`): `copilot-instructions.md`, el agente `atencion-tickets` y seis skills (`correo-procesar`, `indice-atenciones`, `jira-comentarios`, `jira-historia-usuario`, `jira-subtareas`, `sprint-cierre`). Hoy siguen el flujo antiguo (inbox de correos, una sola raíz) y deben adaptarse.
+**Agente Copilot** (`agente-copilot/.github/`): `copilot-instructions.md`, el agente `atencion-tickets`, los prompts `/inicia`, `/limpia`, `/procede` y `/corrige`, y cinco skills (`correo-procesar`, `jira-comentarios`, `jira-historia-usuario`, `jira-subtareas`, `sprint-cierre`; `indice-atenciones` ya se eliminó, el índice lo genera la herramienta). Ya trabaja sobre las dos raíces vía `agente-cola.json`: no organiza carpetas ni correos.
 
 ## Estado actual
 
-- **Etapas 1 a 4 terminadas y probadas**: accesos rápidos, atenciones, bitácora (correos, adjuntos, capturas, edición, bloqueo de enviadas, Terminar) y foco (pausa, idea, reunión, terminar día, ideas pendientes).
-- **Siguiente: etapa 5**, adaptar el agente Copilot al nuevo flujo. Ver la sección "Etapa 5" de `docs/diseno.md`, incluido el primer tema a resolver: cómo abre VS Code el agente junto con las dos raíces de datos.
+- **Etapas 1 a 4 terminadas y probadas**: accesos rápidos, atenciones, bitácora (correos, adjuntos, capturas, edición, bloqueo de enviadas, Terminar) y foco (pausa, idea, reunión, interrupción, terminar día, ideas pendientes).
+- **Etapa 5 (adaptar el agente Copilot al nuevo flujo) ya está hecha**: el agente lee las dos raíces vía `agente-cola.json` y trabaja solo con `/inicia`, `/limpia`, `/procede` y `/corrige`. La sección "Etapa 5" de `docs/diseno.md` queda como historial de esa decisión, no como pendiente.
+- **Modo Interrupción (NPL)** agregado en la herramienta: registra llamadas y chats sin agendar, con cierre diferido y vínculo a un ticket existente vía Atención padre (ver `docs/diseno.md`). Pendiente: el agente Copilot todavía no conoce el tipo `npl` ni sabe enrutar sus comentarios a Jira (los tres casos ya están documentados en `requisitos-funcionales.md`, RF-053 a RF-055).
 - Después: flujos A-D como lista de pasos, índice semanal generado por la herramienta, relación DOC-ticket y, más adelante, la subida a Jira desde la herramienta.
 
 ## Cómo probar la herramienta aquí
