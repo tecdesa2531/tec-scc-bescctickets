@@ -33,6 +33,12 @@ def _accion(registro, mapa):
         return "pendiente_jira" if pendientes else ""
     if datos.get("listo_para_limpieza"):
         return "pendiente_limpieza"
+    # Una interrupcion (NPL) nunca tiene issue propio: siempre sube como
+    # comentario (en la subtarea fija de interrupciones, en la fase fija
+    # "Consultas y seguimiento", o directo en la subtarea del padre). No pasa
+    # por /inicia.
+    if datos.get("tipo") == "npl":
+        return ""
     # El padre esta creado si hay HU (independiente) o alguna subtarea con key (semanal).
     tiene_subtarea = any(s.get("key") for s in (datos.get("subtareas") or []))
     if not jira.get("padre_key") and not tiene_subtarea:
