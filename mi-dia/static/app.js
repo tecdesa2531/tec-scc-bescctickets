@@ -72,6 +72,17 @@ zonaNpl.addEventListener("drop", async function (e) {
 window.addEventListener("dragover", function (e) { e.preventDefault(); });
 window.addEventListener("drop",     function (e) { e.preventDefault(); });
 
+// Clic fuera de la barra abierta la minimiza (conserva el borrador).
+// No la minimizan los clics dentro de la barra ni mientras el visor esta abierto.
+document.addEventListener("click", function (e) {
+  var form = document.getElementById("r-form");
+  if (!form || form.hidden) return;
+  if (document.getElementById("r-barra").contains(e.target)) return;  // clic dentro de la barra
+  if (document.getElementById("visor").contains(e.target)) return;    // clic dentro del visor (incluye cerrarlo)
+  if (!document.getElementById("visor").hidden) return;               // clic que acaba de abrir el visor
+  minimizarRedactor();
+});
+
 // -- Atajos de teclado: I abre Idea, N inicia Interrupcion (solo fuera de campos)
 document.addEventListener("keydown", function (e) {
   if (e.ctrlKey || e.metaKey || e.altKey) return;

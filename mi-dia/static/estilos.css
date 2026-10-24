@@ -1001,6 +1001,8 @@ details[open] summary::before { content: "\25BC  "; }
   cursor: text;
 }
 .redactor-cerrada:hover { border-color: var(--activo); color: var(--texto-medio); background: var(--card2); }
+.redactor-cerrada.con-borrador { color: var(--texto-medio); font-weight: 500; }
+.redactor-punto { width: 8px; height: 8px; border-radius: 50%; background: #E0A020; flex-shrink: 0; }
 
 .redactor-form { display: flex; flex-direction: column; gap: 10px; }
 

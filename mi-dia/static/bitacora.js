@@ -970,7 +970,11 @@ function autosizeTexto(ta) {
 // Tab inserta 2 espacios; Shift+Tab quita indentacion; Esc sale del campo
 function teclaTexto(evento) {
   var ta = evento.target;
-  if (evento.key === "Escape") { ta.blur(); return; }
+  if (evento.key === "Escape") {
+    ta.blur();
+    if (!hayBorrador()) minimizarRedactor();   // vacia: se cierra a una linea
+    return;
+  }
   if (evento.key !== "Tab") return;
   evento.preventDefault();
   var val = ta.value, ini = ta.selectionStart, fin = ta.selectionEnd;
@@ -1007,6 +1011,19 @@ function teclaTexto(evento) {
 function minimizarRedactor() {
   document.getElementById("r-form").hidden  = true;
   document.getElementById("r-abrir").hidden = false;
+  pintarBarraCerrada();
+}
+
+// La barra cerrada avisa si hay un borrador sin guardar
+function pintarBarraCerrada() {
+  var btn = document.getElementById("r-abrir");
+  if (hayBorrador()) {
+    btn.classList.add("con-borrador");
+    btn.innerHTML = '<span class="redactor-punto"></span>Borrador sin guardar';
+  } else {
+    btn.classList.remove("con-borrador");
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Escribe una entrada...';
+  }
 }
 
 function elegirTipo(tipo) {
