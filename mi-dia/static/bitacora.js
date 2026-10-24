@@ -250,9 +250,12 @@ function pintarInterrupcion() {
   pintarAdjuntosInterrupcion(entrada);
   document.getElementById("npl-zona").hidden = bloqueada;
 
+  var cancelada = d.estado === "descartado";
   var btnCierre = document.getElementById("npl-btn-cierre");
-  btnCierre.hidden     = bloqueada;
+  btnCierre.hidden      = bloqueada || cancelada;
   btnCierre.textContent = cerrada ? "Editar cierre" : "Cerrar interrupcion";
+
+  document.getElementById("npl-btn-cancelar").hidden = bloqueada || cancelada;
 
   var resumenCerrada = document.getElementById("npl-resumen-cerrada");
   if (cerrada) {
@@ -568,6 +571,15 @@ async function darConforme() {
   if (!confirm("Dar conforme y marcar lista para enviar a Jira? Revisa antes el texto corregido.")) return;
   try {
     await enviar("/api/atencion/conforme", { id: detalle.id });
+    await recargarDetalle();
+  }
+  catch (error) { mostrarError(error); }
+}
+
+async function cancelarInterrupcion() {
+  if (!confirm("Cancelar esta interrupcion? Quedara descartada y no ira a Jira.")) return;
+  try {
+    await enviar("/api/interrupcion/cancelar", { id: detalle.id });
     await recargarDetalle();
   }
   catch (error) { mostrarError(error); }

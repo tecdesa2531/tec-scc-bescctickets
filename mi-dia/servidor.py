@@ -49,6 +49,7 @@ RUTAS_POST = {
     "/api/interrupcion/proyecto": lambda p: {"id": atenciones.cambiar_proyecto_interrupcion(p)},
     "/api/interrupcion/adjunto":  lambda p: atenciones.agregar_adjunto_interrupcion(p),
     "/api/interrupcion/cerrar":   lambda p: atenciones.cerrar_interrupcion(p),
+    "/api/interrupcion/cancelar": lambda p: atenciones.cancelar_interrupcion(p),
     "/api/foco/cambiar":          lambda p: foco.cambiar_foco(p),
     "/api/foco/terminar_dia":     lambda p: foco.terminar_dia(),
     "/api/foco/cerrar_anterior":  lambda p: foco.cerrar_foco_anterior(p),

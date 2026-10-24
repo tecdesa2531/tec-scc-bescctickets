@@ -745,6 +745,18 @@ def cerrar_interrupcion(parametros):
         return {"completo": completo}
 
 
+def cancelar_interrupcion(parametros):
+    with config.BLOQUEO:
+        registro = buscar_atencion(parametros.get("id", ""))
+        if registro["datos"].get("tipo") != "npl":
+            raise ErrorUsuario("Esta atencion no es una interrupcion")
+        if atencion_procesada(registro):
+            raise ErrorUsuario("El agente ya proceso esta interrupcion; ya no se puede cancelar")
+        actualizar_datos(registro, {"estado": "descartado"})
+        indice.indexar_atencion(registro["datos"])
+        _regenerar_cola()
+
+
 # ---------------------------------------------------------------------------
 # Helpers de display
 # ---------------------------------------------------------------------------
