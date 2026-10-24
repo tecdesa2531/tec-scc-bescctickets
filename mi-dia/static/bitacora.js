@@ -197,7 +197,14 @@ function pintarDetalle() {
   var estadoCerrado = d.estado === "atendido" || d.estado === "descartado";
   document.querySelector("button[onclick='ponerFocoActual()']").hidden = estadoCerrado;
   document.getElementById("d-btn-terminar").hidden = estadoCerrado || esInterrupcion;
-  document.getElementById("d-btn-conforme").hidden = !(d.estado === "atendido" && !d.listo_para_jira);
+  var btnConforme = document.getElementById("d-btn-conforme");
+  var mostrarConforme = d.estado === "atendido" && !d.listo_para_jira;
+  btnConforme.hidden = !mostrarConforme;
+  if (mostrarConforme) {
+    var tieneCorreccion = (detalle.entradas || []).some(function (e) { return e.texto_corregido && !e.correccion_vencida; });
+    btnConforme.disabled = !tieneCorreccion;
+    btnConforme.title = tieneCorreccion ? "" : "Espera a que Copilot limpie el texto antes de dar conforme";
+  }
   document.getElementById("card-bitacora").hidden = esInterrupcion;
   document.getElementById("npl-card").hidden       = !esInterrupcion;
   document.getElementById("d-identidad").hidden    = esInterrupcion;
