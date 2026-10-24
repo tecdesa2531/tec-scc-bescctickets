@@ -1,6 +1,6 @@
 # Requisitos funcionales
 
-Ultima actualizacion: 2026-10-18
+Ultima actualizacion: 2026-10-22
 
 Herramienta personal de Jhans para registrar y gestionar atenciones de
 infraestructura/DevOps, llevar bitacora de trabajo y preparar la subida a Jira.
@@ -29,6 +29,12 @@ Se ejecuta como servidor local Python en la laptop corporativa con Windows.
 | RF-015 | Guardar URL de ServiceNow por atencion. | implementado |
 | RF-016 | Abrir la carpeta de trabajo o de proceso de una atencion desde la interfaz (solo Windows). | implementado |
 | RF-017 | Impedir cambiar el proyecto padre de una atencion ya ubicada definitivamente. | implementado |
+| RF-047 | Crear atencion tipo interrupcion (NPL) con cronometro que arranca al presionar el boton, sin pedir datos iniciales; sin padre usa el proyecto INFRAS por defecto, que Jhans puede cambiar al del equipo que llamo mientras el agente no la procese; con padre toma el proyecto del padre. | implementado |
+| RF-048 | Anotar notas de texto libre y adjuntar capturas, archivos o grabaciones sin descripcion obligatoria durante una interrupcion activa, ordenados cronologicamente. | implementado |
+| RF-050 | Solicitar al cerrar una interrupcion el tipo de contacto, quien contacto y un resumen como obligatorios, y ticket relacionado y adjuntos adicionales como opcionales. El campo ticket relacionado es solo respaldo en texto libre para cuando el ticket aun no existe como atencion en la herramienta; si ya existe, el vinculo real es la Atencion padre (reutiliza el mecanismo existente de padre-hijo). | implementado |
+| RF-051 | Calcular el tiempo total de una interrupcion desde que se abrio hasta que se cerro. | implementado |
+| RF-052 | Dejar una interrupcion sin datos obligatorios completos en estado "Pendiente de cerrar" y mostrarla como alerta hasta completarse. | implementado |
+| RF-056 | Permitir editar las notas, los adjuntos, la atencion padre y los datos de cierre de una interrupcion ya cerrada, mientras el agente no la haya procesado; mostrar el resumen en Markdown con enlaces largos acortados, igual que el resto de la bitacora. | implementado |
 
 ## Bitacora
 
@@ -54,6 +60,7 @@ Se ejecuta como servidor local Python en la laptop corporativa con Windows.
 | RF-030 | Detectar un tramo abierto del dia anterior y pedir la hora de cierre antes de continuar. | implementado |
 | RF-031 | Acumular y mostrar el tiempo invertido por atencion. | implementado |
 | RF-032 | Registrar ideas en una lista separada durante el foco. | implementado |
+| RF-049 | Mantener el cronometro de una interrupcion corriendo en segundo plano aunque el usuario cambie de pestana. | implementado |
 
 ## Ideas
 
@@ -88,3 +95,6 @@ Se ejecuta como servidor local Python en la laptop corporativa con Windows.
 | RF-044 | Crear historia de usuario o subtarea en Jira al llegar la asignacion. | futuro |
 | RF-045 | Subir comentarios a Jira desde la herramienta con un boton que ejecuta Jhans. | futuro |
 | RF-046 | Bloquear entradas subidas a Jira para evitar modificaciones. | implementado |
+| RF-053 | Subir una interrupcion sin atencion padre como comentario en la subtarea fija de interrupciones de la HU semanal vigente. | futuro |
+| RF-054 | Subir una interrupcion cuya atencion padre tiene HU independiente como comentario en la fase fija "Consultas y seguimiento", que debe existir en toda HU independiente. | futuro |
+| RF-055 | Subir una interrupcion cuya atencion padre es una subtarea de una HU semanal como comentario directo en esa subtarea existente, sin crear nada nuevo. | futuro |

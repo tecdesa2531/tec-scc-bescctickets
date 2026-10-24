@@ -122,7 +122,7 @@ function pintarDetalle() {
     : "Focus Flow";
   document.getElementById("d-titulo").textContent =
     (NOMBRES_TIPO[d.tipo] || d.tipo) + " " + (d.tracking_id || "Sin ID") + " - " + d.titulo;
-  document.getElementById("d-aviso-temporal").hidden = !detalle.temporal;
+  document.getElementById("d-aviso-temporal").hidden = !detalle.temporal || d.tipo === "npl";
 
   var enlace  = document.getElementById("d-url");
   enlace.hidden = !d.url_servicenow;
@@ -193,14 +193,195 @@ function pintarDetalle() {
 
   pintarJira();
 
+  var esInterrupcion = d.tipo === "npl";
   var estadoCerrado = d.estado === "atendido" || d.estado === "descartado";
   document.querySelector("button[onclick='ponerFocoActual()']").hidden = estadoCerrado;
-  document.getElementById("d-btn-terminar").hidden = estadoCerrado;
+  document.getElementById("d-btn-terminar").hidden = estadoCerrado || esInterrupcion;
   document.getElementById("d-btn-conforme").hidden = !(d.estado === "atendido" && !d.listo_para_jira);
+  document.getElementById("card-bitacora").hidden = esInterrupcion;
+  document.getElementById("npl-card").hidden       = !esInterrupcion;
+  document.getElementById("d-identidad").hidden    = esInterrupcion;
+  document.getElementById("d-jira").hidden         = esInterrupcion;
+  document.getElementById("d-descripcion").hidden  = esInterrupcion;
   document.getElementById("r-titulo").hidden    = estadoCerrado;
   document.getElementById("r-redactor").hidden  = estadoCerrado;
 
-  pintarEntradas();
+  if (esInterrupcion) pintarInterrupcion();
+  else pintarEntradas();
+}
+
+// -- Interrupcion (tipo npl)
+function pintarAdjuntosInterrupcion(entrada) {
+  var cont = document.getElementById("npl-adjuntos");
+  var items = (entrada.capturas || []).map(function (c) {
+    return '<figure><a href="' + urlArchivo(c.raiz, c.ruta) + '" target="_blank">' +
+      '<img src="' + urlArchivo(c.raiz, c.ruta) + '" alt=""></a></figure>';
+  }).concat((entrada.archivos || []).map(function (a) {
+    return '<div class="suave"><a href="' + urlArchivo(a.raiz, a.ruta) + '" target="_blank">' +
+      esc(a.ruta.split("/").pop()) + "</a></div>";
+  }));
+  cont.innerHTML = items.length ? '<div class="capturas">' + items.join("") + "</div>"
+    : '<p class="suave">Sin adjuntos aun.</p>';
+}
+
+function pintarInterrupcion() {
+  var d = detalle.datos;
+  var npl = d.npl || {};
+  var entrada = (detalle.entradas && detalle.entradas[0]) || { texto: "", capturas: [], archivos: [] };
+  var cerrada    = d.estado === "atendido" && !npl.pendiente_cierre;
+  var bloqueada  = detalle.procesada;
+
+  document.getElementById("npl-aviso").hidden = !npl.pendiente_cierre;
+  document.getElementById("npl-notas").value    = entrada.texto || "";
+  document.getElementById("npl-notas").disabled = bloqueada;
+  llenarPadres("npl", [detalle.id].concat(descendientesDe(detalle.id)));
+  document.getElementById("npl-padre").value    = d.padre_id || "";
+  document.getElementById("npl-padre").disabled = !detalle.temporal && bloqueada;
+  llenarProyectos("npl", d.tracking_code);
+  document.getElementById("npl-campo-proyecto").hidden = !!d.padre_id;
+  document.getElementById("npl-proyecto").disabled     = bloqueada;
+  pintarAdjuntosInterrupcion(entrada);
+  document.getElementById("npl-zona").hidden = bloqueada;
+
+  var btnCierre = document.getElementById("npl-btn-cierre");
+  btnCierre.hidden     = bloqueada;
+  btnCierre.textContent = cerrada ? "Editar cierre" : "Cerrar interrupcion";
+
+  var resumenCerrada = document.getElementById("npl-resumen-cerrada");
+  if (cerrada) {
+    resumenCerrada.hidden = false;
+    var chips = [npl.tipo_contacto === "llamada" ? "Llamada Teams" : "Chat Teams", "Con: " + npl.quien];
+    if (npl.ticket_relacionado && !d.padre_id) chips.push("Ticket: " + npl.ticket_relacionado);
+    resumenCerrada.innerHTML = '<div class="meta-chips">' +
+      chips.map(function (c) { return '<span class="meta-chip">' + esc(c) + "</span>"; }).join("") + "</div>" +
+      (npl.resumen ? '<div class="texto">' + mdToHtml(npl.resumen) + "</div>" : "");
+  } else {
+    resumenCerrada.hidden = true;
+  }
+
+  document.getElementById("npl-form-cierre").hidden = !npl.pendiente_cierre;
+  document.getElementById("npl-campo-ticket").hidden = !!d.padre_id;
+  if (npl.pendiente_cierre) {
+    marcarRadio("npl-tipo-contacto", npl.tipo_contacto || "");
+    document.getElementById("npl-quien").value   = npl.quien || "";
+    document.getElementById("npl-resumen").value = npl.resumen || "";
+    document.getElementById("npl-ticket").value  = npl.ticket_relacionado || "";
+  }
+}
+
+function leerRadio(nombre) {
+  var marcado = document.querySelector('input[name="' + nombre + '"]:checked');
+  return marcado ? marcado.value : "";
+}
+
+function marcarRadio(nombre, valor) {
+  document.querySelectorAll('input[name="' + nombre + '"]').forEach(function (r) {
+    r.checked = r.value === valor;
+  });
+}
+
+var temporizadorNotasNpl = null;
+function guardarNotasInterrupcionDebounced() {
+  clearTimeout(temporizadorNotasNpl);
+  temporizadorNotasNpl = setTimeout(guardarNotasInterrupcion, 800);
+}
+
+async function guardarNotasInterrupcion() {
+  if (!detalle) return;
+  try {
+    await enviar("/api/interrupcion/notas", { id: detalle.id, texto: document.getElementById("npl-notas").value });
+  } catch (error) { mostrarError(error); }
+}
+
+async function guardarPadreInterrupcion() {
+  var valorPadre  = document.getElementById("npl-padre").value;
+  var padreActual = detalle.datos.padre_id || "";
+  if (valorPadre === padreActual) return;
+  try {
+    if (detalle.temporal) {
+      await enviar("/api/atencion/datos", { id: detalle.id, padre_id: valorPadre });
+      if (valorPadre) {
+        var padre = atenciones.find(function (a) { return a.id === valorPadre; });
+        await enviar("/api/atencion/identidad", {
+          id: detalle.id,
+          tracking_code: padre ? padre.tracking_code : "",
+          tracking_id: detalle.datos.tracking_id,
+          entornos: detalle.datos.entornos
+        });
+      }
+    } else if (padreActual && !valorPadre) {
+      throw new Error("Quitar el padre no esta disponible; elige otra atencion padre");
+    } else {
+      await enviar("/api/atencion/padre", { id: detalle.id, padre_id: valorPadre });
+    }
+    if (valorPadre) await enviar("/api/atencion/datos", { id: detalle.id, limpiar_ticket_npl: true });
+    proyectos = await leer("/api/proyectos");
+    await recargarDetalle();
+  } catch (error) { mostrarError(error); }
+}
+
+async function guardarProyectoInterrupcion() {
+  var codigo = leerProyecto("npl");
+  if (codigo === (detalle.datos.tracking_code || "")) return;
+  try {
+    await enviar("/api/interrupcion/proyecto", { id: detalle.id, tracking_code: codigo });
+    proyectos = await leer("/api/proyectos");
+    await recargarDetalle();
+  } catch (error) {
+    mostrarError(error);
+    pintarInterrupcion();
+  }
+}
+
+async function agregarAdjuntoInterrupcion(archivo) {
+  var datosUrl = await leerComoDataUrl(archivo);
+  var payload = { id: detalle.id };
+  if (archivo.type && archivo.type.startsWith("image/")) payload.capturas = [{ datos: datosUrl }];
+  else payload.archivos = [{ nombre: archivo.name, datos: datosUrl }];
+  try {
+    await enviar("/api/interrupcion/adjunto", payload);
+    await recargarDetalle();
+  } catch (error) { mostrarError(error); }
+}
+
+async function agregarAdjuntosInterrupcionSeleccionados(selector) {
+  for (var i = 0; i < selector.files.length; i++) await agregarAdjuntoInterrupcion(selector.files[i]);
+  selector.value = "";
+}
+
+async function mostrarCierreInterrupcion() {
+  document.getElementById("npl-form-cierre").hidden = false;
+  var npl = detalle.datos.npl || {};
+  marcarRadio("npl-tipo-contacto", npl.tipo_contacto || "");
+  document.getElementById("npl-quien").value   = npl.quien || "";
+  document.getElementById("npl-ticket").value  = npl.ticket_relacionado || "";
+  document.getElementById("npl-campo-ticket").hidden = !!detalle.datos.padre_id;
+  document.getElementById("npl-resumen").value = npl.resumen || "";
+  document.getElementById("npl-form-cierre").scrollIntoView();
+  if (foco.actual && foco.actual.atencion_id === detalle.id) {
+    await enviar("/api/foco/cambiar", { tipo: "pausa" });
+    await cargarFoco();
+  }
+}
+
+function ocultarCierreInterrupcion() {
+  if ((detalle.datos.npl || {}).pendiente_cierre) return;
+  document.getElementById("npl-form-cierre").hidden = true;
+}
+
+async function cerrarInterrupcion() {
+  try {
+    var tienePadre = !!detalle.datos.padre_id;
+    var resultado = await enviar("/api/interrupcion/cerrar", {
+      id: detalle.id,
+      tipo_contacto: leerRadio("npl-tipo-contacto"),
+      quien: document.getElementById("npl-quien").value,
+      resumen: document.getElementById("npl-resumen").value,
+      ticket_relacionado: tienePadre ? "" : document.getElementById("npl-ticket").value
+    });
+    await recargarDetalle();
+    if (!resultado.completo) alert("Faltan datos obligatorios. La interrupcion queda Pendiente de cerrar.");
+  } catch (error) { mostrarError(error); }
 }
 
 function enlaceJira(key, url) {

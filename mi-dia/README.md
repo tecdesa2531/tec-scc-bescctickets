@@ -126,10 +126,21 @@ La columna **Tiempo** muestra el tiempo acumulado de foco registrado para esa at
 - *Pausa*: baño, agua, estirarte.
 - *Idea*: algo que se te ocurrió; queda en *Ideas pendientes* para decidir después.
 - *Nueva reunión*: crea una CON sin proyecto y la pone como foco al instante.
+- *Interrupción*: ver más abajo.
 - *Terminar día*: cierra el último tramo. Si lo olvidas, al día siguiente la página te pide la hora en que terminaste.
 - *Ver mi día*: totales y tramos de hoy.
 
 El tiempo es solo un registro interno y no se envía a Jira.
+
+**Interrupción.** Para llamadas o chats de Teams que llegan sin aviso (tipo NPL, numeración `JNPL001` automática). Botón *Interrupción* en Foco:
+
+- Al presionar, el cronómetro arranca de inmediato; no se pide ningún dato. Se crea con el proyecto `INFRAS` y sin entorno (carpeta `NNN_Infras/000_SinEntorno/`). Mientras no tenga padre puedes cambiarlo en el campo *Proyecto* de la tarjeta (por ejemplo, al del equipo que llamó) y la carpeta se mueve a `NNN_<Proyecto>/000_SinEntorno/`. Si le asignas un padre, el campo desaparece y toma el proyecto y la carpeta del padre. Ambos se pueden cambiar mientras el agente no la haya procesado.
+- Mientras está abierta, la vista de la atención muestra solo una zona de *Notas* (texto libre que se guarda solo mientras escribes) y una zona de adjuntos: pega capturas con `Ctrl+V` o arrastra archivos; a diferencia de la bitácora normal, **no piden descripción** y se ordenan por orden de llegada.
+- *Cerrar interrupción* detiene el cronómetro al instante (pasa el foco a Pausa) y abre un formulario con: tipo de contacto (Llamada o Chat Teams), quién contactó y un resumen, todos obligatorios; y un ticket relacionado, opcional. El título de la atención queda corto ("Llamada con Maria", "Chat con Juan"); el resumen completo se guarda aparte y solo se ve dentro de la tarjeta de Interrupción.
+- Si guardas el cierre sin completar los tres campos obligatorios, la interrupción queda *Pendiente de cerrar*: aparece con esa etiqueta en la lista de atenciones hasta que vuelvas a abrirla y termines de llenarlos. El cronómetro ya quedó detenido, así que no se pierde el tiempo registrado.
+- Una vez cerrada, el resumen se muestra en Markdown (igual que la bitácora normal, con los enlaces largos acortados). Mientras el agente Copilot no haya procesado la interrupción, el botón cambia a *Editar cierre* y puedes corregir notas, adjuntos, padre o los datos de cierre cuando haga falta.
+- **Vincular con un ticket existente:** usa *Atención padre* dentro de la tarjeta de Interrupción (la sección Datos no se muestra para este tipo). La interrupción se anida en la carpeta del padre y toma su proyecto en lugar de `INFRAS`. El campo *Ticket relacionado* del formulario de cierre es solo texto libre de respaldo para cuando el ticket todavía no existe como atención en la herramienta.
+- A dónde sube el agente Copilot el comentario de la interrupción (todavía no construido, etapa 5) depende de la Atención padre: sin padre, va a la subtarea fija de interrupciones de la HU semanal vigente; con padre de HU independiente, a la fase fija "Consultas y seguimiento" de esa HU; con padre que ya es una subtarea de una HU semanal, directo como comentario en esa subtarea, sin crear nada nuevo.
 
 **URLs en la bitácora.** Las URLs pegadas en el texto de una entrada se convierten automáticamente en enlaces; se muestra solo el dominio (`empresa.atlassian.net/…`) y la URL completa aparece al pasar el mouse. El formato Markdown `[texto](https://...)` y `[texto](www....)` también genera enlaces.
 
@@ -178,7 +189,9 @@ Los proyectos nuevos toman el siguiente número de 10 en 10 (`040_Infras`), con 
 | `040_ProcesoJira\jira-*.json` | Copilot | La herramienta solo los lee para saber qué entradas ya se subieron. |
 | `003_Herramienta\agente-cola.json` | La herramienta | Cola de pendientes del agente (`pendiente_inicio`, `pendiente_limpieza`, `pendiente_jira`), para que no escanee. |
 
-**Campos que la herramienta agrega a `ticket-datos.json`:** `id_herramienta`, `tipo` (`ticket`, `int`, `doc`, `con`), `url_servicenow`, `workspace_edge`, `listo_para_limpieza` (fecha del *Terminar*, paso 1) y `listo_para_jira` (fecha del *Dar conforme*, paso 2).
+**Campos que la herramienta agrega a `ticket-datos.json`:** `id_herramienta`, `tipo` (`ticket`, `int`, `doc`, `con`, `npl`), `url_servicenow`, `workspace_edge`, `listo_para_limpieza` (fecha del *Terminar*, paso 1) y `listo_para_jira` (fecha del *Dar conforme*, paso 2).
+
+**Campo `npl` (solo en atenciones tipo NPL, interrupciones):** `{ "tipo_contacto": "llamada" | "chat" | "", "quien": "...", "ticket_relacionado": "...", "pendiente_cierre": true | false }`. Se completa al *Cerrar interrupción*; si falta algún dato obligatorio, `pendiente_cierre` queda en `true` y la herramienta la muestra como alerta hasta que se complete. `ticket_relacionado` es solo texto libre de respaldo (ticket que aun no existe como atencion); el vinculo real para el enrutamiento a Jira es `padre_id`, que el agente lee junto con el `hu_tipo` de la raiz de ese padre (aun no construido).
 
 **Campos que agrega el agente a `ticket-datos.json`:** `titulo_jira` (titulo corto para el issue), `descripcion`, y un objeto `jira` con el padre creado: `{ "padre_key": "...", "padre_url": "...", "tipo_padre": "hu" | "subtarea" }`. En `subtareas[]`, cada una lleva su `key` y `url`. La herramienta nunca pisa estos campos.
 
@@ -206,7 +219,7 @@ Los proyectos nuevos toman el siguiente número de 10 en 10 (`040_Infras`), con 
 ```
 
 - `raiz` indica en qué raíz está el archivo; `ruta` es relativa a la carpeta de la atención en esa raíz.
-- `tipo`: `solicitud`, `asignacion`, `avance` o `cierre`.
+- `tipo`: `solicitud`, `asignacion`, `avance`, `cierre` o `interrupcion` (una sola entrada por atención NPL, con las notas y adjuntos de la interrupción; sus capturas y archivos no llevan `descripcion` obligatoria).
 
 **Cómo marca Copilot lo que ya subió:** en cada comentario de `jira-comentarios_*.json` agrega `"bitacora_id"` (o `"bitacora_ids"` si un comentario junta varias entradas). Cuando ese comentario queda con `"subido": true`, la entrada se muestra como *Enviada a Jira* y se bloquea su edición.
 
@@ -230,3 +243,4 @@ Los proyectos nuevos toman el siguiente número de 10 en 10 (`040_Infras`), con 
 7. Editar una entrada.
 8. Cambiar el foco entre dos atenciones, usar *Pausa* y revisar *Ver mi día*.
 9. Revisar que la raíz de trabajo no tenga ningún JSON.
+10. Interrupción: abrirla, pegar una captura sin descripción, cerrarla sin el resumen (debe quedar *Pendiente de cerrar*) y luego completar el cierre.

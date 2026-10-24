@@ -43,7 +43,7 @@ def crear_idea(texto):
 
 def cambiar_foco(parametros):
     tipo = parametros.get("tipo", "")
-    if tipo not in ("atencion", "pausa", "idea", "reunion"):
+    if tipo not in ("atencion", "pausa", "idea", "reunion", "interrupcion"):
         raise ErrorUsuario("Tipo de foco no valido")
     with config.BLOQUEO:
         momento = ahora()
@@ -66,6 +66,16 @@ def cambiar_foco(parametros):
             idea = crear_idea(parametros.get("texto", ""))
             tramo["idea_id"] = idea["id"]
             tramo["etiqueta"] = "Idea: " + idea["texto"][:80]
+        elif tipo == "interrupcion":
+            titulo = "Interrupcion " + momento.strftime("%H:%M")
+            resultado = atenciones.crear_atencion({"tipo": "npl", "titulo": titulo, "hu_tipo": "semanal",
+                                                   "tracking_code": config.PROYECTO_NPL_SIN_PADRE})
+            id_npl = resultado["id"]
+            registro = atenciones.buscar_atencion(id_npl)
+            atenciones.iniciar_notas_interrupcion(registro)
+            tramo["tipo"] = "atencion"
+            tramo["atencion_id"] = id_npl
+            tramo["etiqueta"] = atenciones.etiqueta_de_atencion(registro["datos"])
         else:
             titulo = str(parametros.get("texto", "")).strip()
             if not titulo:

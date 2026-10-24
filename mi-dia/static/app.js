@@ -2,7 +2,7 @@
 
 // -- Routing
 function rutear() {
-  var partes = window.location.pathname.match(/^\/(ticket|int|doc|con)\/([A-Z0-9]+)$/);
+  var partes = window.location.pathname.match(/^\/(ticket|int|doc|con|npl)\/([A-Z0-9]+)$/);
   if (partes) {
     cargarPaginaDetalle(partes[2]);
   } else {
@@ -34,7 +34,11 @@ document.addEventListener("paste", async function (evento) {
     .map(function (item) { return item.getAsFile(); });
   if (!imagenes.length) return;
   evento.preventDefault();
-  for (var i = 0; i < imagenes.length; i++) await agregarCaptura(imagenes[i]);
+  var esNpl = detalle && detalle.datos && detalle.datos.tipo === "npl";
+  for (var i = 0; i < imagenes.length; i++) {
+    if (esNpl) await agregarAdjuntoInterrupcion(imagenes[i]);
+    else await agregarCaptura(imagenes[i]);
+  }
 });
 
 var zona = document.getElementById("r-zona");
@@ -52,6 +56,16 @@ zona.addEventListener("drop", async function (e) {
       await agregarArchivo(archivo);
     }
   }
+});
+
+var zonaNpl = document.getElementById("npl-zona");
+zonaNpl.addEventListener("dragover",  function (e) { e.preventDefault(); zonaNpl.classList.add("encima"); });
+zonaNpl.addEventListener("dragleave", function ()  { zonaNpl.classList.remove("encima"); });
+zonaNpl.addEventListener("drop", async function (e) {
+  e.preventDefault();
+  zonaNpl.classList.remove("encima");
+  var archivos = e.dataTransfer.files;
+  for (var i = 0; i < archivos.length; i++) await agregarAdjuntoInterrupcion(archivos[i]);
 });
 
 window.addEventListener("dragover", function (e) { e.preventDefault(); });

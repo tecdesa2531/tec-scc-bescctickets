@@ -28,12 +28,15 @@ ENTORNOS_CARPETA = {
 }
 ORDEN_ENTORNOS = ["DEV", "PRE", "PRO", "SIN_ENTORNO"]
 
-TIPOS_ATENCION = ["ticket", "int", "doc", "con"]
-PREFIJOS_PROPIOS = {"int": "JINT", "doc": "JDOC", "con": "JCON"}
-PREFIJOS_NUMERO = {"ticket": "JSNT", "int": "JINT", "doc": "JDOC", "con": "JCON"}
+TIPOS_ATENCION = ["ticket", "int", "doc", "con", "npl"]
+PREFIJOS_PROPIOS = {"int": "JINT", "doc": "JDOC", "con": "JCON", "npl": "JNPL"}
+PREFIJOS_NUMERO = {"ticket": "JSNT", "int": "JINT", "doc": "JDOC", "con": "JCON", "npl": "JNPL"}
 PROYECTOS_FIJOS = ["INFRAS", "DOCINF"]
+# Proyecto de una interrupcion mientras no tiene padre; al asignarle uno pasa al del padre.
+PROYECTO_NPL_SIN_PADRE = "INFRAS"
 ESTADOS = ["en_curso", "en_espera", "atendido", "reabierto", "descartado"]
-TIPOS_ENTRADA = ["solicitud", "asignacion", "avance", "cierre"]
+TIPOS_ENTRADA = ["solicitud", "asignacion", "avance", "cierre", "interrupcion"]
+TIPOS_CONTACTO_NPL = ["llamada", "chat"]
 HU_TIPOS = ["semanal", "independiente"]
 
 PATRON_PROYECTO = re.compile(r"^(\d{3})_([A-Za-z]{6})$")

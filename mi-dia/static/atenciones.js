@@ -98,7 +98,8 @@ function pintarAtenciones() {
     return '<tr class="' + clases + '" ' + accion + '>' +
       "<td" + idCeldaAttr + ">" + dotHijos + (dotHijos ? " " : "") + idTexto + "</td>" +
       "<td" + proyCeldaAttr + ">" + esc(codigoMostrar) + "</td>" +
-      '<td title="' + esc(a.titulo) + '">' + esc(a.titulo) + "</td>" +
+      '<td title="' + esc(a.titulo) + '">' + esc(a.titulo) +
+        (a.npl_pendiente_cierre ? ' <span class="etiqueta">Pendiente de cerrar</span>' : "") + "</td>" +
       "<td>" + (a.segundos ? duracion(a.segundos) : "") + "</td>" +
       "<td>" + (a.pendientes || "") + "</td>" +
       "<td>" + esc(a.actualizado) + "</td></tr>";

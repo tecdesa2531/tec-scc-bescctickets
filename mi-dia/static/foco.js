@@ -82,7 +82,7 @@ function pintarChips() {
 
   abiertas.sort(function (a, b) { return (a.numero || "").localeCompare(b.numero || ""); });
 
-  var tipos = ["ticket", "int", "doc", "con"].filter(function (tipo) {
+  var tipos = ["ticket", "int", "doc", "con", "npl"].filter(function (tipo) {
     return abiertas.some(function (a) { return a.tipo === tipo; });
   });
 
@@ -138,6 +138,13 @@ async function focoReunion() {
       abrirAtencion(resultado.atencion_id);
     }
   }
+}
+
+async function iniciarInterrupcion() {
+  var resultado = await cambiarFoco({ tipo: "interrupcion" });
+  if (!resultado) return;
+  if (resultado.numero && resultado.tipo) abrirDetalleNueva(resultado.tipo, resultado.numero);
+  else if (resultado.atencion_id) abrirAtencion(resultado.atencion_id);
 }
 
 async function terminarDia() {

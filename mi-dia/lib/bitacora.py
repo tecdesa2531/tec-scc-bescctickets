@@ -153,7 +153,7 @@ def extraer_adjuntos(mensaje, carpeta):
     return guardados
 
 
-def agregar_archivos_a_entrada(entrada, parametros, carpeta_trabajo, carpeta_proceso):
+def agregar_archivos_a_entrada(entrada, parametros, carpeta_trabajo, carpeta_proceso, requerir_descripcion=True):
     # Primero los archivos (para conocer la fecha de un correo) y luego las capturas.
     # Devuelve los correos nuevos para registrarlos en ticket-datos.json
     tipo_entrada = entrada["tipo"]
@@ -178,7 +178,7 @@ def agregar_archivos_a_entrada(entrada, parametros, carpeta_trabajo, carpeta_pro
 
     for captura in parametros.get("capturas", []) or []:
         descripcion = str(captura.get("descripcion", "")).strip()
-        if not descripcion:
+        if requerir_descripcion and not descripcion:
             raise ErrorUsuario("Cada captura necesita una descripcion")
         texto_datos = captura.get("datos", "")
         contenido = decodificar_base64(texto_datos)

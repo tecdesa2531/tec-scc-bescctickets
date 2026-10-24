@@ -49,6 +49,7 @@
         <button id="btn-pausa" onclick="focoPausa()" title="Pausa"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="2" y="2" width="4" height="10" rx="1"/><rect x="8" y="2" width="4" height="10" rx="1"/></svg></button>
         <button onclick="focoIdea()">Idea</button>
         <button onclick="focoReunion()">Nueva reunion</button>
+        <button onclick="iniciarInterrupcion()">Interrupcion</button>
       </div>
     </div>
     <div id="aviso-anterior" class="aviso" hidden>
@@ -256,8 +257,56 @@
     </details>
   </div>
 
+  <!-- Interrupcion (solo si la atencion es tipo npl) -->
+  <div class="card" id="npl-card" hidden>
+    <div class="card-titulo">Interrupcion</div>
+    <div id="npl-aviso" class="aviso" hidden>
+      Falta completar el cierre de esta interrupcion: tipo de contacto, quien contacto y el resumen.
+    </div>
+    <div id="npl-resumen-cerrada" hidden></div>
+    <div class="campo">
+      <span>Notas</span>
+      <textarea id="npl-notas" placeholder="Palabras clave de los temas que van saliendo" oninput="guardarNotasInterrupcionDebounced()"></textarea>
+    </div>
+    <div class="campo">
+      <span>Atencion padre</span>
+      <select id="npl-padre" onchange="guardarPadreInterrupcion()"></select>
+    </div>
+    <div class="campo" id="npl-campo-proyecto">
+      <span>Proyecto</span>
+      <input type="text" id="npl-proyecto" list="npl-proyecto-lista" placeholder="Codigo del proyecto" maxlength="6" autocomplete="off" onchange="guardarProyectoInterrupcion()">
+      <datalist id="npl-proyecto-lista"></datalist>
+    </div>
+    <p class="suave" style="margin:0 0 10px">Si la interrupcion es sobre un ticket que ya existe en la herramienta, eligelo como padre: toma su proyecto. Si no, elige el proyecto del equipo que llamo (INFRAS por defecto) y, si tienes el numero del ticket, anotalo en "Ticket relacionado" al cerrar.</p>
+    <div id="npl-zona" class="zona" tabindex="0">
+      Pega capturas aqui con Ctrl+V, o arrastra archivos o grabaciones
+      <div style="margin-top:6px">
+        <input type="file" id="npl-selector" multiple onchange="agregarAdjuntosInterrupcionSeleccionados(this)">
+      </div>
+    </div>
+    <div id="npl-adjuntos"></div>
+    <div class="fila">
+      <button class="principal" id="npl-btn-cierre" onclick="mostrarCierreInterrupcion()">Cerrar interrupcion</button>
+    </div>
+
+    <div class="formulario" id="npl-form-cierre" hidden>
+      <div class="campo">
+        <span>Tipo de contacto</span>
+        <label><input type="radio" name="npl-tipo-contacto" value="llamada">Llamada Teams</label>
+        <label><input type="radio" name="npl-tipo-contacto" value="chat">Chat Teams</label>
+      </div>
+      <div class="campo"><span>Quien contacto</span><input type="text" id="npl-quien"></div>
+      <div class="campo"><span>Resumen</span><textarea id="npl-resumen" placeholder="Quien, canal, temas tocados y como quedo"></textarea></div>
+      <div class="campo" id="npl-campo-ticket"><span>Ticket relacionado</span><input type="text" id="npl-ticket" placeholder="Solo si el ticket aun no existe en la herramienta"></div>
+      <div class="fila">
+        <button class="principal" onclick="cerrarInterrupcion()">Guardar cierre</button>
+        <button onclick="ocultarCierreInterrupcion()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Bitacora -->
-  <div class="card">
+  <div class="card" id="card-bitacora">
     <div class="card-titulo" style="display:flex;align-items:center;justify-content:space-between">Bitacora<button id="d-btn-toggle-corregido" hidden onclick="toggleCorreccion()" title="Ver texto corregido por el agente" style="background:none;border:none;cursor:pointer;font-size:16px;padding:0;opacity:0.4;line-height:1">&#x21BB;</button></div>
     <div id="d-entradas"></div>
 

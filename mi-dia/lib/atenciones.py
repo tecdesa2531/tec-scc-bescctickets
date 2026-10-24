@@ -422,6 +422,15 @@ def guardar_datos_generales(parametros):
             padre_id = str(parametros["padre_id"]).strip()
             validar_padre_id(padre_id, registro["id"])
             cambios["padre_id"] = padre_id
+        if parametros.get("limpiar_ticket_npl"):
+            # Al enlazar la interrupcion a un padre real, el texto libre de
+            # "ticket relacionado" (solo un respaldo mientras no existia el
+            # vinculo) deja de tener sentido: se limpia para no dejar un dato
+            # viejo que contradiga al padre ya asignado.
+            npl = dict(registro["datos"].get("npl") or {})
+            if npl.get("ticket_relacionado"):
+                npl["ticket_relacionado"] = ""
+                cambios["npl"] = npl
         actualizar_datos(registro, cambios)
         indice.indexar_atencion(registro["datos"])
         _regenerar_cola()
@@ -622,6 +631,121 @@ def editar_entrada(parametros):
 
 
 # ---------------------------------------------------------------------------
+# Interrupciones (tipo npl): llamadas y chats de Teams sin agendar
+# ---------------------------------------------------------------------------
+
+def _entrada_interrupcion(datos_bitacora):
+    for entrada in datos_bitacora.get("entradas", []):
+        if entrada["tipo"] == "interrupcion":
+            return entrada
+    raise ErrorUsuario("No se encontro la entrada de la interrupcion")
+
+
+def iniciar_notas_interrupcion(registro):
+    # Crea la entrada unica de bitacora (notas + adjuntos en vivo) y los
+    # campos propios de la interrupcion en ticket-datos.json.
+    datos_bitacora = bitacora.leer_bitacora(registro)
+    entrada = {
+        "id": nuevo_id("e"), "n": 1, "tipo": "interrupcion",
+        "fecha": texto_fecha(ahora()), "texto": "", "para_jira": True,
+        "capturas": [], "correos": [], "archivos": [], "editado": "",
+    }
+    datos_bitacora["entradas"] = [entrada]
+    escribir_json(bitacora.ruta_bitacora(registro), datos_bitacora)
+    actualizar_datos(registro, {"npl": {"tipo_contacto": "", "quien": "", "resumen": "",
+                                        "ticket_relacionado": "", "pendiente_cierre": False}})
+
+
+def cambiar_proyecto_interrupcion(parametros):
+    # Excepcion acotada a la regla "una atencion ubicada no cambia de proyecto":
+    # una NPL sin padre puede pasar al proyecto del equipo que llamo, mientras
+    # el agente no la haya procesado. Con padre, el proyecto lo pone el padre.
+    with config.BLOQUEO:
+        registro = buscar_atencion(parametros.get("id", ""))
+        datos = registro["datos"]
+        if datos.get("tipo") != "npl":
+            raise ErrorUsuario("Esta atencion no es una interrupcion")
+        if datos.get("padre_id"):
+            raise ErrorUsuario("Con atencion padre, el proyecto lo pone el padre")
+        if atencion_procesada(registro):
+            raise ErrorUsuario("El agente ya proceso esta interrupcion; el proyecto ya no se puede cambiar")
+        codigo = str(parametros.get("tracking_code", "")).strip().upper()
+        if not re.match(r"^[A-Z]{6}$", codigo):
+            raise ErrorUsuario("El codigo de proyecto debe tener 6 letras")
+        if codigo == datos.get("tracking_code") and not registro["temporal"]:
+            return registro["id"]
+        entornos = ["SIN_ENTORNO"]
+        relativa, carpeta_entorno = ubicacion_definitiva(codigo, datos["tracking_id"], entornos)
+        return _reubicar(registro, relativa, carpeta_entorno,
+                         {"tracking_code": codigo, "entornos": entornos,
+                          "carpeta_entorno": carpeta_entorno})
+
+
+def guardar_notas_interrupcion(parametros):
+    with config.BLOQUEO:
+        registro = buscar_atencion(parametros.get("id", ""))
+        if atencion_procesada(registro):
+            raise ErrorUsuario("El agente ya proceso esta interrupcion; ya no se puede editar")
+        datos_bitacora = bitacora.leer_bitacora(registro)
+        entrada = _entrada_interrupcion(datos_bitacora)
+        entrada["texto"] = str(parametros.get("texto", "")).strip()
+        escribir_json(bitacora.ruta_bitacora(registro), datos_bitacora)
+
+
+def agregar_adjunto_interrupcion(parametros):
+    with config.BLOQUEO:
+        registro = buscar_atencion(parametros.get("id", ""))
+        if atencion_procesada(registro):
+            raise ErrorUsuario("El agente ya proceso esta interrupcion; ya no se puede editar")
+        carpeta_trabajo, carpeta_proceso = carpetas_de(registro)
+        datos_bitacora = bitacora.leer_bitacora(registro)
+        entrada = _entrada_interrupcion(datos_bitacora)
+        correos_nuevos = bitacora.agregar_archivos_a_entrada(
+            entrada, parametros, carpeta_trabajo, carpeta_proceso, requerir_descripcion=False)
+        escribir_json(bitacora.ruta_bitacora(registro), datos_bitacora)
+        if correos_nuevos:
+            actualizar_datos(registro, bitacora.registrar_correos_en_datos(registro, correos_nuevos, "interrupcion"))
+        _regenerar_cola()
+
+
+def cerrar_interrupcion(parametros):
+    # Siempre detiene el cronometro (lo hace el frontend al mostrar este
+    # formulario). Si faltan datos obligatorios, la interrupcion queda
+    # "pendiente_cierre" como alerta hasta completarla.
+    with config.BLOQUEO:
+        registro = buscar_atencion(parametros.get("id", ""))
+        if registro["datos"].get("tipo") != "npl":
+            raise ErrorUsuario("Esta atencion no es una interrupcion")
+        if atencion_procesada(registro):
+            raise ErrorUsuario("El agente ya proceso esta interrupcion; el cierre ya no se puede editar")
+        carpeta_trabajo, carpeta_proceso = carpetas_de(registro)
+        datos_bitacora = bitacora.leer_bitacora(registro)
+        entrada = _entrada_interrupcion(datos_bitacora)
+        bitacora.agregar_archivos_a_entrada(
+            entrada, parametros, carpeta_trabajo, carpeta_proceso, requerir_descripcion=False)
+        escribir_json(bitacora.ruta_bitacora(registro), datos_bitacora)
+
+        tipo_contacto = str(parametros.get("tipo_contacto", "")).strip()
+        quien = str(parametros.get("quien", "")).strip()
+        resumen = str(parametros.get("resumen", "")).strip()
+        ticket_relacionado = str(parametros.get("ticket_relacionado", "")).strip()
+        completo = tipo_contacto in config.TIPOS_CONTACTO_NPL and bool(quien) and bool(resumen)
+
+        cambios = {"npl": {"tipo_contacto": tipo_contacto, "quien": quien, "resumen": resumen,
+                           "ticket_relacionado": ticket_relacionado,
+                           "pendiente_cierre": not completo}}
+        if completo:
+            etiqueta_contacto = "Llamada" if tipo_contacto == "llamada" else "Chat"
+            cambios["titulo"] = etiqueta_contacto + " con " + quien
+            cambios["estado"] = "atendido"
+            cambios["listo_para_limpieza"] = texto_fecha(ahora())
+        actualizar_datos(registro, cambios)
+        indice.indexar_atencion(registro["datos"])
+        _regenerar_cola()
+        return {"completo": completo}
+
+
+# ---------------------------------------------------------------------------
 # Helpers de display
 # ---------------------------------------------------------------------------
 
@@ -663,6 +787,7 @@ def resumen_atenciones():
             "tracking_id": datos.get("tracking_id", ""),
             "titulo": datos.get("titulo", ""),
             "estado": datos.get("estado", ""),
+            "npl_pendiente_cierre": bool((datos.get("npl") or {}).get("pendiente_cierre")),
             "segundos": tiempos.get(registro["id"], 0),
             "pendientes": bitacora.contar_pendientes(
                 registro, datos_bitacora.get("entradas", []), enviados),

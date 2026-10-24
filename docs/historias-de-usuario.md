@@ -1,6 +1,6 @@
 # Historias de usuario
 
-Ultima actualizacion: 2026-10-18
+Ultima actualizacion: 2026-10-22
 
 ---
 
@@ -83,6 +83,56 @@ Ultima actualizacion: 2026-10-18
 - [ ] Queda marcada como atendida y con fecha de cierre.
 
 **RF relacionados:** RF-012
+**Estado:** implementada
+
+---
+
+### HU-014: Capturar una interrupcion sin perder tiempo real
+
+**Como** Jhans,
+**quiero** iniciar el registro de una llamada o chat no planificado con un clic y sin llenar datos previos,
+**para** no perder tiempo real completando un formulario mientras atiendo la interrupcion.
+
+**Criterios de aceptacion:**
+- [ ] Un boton "Interrupcion" inicia el cronometro de inmediato sin pedir datos.
+- [ ] El cronometro sigue corriendo aunque cambie de pestana.
+- [ ] Puedo anotar notas de texto libre durante la interrupcion.
+- [ ] Puedo pegar o arrastrar adjuntos sin describirlos, ordenados por hora de llegada.
+
+**RF relacionados:** RF-047, RF-048, RF-049
+**Estado:** implementada
+
+---
+
+### HU-015: Cerrar una interrupcion con los datos minimos
+
+**Como** Jhans,
+**quiero** completar tipo de contacto, quien contacto y un resumen al cerrar la interrupcion,
+**para** dejar un registro util aunque breve de cada llamada o chat no planificado.
+
+**Criterios de aceptacion:**
+- [ ] Al cerrar se piden tipo de contacto, quien contacto y resumen como obligatorios.
+- [ ] Puedo indicar un ticket relacionado y adjuntar archivos adicionales de forma opcional.
+- [ ] El tiempo total se calcula automaticamente entre apertura y cierre.
+- [ ] Si no completo los datos obligatorios, la interrupcion queda "Pendiente de cerrar" y aparece como alerta.
+
+**RF relacionados:** RF-050, RF-051, RF-052
+**Estado:** implementada
+
+---
+
+### HU-017: Corregir una interrupcion despues de cerrarla
+
+**Como** Jhans,
+**quiero** poder corregir las notas, los adjuntos, el padre o los datos de cierre de una interrupcion que ya cerre,
+**para** arreglar errores (un numero mal anotado, un resumen incompleto) sin perder el registro ni tener que crear una nueva.
+
+**Criterios de aceptacion:**
+- [ ] Mientras el agente no haya procesado la interrupcion, se puede reabrir el formulario de cierre y guardar correcciones.
+- [ ] El resumen se muestra en Markdown, con los enlaces largos acortados igual que en la bitacora normal.
+- [ ] Una vez que el agente la procesa, queda bloqueada para edicion, igual que el resto de la herramienta.
+
+**RF relacionados:** RF-056
 **Estado:** implementada
 
 ---
@@ -220,4 +270,20 @@ Ultima actualizacion: 2026-10-18
 - [ ] Si hay entradas nuevas despues de una primera subida, solo se suben las nuevas.
 
 **RF relacionados:** RF-043, RF-045, RF-046
+**Estado:** pendiente
+
+---
+
+### HU-016: Enrutar interrupciones a Jira segun su contexto
+
+**Como** Jhans,
+**quiero** que cada interrupcion se suba al lugar correcto de Jira segun si tiene un ticket relacionado,
+**para** no perder el contexto de la llamada ni duplicar informacion.
+
+**Criterios de aceptacion:**
+- [ ] Sin atencion padre, se sube como comentario en la subtarea fija de interrupciones de la HU semanal vigente.
+- [ ] Con atencion padre de HU independiente, se sube como comentario en la fase fija "Consultas y seguimiento" de esa HU.
+- [ ] Con atencion padre que es subtarea de una HU semanal, se sube como comentario directo en esa subtarea, sin crear nada nuevo.
+
+**RF relacionados:** RF-053, RF-054, RF-055
 **Estado:** pendiente
