@@ -32,3 +32,7 @@ Una vez subidos todos los comentarios de una atencion (incluido el comentario de
 - **Hija marcada como fase independiente**: su propio `/procede` cierra su subtarea; el de la raiz no la toca.
 - Si una subtarea no tiene transicion directa a `FINALIZADO` desde su estado actual, avisame para moverla a mano; no la saltes.
 - Si la subtarea ya esta en `FINALIZADO` (segunda vuelta de una atencion reabierta) y hay trabajo nuevo real, sigue la regla de reapertura del `copilot-instructions.md`.
+
+## README de la carpeta de trabajo
+
+Como ultimo paso, por cada atencion que quedo subida (tambien las hijas y las interrupciones), escribe o reemplaza su `README.md` en la carpeta de trabajo con el skill `readme-atencion`. No necesita "crear": no llama a Jira.

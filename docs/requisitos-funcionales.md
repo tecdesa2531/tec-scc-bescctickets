@@ -88,6 +88,7 @@ Se ejecuta como servidor local Python en la laptop corporativa con Windows.
 | RF-040 | Mantener dos raices separadas (trabajo compartido y proceso privado) con estructura espejo. | implementado |
 | RF-041 | Atenciones temporales esperan en 004_SinAsignar hasta tener proyecto e ID. | implementado |
 | RF-042 | Carpetas de hijos anidadas dentro de la carpeta del padre (no al mismo nivel). | implementado |
+| RF-060 | Dejar en la carpeta de trabajo de cada atencion subida un README con titulo, proyecto, entorno, solicitante, fecha de asignacion, resumen de lo hecho y la lista de sus archivos, sin datos de Jira; generarlo al terminar la subida y a pedido para las atenciones ya subidas. | implementado |
 
 ## Jira (futuro)
 

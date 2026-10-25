@@ -195,6 +195,8 @@ Quinto tipo de atención, para llamadas o chats de Teams sin agendar (a diferenc
 - Copilot también escribe en `ticket-datos.json` el `titulo_jira` (título corto y claro para el issue) y, al crear issues, la `key` y la `url` completa de cada uno (HU y subtareas), para que la herramienta muestre el link directo.
 - Las rutas de capturas en la bitácora son `{ "raiz": "trabajo" | "proceso", "ruta": "<relativa a la carpeta de la atención>" }`.
 
+- **README de la carpeta de trabajo (acordado el 2026-10-25):** la carpeta de trabajo la ven otras personas y no tenía contexto. Al final de `/procede`, el agente escribe (o reemplaza) un `README.md` en la carpeta de trabajo de cada atención subida, con el skill `readme-atencion`: título (`titulo_jira` o `titulo`), proyecto, entorno, solicitante, fecha de asignación (la del correo asignado más antiguo, o `creado` si no hay correos), qué se hizo (la sección Resumen de la `descripcion`; en una NPL, su resumen corregido) y la lista de cada archivo de la carpeta con una descripción breve. No menciona Jira, el Tracking ID ni el agente: la carpeta ya lleva el ID en su nombre. Para las atenciones subidas antes de este acuerdo existe `/readme`: con ID genera esa; sin ID recorre en solo lectura la raíz de proceso y toma las que tienen algo subido y aún no tienen README. Es lo único que el agente escribe en la raíz de trabajo.
+
 El formato completo está en `mi-dia/README.md`, sección 7.
 
 ### Navegación
@@ -269,6 +271,7 @@ El agente **no escanea** carpetas: lee `003_Herramienta/agente-cola.json`, que l
 | `040_ProcesoJira/bitacora-correccion.json` | agente | texto corregido por `bitacora_id` (se escribe en `/limpia`) |
 | `003_Herramienta/agente-cola.json` | herramienta | cola de pendientes del agente, para no escanear |
 | `ticket-datos.json` (campos nuevos del agente) | agente | `descripcion`, `titulo_jira`, y `key` + `url` de cada issue creado |
+| `README.md` en la carpeta de trabajo | agente | portada de la atención para quien entra a la carpeta (ver sección 6) |
 
 ### 7.6 Cambios en la herramienta (`mi-dia`)
 

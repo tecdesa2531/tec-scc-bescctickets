@@ -7,7 +7,7 @@ Este agente de GitHub Copilot prepara tus atenciones para Jira. No organiza carp
 1. Abre en VS Code un workspace que incluya tres carpetas: `agente-copilot` y tus dos raíces de datos (la de trabajo y la de proceso). Lo más cómodo es un archivo `.code-workspace` con las tres.
 2. Copia la plantilla `config-jira.json` a la raíz de proceso (`<raiz_proceso>/config-jira.json`) y pon ahí tus valores reales: los destinos de Jira y el mapeo de cada proyecto. El agente solo lee y actualiza esa copia; la plantilla del repositorio queda con valores ficticios.
 3. Revisa tus variables de entorno de credenciales, las que nombra `config-jira.json` en cada destino (`url_var`, `email_var`, `token_var`).
-4. En Copilot Chat elige el agente **atencion-tickets** o usa directamente los comandos `/inicia`, `/limpia`, `/procede` y `/corrige`.
+4. En Copilot Chat elige el agente **atencion-tickets** o usa directamente los comandos `/inicia`, `/limpia`, `/procede`, `/corrige` y `/readme`.
 
 ## Uso diario
 
@@ -19,10 +19,13 @@ Le hablas en corto. Cada comando acepta un ID (Tracking ID) o, sin ID, toma de l
 | Limpiar el texto y proponer descripción y título (cuando marcas *Terminar* en Focus Flow) | `/limpia` o `/limpia PTSK0000123` |
 | Subir a Jira lo que diste por conforme | `/procede` o `/procede PTSK0000123` |
 | Corregir título y descripción de issues ya creados | `/corrige PTSK0000123` |
+| Dejar el README de la carpeta de trabajo en atenciones ya subidas | `/readme` o `/readme PTSK0000123` |
 | Crear las HU semanales del sprint (cada una con su subtarea fija de interrupciones) | `crea las HU semanales del sprint` |
 | Cierre de semana o de sprint | `cierre de semana` / `cierre de sprint` |
 
 En `/limpia`, el agente deja **su propuesta** de descripción y título en `ticket-datos.json`; tú la revisas en la herramienta y, si quieres cambios, se los pides por el chat.
+
+Al terminar `/procede`, el agente deja un `README.md` en la carpeta de trabajo de cada atención subida: título, proyecto, entorno, solicitante, fecha de asignación, qué se hizo y la lista de archivos de la carpeta, sin nada de Jira. Es la portada para quien entre a esa carpeta en OneDrive. Para las atenciones subidas antes de este paso, usa `/readme` (sin ID busca las que aún no lo tienen).
 
 Si una atención semanal no tiene HU semanal que cubra su fecha, `/inicia` te avisa y la salta: primero crea las HU semanales del sprint.
 

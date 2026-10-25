@@ -306,3 +306,20 @@ Ultima actualizacion: 2026-10-25
 
 **RF relacionados:** RF-058 (herramienta, implementado), RF-057 (agente, futuro)
 **Estado:** herramienta lista; la subida a Jira queda a cargo del agente (futuro)
+
+---
+
+### HU-019: Encontrar contexto en la carpeta de trabajo de una atencion
+
+**Como** Jhans,
+**quiero** que la carpeta de trabajo de cada atencion subida tenga un README con lo que se pidio, lo que se hizo y lo que hay en ella,
+**para** que quien entre directo a esa carpeta (yo mismo o un companero) entienda la atencion sin abrir cada archivo.
+
+**Criterios de aceptacion:**
+- [ ] Al terminar la subida, la carpeta de trabajo tiene un README con titulo, proyecto, entorno, solicitante, fecha de asignacion y un resumen breve.
+- [ ] El README lista cada archivo de la carpeta con una descripcion corta.
+- [ ] El README no menciona Jira ni el ID de seguimiento.
+- [ ] Puedo generarlo a pedido para las atenciones que ya subi antes.
+
+**RF relacionados:** RF-060
+**Estado:** pendiente (falta probarlo en la laptop)

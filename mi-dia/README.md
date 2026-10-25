@@ -33,7 +33,7 @@ Configúralas una sola vez en PowerShell. Se guardan a nivel de usuario, sin per
 
 | Variable | Para qué sirve |
 |---|---|
-| `AT_RAIZ_TRABAJO` | Carpeta limpia: correos, adjuntos y capturas de avance. Sin nada de Jira ni Copilot. |
+| `AT_RAIZ_TRABAJO` | Carpeta limpia: correos, adjuntos y capturas de avance. Sin nada de Jira ni Copilot. El agente deja además un `README.md` por atención subida, como portada para quien entre a la carpeta (sin datos de Jira). |
 | `AT_RAIZ_PROCESO` | Carpeta privada: JSON de la herramienta, archivos de Copilot y Jira, foco e ideas. |
 | `AT_CORREO` | Tu correo. Los `.eml` que envías tú se guardan como `atendido`; el resto como `asignado`. |
 | `AT_PUERTO` | Opcional. Puerto del servidor; por defecto `8765`. |
