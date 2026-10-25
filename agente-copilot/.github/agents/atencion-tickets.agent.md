@@ -37,6 +37,7 @@ Esa confirmacion de alcance (que atenciones tomar) es distinta del gate **"crear
 2. Si la atencion es **hija** (`padre_id` con valor), **usa `hu_tipo_raiz` de la cola e ignora su propio `hu_tipo`**, y aplica "Padre e hijos" de `copilot-instructions.md`:
    - **Raiz semanal**: el hijo es su propia subtarea por entorno, bajo la HU semanal de su fecha, con titulo `PROYAA(ENT): <ID del hijo> - titulo`.
    - **Raiz independiente**: el hijo no tiene subtarea propia. El `/procede` de la raiz analiza en conjunto la raiz y sus hijos con conforme y propone las fases; los comentarios de cada hijo se registran en el `040_ProcesoJira` **del hijo**, con la `key` de la fase.
+   - **Excepcion: hijo con `fase_independiente: true`** (solo `int`, `doc`, `con`) y raiz independiente: tiene su propia subtarea bajo la HU de la raiz, creada en su `/inicia` (directo, titulo solo su `titulo`), y su `/procede` sube sus comentarios y la cierra. La raiz no lo incluye en sus fases.
    - **Excepcion: interrupcion (tipo `npl`)**. Aunque tenga `padre_id`, **no** sigue estas reglas de hijo: nunca tiene HU ni subtarea propia, no pasa por `/inicia`, y en `/procede` solo sube su comentario (ver "Interrupciones" en `copilot-instructions.md`), sin transicionar ninguna subtarea.
 3. Revisa solo lo vigente. Si una creacion en lote quedo a medias, continua solo las subtareas sin `key`; no repitas las ya creadas.
 

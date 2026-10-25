@@ -537,6 +537,11 @@ function editarDetalle() {
     notaPadre.hidden = true;
   }
 
+  // Check "fase independiente": solo para hija int/doc/con de padre con HU
+  // independiente, editable mientras aun no tenga su issue en Jira.
+  var padreObj = atenciones.find(function (a) { return a.id === d.padre_id; });
+  mostrarFaseIndependiente("e", d.tipo, padreObj, d.fase_independiente, conIssue);
+
   // HU, proyecto y entornos se ocultan si hereda de un padre
   document.getElementById("e-campo-hu").hidden       = !!d.padre_id;
   document.getElementById("i-campo-proyecto").hidden = !!d.padre_id;
@@ -989,10 +994,14 @@ document.addEventListener("keydown", function (e) {
 });
 
 function ajustarDetalle() {
-  var tienePadre = document.getElementById("e-padre").value !== "";
+  var valorPadre = document.getElementById("e-padre").value;
+  var tienePadre = valorPadre !== "";
   document.getElementById("e-campo-hu").hidden       = tienePadre;
   document.getElementById("i-campo-proyecto").hidden = tienePadre;
   document.getElementById("i-campo-entornos").hidden = tienePadre;
+  var padreObj = atenciones.find(function (a) { return a.id === valorPadre; });
+  mostrarFaseIndependiente("e", detalle.datos.tipo, padreObj,
+    document.getElementById("e-fase-ind").checked, tieneIssueJira(detalle.datos));
 }
 
 async function guardarDatos() {
@@ -1003,6 +1012,10 @@ async function guardarDatos() {
       url_servicenow: document.getElementById("e-url").value,
       workspace_edge: document.getElementById("e-workspace").value
     };
+    // Siempre normalizamos: si el check no aplica (p. ej. el padre paso a
+    // semanal), queda en false para no arrastrar un dato viejo.
+    datosGen.fase_independiente = !document.getElementById("e-campo-fase-ind").hidden &&
+      document.getElementById("e-fase-ind").checked;
 
     if (detalle.temporal) {
       // Atencion aun sin ubicar: el padre y la identidad se guardan juntos.

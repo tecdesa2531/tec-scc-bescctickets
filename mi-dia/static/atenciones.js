@@ -254,6 +254,23 @@ function marcarHu(prefijo, valor) {
 
 function elegirHu(prefijo, valor) { marcarHu(prefijo, valor); }
 
+// El check "fase independiente" solo aplica a una atencion int, doc o con que
+// cuelga de un padre con HU independiente: le da su propia subtarea en Jira.
+// Como solo hay un nivel de anidacion, el padre es la raiz.
+function faseIndependienteAplica(tipo, padre) {
+  return ["int", "doc", "con"].indexOf(tipo) !== -1 &&
+         !!padre && padre.hu_tipo === "independiente";
+}
+
+function mostrarFaseIndependiente(prefijo, tipo, padre, marcado, deshabilitado) {
+  var aplica = faseIndependienteAplica(tipo, padre);
+  document.getElementById(prefijo + "-campo-fase-ind").hidden = !aplica;
+  var check = document.getElementById(prefijo + "-fase-ind");
+  if (!aplica) { check.checked = false; return; }
+  check.checked = !!marcado;
+  check.disabled = !!deshabilitado;
+}
+
 // -- Nueva atencion (dialogo)
 var _nuevaOrigen = null;
 
@@ -312,11 +329,14 @@ async function ajustarNueva() {
 
   var avisoPadre = document.getElementById("n-aviso-padre");
   avisoPadre.hidden = !tienePadre;
+  var padre = tienePadre
+    ? atenciones.find(function (a) { return a.id === document.getElementById("n-padre").value; })
+    : null;
   if (tienePadre) {
-    var padre = atenciones.find(function (a) { return a.id === document.getElementById("n-padre").value; });
     var etiqueta = padre ? (padre.tracking_id || "Sin Tracking ID") : "la atencion padre";
     avisoPadre.innerHTML = "Hereda proyecto, entornos y HU de <b>" + esc(etiqueta) + "</b>.";
   }
+  mostrarFaseIndependiente("n", tipo, padre);
 
   var notas = {
     ticket: "Si ya tienes el numero de ServiceNow, ingresalo ahora; si no, lo completas despues.",
@@ -387,6 +407,8 @@ async function crearAtencion() {
     workspace_edge: document.getElementById("n-workspace").value
   };
   if (!padreId) datos.hu_tipo = document.getElementById("n-hu").value;
+  datos.fase_independiente = !document.getElementById("n-campo-fase-ind").hidden &&
+    document.getElementById("n-fase-ind").checked;
   try {
     var resultado = await enviar("/api/atencion/crear", datos);
     if (ideaEnConversion) {

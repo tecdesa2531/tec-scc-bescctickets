@@ -43,9 +43,10 @@ def _accion(registro, mapa):
     tiene_subtarea = any(s.get("key") for s in (datos.get("subtareas") or []))
     if not jira.get("padre_key") and not tiene_subtarea:
         # Un hijo de una raiz independiente no tiene issue propio: sus
-        # comentarios van a las fases de la HU de la raiz.
+        # comentarios van a las fases de la HU de la raiz, salvo que este
+        # marcado como fase independiente, que si crea su propia subtarea.
         if datos.get("padre_id") and _raiz(datos, mapa).get("hu_tipo") == "independiente":
-            return ""
+            return "pendiente_inicio" if datos.get("fase_independiente") else ""
         return "pendiente_inicio"
     return ""
 
@@ -68,6 +69,7 @@ def regenerar(registros):
             "padre_id": datos.get("padre_id", ""),
             "raiz_id": raiz.get("id_herramienta", ""),
             "hu_tipo_raiz": raiz.get("hu_tipo", ""),
+            "fase_independiente": bool(datos.get("fase_independiente")),
             "relativa": registro["relativa"].replace("\\", "/"),
             "accion": accion,
         })

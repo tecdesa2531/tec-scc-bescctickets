@@ -16,9 +16,10 @@ Antes de subir, **si el padre aun no existe en Jira (no se corrio `/inicia`), cr
 
 Usa el texto corregido de `bitacora-correccion.json`. Entre las entradas `para_jira: true` aplica criterio: no subas todas, deja solo lo coherente.
 
-- **Independiente** (skills `jira-historia-usuario`, `jira-subtareas`, `jira-comentarios`): analiza en orden la bitacora de la raiz **y la de sus hijos que ya tienen conforme**, **propon las fases** (cuantas y en que orden) y espera mi aprobacion; luego crea las subtareas bajo la HU y reparte los comentarios de todos (razona si van agrupados o uno por subtarea). Los comentarios de cada hijo se registran en el `040_ProcesoJira` **del hijo**, con la `key` de la fase.
+- **Independiente** (skills `jira-historia-usuario`, `jira-subtareas`, `jira-comentarios`): analiza en orden la bitacora de la raiz **y la de sus hijos que ya tienen conforme** (salvo los hijos con `fase_independiente: true`, que tienen su propia subtarea), **propon las fases** (cuantas y en que orden) y espera mi aprobacion; luego crea las subtareas bajo la HU y reparte los comentarios de todos (razona si van agrupados o uno por subtarea). Los comentarios de cada hijo se registran en el `040_ProcesoJira` **del hijo**, con la `key` de la fase.
 - **Semanal** (skills `jira-subtareas`, `jira-comentarios`): sube los comentarios de sus subtareas por entorno. Las subtareas de los hijos **no** las tocas aqui: cada hijo las sube en su propio `/procede`.
 - **Atencion hija** (`padre_id` con valor): usa `hu_tipo_raiz` de la cola, no su propio `hu_tipo`. Con raiz **semanal**, se trata como una semanal (sus subtareas por entorno y sus comentarios). Con raiz **independiente**, reparte sus comentarios en las fases que ya tiene la raiz (si ninguna encaja, propon una fase nueva); si la raiz aun no tiene fases, avisame y espera al `/procede` de la raiz.
+- **Hija marcada como fase independiente** (`fase_independiente: true`, raiz independiente): sube sus comentarios a **su propia subtarea** (la de `subtareas[]` del hijo), registrados en su `040_ProcesoJira`. Si aun no existe (se salto `/inicia`), creala antes bajo la HU de la raiz, dentro del mismo `--dry-run`/"crear"; si la raiz no tiene HU, avisame y salta esa hija.
 
 Genera los scripts `.py` en `040_ProcesoJira`, corre primero un `--dry-run` y muestrame el resumen. Tras mi **"crear"**, ejecutalos tu en la terminal; guarda las `key` y `url` en `ticket-datos.json` y marca lo subido con `bitacora_id` y `subido: true` en los `jira-comentarios_*.json`. No subas nada a Jira sin mi "crear".
 
@@ -28,5 +29,6 @@ Una vez subidos todos los comentarios de una atencion (incluido el comentario de
 
 - **Semanal** (y todo hijo): cierra cada subtarea de entorno de esta atencion. Las de sus hijos las cierra el `/procede` de cada hijo.
 - **Independiente**: cierra cada subtarea de fase (lo hace el `/procede` de la raiz, no el de un hijo).
+- **Hija marcada como fase independiente**: su propio `/procede` cierra su subtarea; el de la raiz no la toca.
 - Si una subtarea no tiene transicion directa a `FINALIZADO` desde su estado actual, avisame para moverla a mano; no la saltes.
 - Si la subtarea ya esta en `FINALIZADO` (segunda vuelta de una atencion reabierta) y hay trabajo nuevo real, sigue la regla de reapertura del `copilot-instructions.md`.

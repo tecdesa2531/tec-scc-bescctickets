@@ -1,6 +1,6 @@
 # Historias de usuario
 
-Ultima actualizacion: 2026-10-22
+Ultima actualizacion: 2026-10-25
 
 ---
 
@@ -287,4 +287,21 @@ Ultima actualizacion: 2026-10-22
 - [ ] Con atencion padre que es subtarea de una HU semanal, se sube como comentario directo en esa subtarea, sin crear nada nuevo.
 
 **RF relacionados:** RF-053, RF-054, RF-055
+**Estado:** pendiente
+
+---
+
+### HU-018: Registrar una atencion hija como fase independiente
+
+**Como** Jhans,
+**quiero** marcar una iniciativa, documentacion o consulta hija de una HU independiente como fase independiente,
+**para** que tenga su propia subtarea en Jira sin esperar al analisis de fases de la atencion padre.
+
+**Criterios de aceptacion:**
+- [ ] El check solo aparece en atenciones hijas que no son ticket ni interrupcion.
+- [ ] Al iniciarla, se crea su subtarea bajo la HU del padre con su titulo.
+- [ ] Sus comentarios suben a su propia subtarea, que se cierra al terminar la atencion.
+- [ ] El analisis de fases del padre no la incluye.
+
+**RF relacionados:** RF-057
 **Estado:** pendiente

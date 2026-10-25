@@ -1,6 +1,6 @@
 # Requisitos funcionales
 
-Ultima actualizacion: 2026-10-22
+Ultima actualizacion: 2026-10-25
 
 Herramienta personal de Jhans para registrar y gestionar atenciones de
 infraestructura/DevOps, llevar bitacora de trabajo y preparar la subida a Jira.
@@ -98,3 +98,4 @@ Se ejecuta como servidor local Python en la laptop corporativa con Windows.
 | RF-053 | Subir una interrupcion sin atencion padre como comentario en la subtarea fija de interrupciones de la HU semanal vigente. | futuro |
 | RF-054 | Subir una interrupcion cuya atencion padre tiene HU independiente como comentario en la fase fija "Consultas y seguimiento", que debe existir en toda HU independiente. | futuro |
 | RF-055 | Subir una interrupcion cuya atencion padre es una subtarea de una HU semanal como comentario directo en esa subtarea existente, sin crear nada nuevo. | futuro |
+| RF-057 | Crear como subtarea propia bajo la HU de la raiz, sin pasar por la propuesta de fases, una atencion hija de tipo int, doc o con marcada como fase independiente cuya raiz tiene HU independiente; la herramienta debe ofrecer el check y ponerla en la cola de inicio. | pendiente |

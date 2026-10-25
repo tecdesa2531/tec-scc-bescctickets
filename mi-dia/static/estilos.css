@@ -1531,6 +1531,8 @@ a:hover { opacity: 0.8; }
 .tipo-dot-con    { background: var(--con-fg); }
 
 /* Avisos del dialogo */
+.form-check { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 12px; color: var(--suave); cursor: pointer; }
+.form-check input { margin: 0; }
 .aviso-hereda { padding: 10px 12px; border-radius: 8px; background: var(--con-bg); border: 1px solid var(--con-fg); color: var(--con-fg); font-size: 13px; }
 .aviso-hereda b { font-family: var(--fuente-mono); }
 .aviso-idea { padding: 10px 12px; border-radius: 8px; background: var(--idea-bg); border: 1px solid var(--idea-bd); color: var(--idea-label); font-size: 13px; }

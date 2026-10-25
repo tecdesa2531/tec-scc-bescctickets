@@ -249,6 +249,7 @@ def crear_atencion(parametros):
             "tracking_id": tracking_id,
             "nombre": "",
             "hu_tipo": hu_tipo,
+            "fase_independiente": bool(parametros.get("fase_independiente")),
             "carpeta_entorno": "",
             "entornos": entornos,
             "titulo": titulo,
@@ -443,6 +444,8 @@ def guardar_datos_generales(parametros):
             if parametros["hu_tipo"] not in config.HU_TIPOS:
                 raise ErrorUsuario("Tipo de HU no valido")
             cambios["hu_tipo"] = parametros["hu_tipo"]
+        if "fase_independiente" in parametros:
+            cambios["fase_independiente"] = bool(parametros["fase_independiente"])
         if "estado" in parametros:
             if parametros["estado"] not in config.ESTADOS:
                 raise ErrorUsuario("Estado no valido")
@@ -869,6 +872,8 @@ def resumen_atenciones():
             "temporal": registro["temporal"],
             "tipo": datos.get("tipo", ""),
             "padre_id": datos.get("padre_id", ""),
+            "hu_tipo": datos.get("hu_tipo", ""),
+            "fase_independiente": bool(datos.get("fase_independiente")),
             "tracking_code": datos.get("tracking_code", ""),
             "tracking_id": datos.get("tracking_id", ""),
             "titulo": datos.get("titulo", ""),

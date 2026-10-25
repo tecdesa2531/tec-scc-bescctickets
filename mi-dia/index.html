@@ -245,6 +245,10 @@
         <label for="e-padre">Atencion padre</label>
         <select id="e-padre" onchange="ajustarDetalle()"></select>
         <p class="suave" id="e-padre-nota" style="margin:4px 0 0" hidden></p>
+        <label class="form-check" id="e-campo-fase-ind" hidden>
+          <input type="checkbox" id="e-fase-ind">
+          <span>Fase aparte: subtarea propia en la HU del padre.</span>
+        </label>
       </div>
       <p class="suave" id="i-nota" style="margin:4px 0" hidden></p>
       <div class="det-ed-acciones">
@@ -462,6 +466,10 @@
         <select id="n-padre" onchange="ajustarNueva()"></select>
       </div>
       <div id="n-aviso-padre" class="aviso-hereda" hidden></div>
+      <label class="form-check" id="n-campo-fase-ind" hidden>
+        <input type="checkbox" id="n-fase-ind">
+        <span>Fase aparte: subtarea propia en la HU del padre.</span>
+      </label>
 
       <!-- Proyecto + Entornos + HU (bloque gris) -->
       <div class="det-ed-bloque" id="n-bloque">
