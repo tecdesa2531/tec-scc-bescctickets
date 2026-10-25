@@ -260,9 +260,11 @@ var _nuevaOrigen = null;
 function mostrarNueva(titulo, padreId) {
   _nuevaOrigen = document.activeElement;
   document.getElementById("dlg-nueva").hidden = false;
+  // Siempre empieza limpio (solo el titulo se precarga cuando viene de una idea)
   document.getElementById("n-aviso-idea").hidden   = !ideaEnConversion;
   document.getElementById("n-titulo").value        = titulo || "";
   document.getElementById("n-tracking-id").value   = "";
+  document.getElementById("n-tracking-auto").value = "";
   document.getElementById("n-url").value           = "";
   document.getElementById("n-workspace").value     = "";
   marcarEntornos("n-entorno", []);
