@@ -20,7 +20,7 @@
 <body>
 
 <header>
-  <span class="logo" onclick="volver()" style="cursor:pointer">Focus Flow</span>
+  <a class="logo" href="/" onclick="event.preventDefault(); volver()">Focus Flow</a>
   <a id="foco-pildora" class="pildora pildora-sin" href="#" title="Abrir la atencion en foco" onclick="clicPildora(event)">
     <span class="pildora-dot"></span>
     <span id="pildora-label">Sin foco</span>
@@ -29,7 +29,7 @@
     <span id="pildora-timer" class="pildora-timer" hidden></span>
   </a>
   <div id="buscar-zona" class="buscar-zona">
-    <input type="text" id="buscador-global" placeholder="Buscar ticket o proyecto..." autocomplete="off" oninput="onBuscarInput()">
+    <input type="text" id="buscador-global" aria-label="Buscar ticket o proyecto" placeholder="Buscar ticket o proyecto..." autocomplete="off" oninput="onBuscarInput()">
     <div id="buscar-dropdown" hidden class="buscar-dropdown"></div>
   </div>
   <button id="btn-tema" class="btn-tema" onclick="alternarTema()">Modo oscuro</button>
@@ -108,13 +108,13 @@
 
     <!-- Idea en linea -->
     <div id="foco-idea-fila" class="foco-fila-inline" hidden>
-      <input type="text" id="foco-idea-input" class="campo-idea" placeholder="Escribe la idea y pulsa Enter">
+      <input type="text" id="foco-idea-input" class="campo-idea" aria-label="Idea" placeholder="Escribe la idea y pulsa Enter">
       <button class="foco-inline-btn" onclick="guardarFocoIdea()">Guardar</button>
     </div>
 
     <!-- Reunion en linea -->
     <div id="foco-reunion-fila" class="foco-fila-inline" hidden>
-      <input type="text" id="foco-reunion-input" class="campo-reunion" placeholder="Titulo de la reunion (el proyecto lo asignas al terminar)">
+      <input type="text" id="foco-reunion-input" class="campo-reunion" aria-label="Titulo de la reunion" placeholder="Titulo de la reunion (el proyecto lo asignas al terminar)">
       <button class="foco-inline-btn" id="foco-reunion-iniciar" onclick="iniciarFocoReunion()" disabled>Iniciar</button>
     </div>
   </section>
@@ -160,7 +160,7 @@
 
   <!-- Cabecera de la atencion -->
   <div class="card det-cabecera">
-    <a class="det-volver" onclick="volver()" title="Ir a la vista principal">
+    <a class="det-volver" href="/" onclick="event.preventDefault(); volver()" title="Ir a la vista principal">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
       Volver
     </a>
@@ -209,14 +209,14 @@
       </div>
       <div class="det-ed-grid">
         <div class="form-campo" style="flex:0 0 220px">
-          <span id="e-label-id">Tracking ID</span>
+          <label for="i-tracking-id" id="e-label-id">Tracking ID</label>
           <input type="text" id="i-tracking-id" class="mono-input">
         </div>
-        <div class="form-campo" style="flex:1"><span>Titulo</span><input type="text" id="e-titulo"></div>
+        <div class="form-campo" style="flex:1"><label for="e-titulo">Titulo</label><input type="text" id="e-titulo"></div>
       </div>
       <div class="det-ed-bloque">
         <div id="i-campo-proyecto" class="form-campo" style="flex:0 0 160px">
-          <span>Proyecto</span>
+          <label for="i-proyecto">Proyecto</label>
           <input type="text" id="i-proyecto" class="mono-input" list="i-proyecto-lista" placeholder="6 letras" maxlength="6" autocomplete="off">
           <datalist id="i-proyecto-lista"></datalist>
         </div>
@@ -238,11 +238,11 @@
         </div>
       </div>
       <div class="det-ed-grid" id="e-campo-url">
-        <div class="form-campo" style="flex:1"><span>URL ServiceNow</span><input type="text" id="e-url"></div>
-        <div class="form-campo" style="flex:0 0 260px"><span>Area de trabajo Edge</span><input type="text" id="e-workspace"></div>
+        <div class="form-campo" style="flex:1"><label for="e-url">URL ServiceNow</label><input type="text" id="e-url"></div>
+        <div class="form-campo" style="flex:0 0 260px"><label for="e-workspace">Area de trabajo Edge</label><input type="text" id="e-workspace"></div>
       </div>
       <div class="form-campo" id="e-campo-padre">
-        <span>Atencion padre</span>
+        <label for="e-padre">Atencion padre</label>
         <select id="e-padre" onchange="ajustarDetalle()"></select>
         <p class="suave" id="e-padre-nota" style="margin:4px 0 0" hidden></p>
       </div>
@@ -280,11 +280,11 @@
     <!-- Atencion padre + Proyecto -->
     <div class="det-ed-grid">
       <div class="form-campo" style="flex:1 1 300px">
-        <span>Atencion padre (opcional)</span>
+        <label for="npl-padre">Atencion padre (opcional)</label>
         <select id="npl-padre" onchange="guardarPadreInterrupcion()"></select>
       </div>
       <div class="form-campo" id="npl-campo-proyecto" style="flex:0 0 160px">
-        <span>Proyecto</span>
+        <label for="npl-proyecto">Proyecto</label>
         <input type="text" id="npl-proyecto" class="mono-input" list="npl-proyecto-lista" placeholder="6 letras" maxlength="6" autocomplete="off" onchange="guardarProyectoInterrupcion()">
         <datalist id="npl-proyecto-lista"></datalist>
       </div>
@@ -297,7 +297,7 @@
     <!-- Notas privadas con autoguardado -->
     <div class="form-campo">
       <div class="npl-notas-cab">
-        <span>Notas (privadas, no van a Jira)</span>
+        <label for="npl-notas">Notas (privadas, no van a Jira)</label>
         <span id="npl-guardado" class="npl-guardado"></span>
       </div>
       <textarea id="npl-notas" placeholder="Palabras clave de lo que va saliendo en la llamada o chat..." oninput="guardarNotasInterrupcionDebounced()"></textarea>
@@ -307,9 +307,10 @@
     <div class="form-campo">
       <span>Adjuntos</span>
       <div id="npl-adjuntos" class="npl-adjuntos"></div>
-      <div id="npl-zona" class="zona" tabindex="0">
+      <div id="npl-zona" class="zona">
         Pega capturas con Ctrl+V, arrastra o
-        <input type="file" id="npl-selector" multiple onchange="agregarAdjuntosInterrupcionSeleccionados(this)">
+        <button type="button" class="zona-elegir" onclick="document.getElementById('npl-selector').click()">elige un archivo</button>
+        <input type="file" id="npl-selector" multiple hidden onchange="agregarAdjuntosInterrupcionSeleccionados(this)">
       </div>
     </div>
 
@@ -326,16 +327,16 @@
           <input type="hidden" id="npl-tipo-contacto" value="">
         </div>
         <div class="form-campo" style="flex:1 1 220px">
-          <span>Quien contacto</span>
+          <label for="npl-quien">Quien contacto</label>
           <input type="text" id="npl-quien" placeholder="Nombre y equipo" oninput="validarCierreNpl()">
         </div>
         <div class="form-campo" id="npl-campo-ticket" style="flex:0 1 200px">
-          <span>Ticket relacionado (opcional)</span>
+          <label for="npl-ticket">Ticket relacionado (opcional)</label>
           <input type="text" id="npl-ticket" class="mono-input" placeholder="Ej. TLND002998">
         </div>
       </div>
       <div class="form-campo">
-        <span>Resumen (admite Markdown)</span>
+        <label for="npl-resumen">Resumen (admite Markdown)</label>
         <textarea id="npl-resumen" placeholder="Que se consulto y que se respondio" oninput="validarCierreNpl()"></textarea>
       </div>
     </div>
@@ -394,7 +395,7 @@
         </div>
         <div id="r-aviso-correo" class="redactor-aviso redactor-aviso-correo" hidden>Este ticket aun no tiene correo recibido. Primero registra el correo de <b>Solicitud</b> o <b>Asignacion</b>.</div>
         <div id="r-aviso-cierre" class="redactor-aviso redactor-aviso-cierre" hidden>Adjunta el correo de respuesta al solicitante. Al guardar, la atencion pasa a <b>Atendido</b>.</div>
-        <textarea id="r-texto" oninput="autosizeTexto(this); actualizarRedactor()" onkeydown="teclaTexto(event)" placeholder="Que hiciste, que paso, que falta. Pega capturas con Ctrl+V."></textarea>
+        <textarea id="r-texto" aria-label="Texto de la entrada" oninput="autosizeTexto(this); actualizarRedactor()" onkeydown="teclaTexto(event)" placeholder="Que hiciste, que paso, que falta. Pega capturas con Ctrl+V."></textarea>
         <div id="r-existentes"></div>
         <div id="r-pendientes"></div>
         <div class="redactor-abajo">
@@ -445,19 +446,19 @@
       <!-- Tracking ID + Titulo -->
       <div class="det-ed-grid">
         <div class="form-campo" style="flex:0 0 220px">
-          <span id="n-label-id">Tracking ID</span>
+          <label for="n-tracking-id" id="n-label-id">Tracking ID</label>
           <input type="text" id="n-tracking-id" class="mono-input" placeholder="Ej. PTSK0000123" oninput="sugerirWorkspace(); validarNueva()">
-          <input type="text" id="n-tracking-auto" class="mono-input" readonly hidden>
+          <input type="text" id="n-tracking-auto" aria-label="Tracking ID asignado automaticamente" class="mono-input" readonly hidden>
         </div>
         <div class="form-campo" style="flex:1 1 300px">
-          <span>Titulo</span>
+          <label for="n-titulo">Titulo</label>
           <input type="text" id="n-titulo" placeholder="Que hay que hacer" oninput="validarNueva()">
         </div>
       </div>
 
       <!-- Atencion padre -->
       <div class="form-campo" id="n-campo-padre">
-        <span>Atencion padre (opcional)</span>
+        <label for="n-padre">Atencion padre (opcional)</label>
         <select id="n-padre" onchange="ajustarNueva()"></select>
       </div>
       <div id="n-aviso-padre" class="aviso-hereda" hidden></div>
@@ -465,7 +466,7 @@
       <!-- Proyecto + Entornos + HU (bloque gris) -->
       <div class="det-ed-bloque" id="n-bloque">
         <div class="form-campo" id="n-campo-proyecto" style="flex:0 0 160px">
-          <span>Proyecto</span>
+          <label for="n-proyecto">Proyecto</label>
           <input type="text" id="n-proyecto" class="mono-input" list="n-proyecto-lista" placeholder="6 letras" maxlength="6" autocomplete="off" oninput="sugerirWorkspace(); validarNueva()">
           <datalist id="n-proyecto-lista"></datalist>
         </div>
@@ -490,8 +491,8 @@
 
       <!-- URL ServiceNow + Area Edge (solo ticket) -->
       <div class="det-ed-grid" id="n-campo-url">
-        <div class="form-campo" style="flex:1 1 300px"><span>URL ServiceNow (opcional)</span><input type="text" id="n-url" placeholder="https://..."></div>
-        <div class="form-campo" style="flex:0 0 240px"><span>Area de trabajo Edge (opcional)</span><input type="text" id="n-workspace" class="mono-input" placeholder="NUMERO-PROYECTO"></div>
+        <div class="form-campo" style="flex:1 1 300px"><label for="n-url">URL ServiceNow (opcional)</label><input type="text" id="n-url" placeholder="https://..."></div>
+        <div class="form-campo" style="flex:0 0 240px"><label for="n-workspace">Area de trabajo Edge (opcional)</label><input type="text" id="n-workspace" class="mono-input" placeholder="NUMERO-PROYECTO"></div>
       </div>
 
       <p class="suave" id="n-nota" style="margin:0"></p>

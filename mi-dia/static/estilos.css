@@ -1,7 +1,9 @@
 /* Focus Flow - estilos.css */
 
 /* -- Variables de tema (paleta Focus Flow) */
+/* color-scheme hace que los controles nativos sigan el tema */
 :root {
+  color-scheme: light;
   /* Tipografia (igual en ambos modos) */
   --fuente:       "Segoe UI", system-ui, -apple-system, sans-serif;
   --fuente-mono:  Consolas, "Cascadia Mono", monospace;
@@ -76,6 +78,7 @@
 }
 
 html[data-tema="oscuro"] {
+  color-scheme: dark;
   /* Superficies y texto */
   --fondo:        #141318;
   --card:         #1E1D24;
@@ -162,18 +165,22 @@ header {
   top: 0;
   z-index: 10;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 14px;
+  gap: 8px 14px;
   padding: 12px 24px;
   background: var(--card);
   box-shadow: 0 1px 0 var(--borde);
 }
 
 .logo {
+  flex-shrink: 0;
+  white-space: nowrap;
   font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--activo);
+  text-decoration: none;
 }
 
 /* -- Pildora de foco (cabecera) */
@@ -189,6 +196,9 @@ header {
   font-weight: 500;
   text-decoration: none;
   white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
 }
 .pildora-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--suave); }
 .pildora-id,
@@ -212,6 +222,7 @@ header {
 .pildora-pausa .pildora-dot { background: var(--aviso-texto); }
 
 .btn-tema {
+  flex-shrink: 0;
   font-size: 12px;
   padding: 4px 14px;
   border-radius: 20px;
@@ -286,14 +297,14 @@ button:hover {
 button.principal {
   background: var(--activo);
   border-color: var(--activo);
-  color: #fff;
+  color: var(--sobre-activo);
   font-weight: 600;
 }
 
 button.principal:hover {
   opacity: 0.87;
   background: var(--activo);
-  color: #fff;
+  color: var(--sobre-activo);
 }
 
 /* Deshabilitado: gris y sin efecto hover, para cualquier boton */
@@ -304,6 +315,14 @@ button:disabled:hover {
   color: var(--suave);
   opacity: 1;
   cursor: not-allowed;
+}
+
+/* Foco visible al navegar con el teclado (los campos de texto tienen su propio estilo) */
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--activo);
+  outline-offset: 2px;
 }
 
 /* -- Controles de formulario */
@@ -508,10 +527,10 @@ label {
 .franja-btn-pri {
   background: var(--activo);
   border-color: var(--activo);
-  color: #fff;
+  color: var(--sobre-activo);
   font-weight: 600;
 }
-.franja-btn-pri:hover { opacity: 0.9; background: var(--activo); color: #fff; }
+.franja-btn-pri:hover { opacity: 0.9; background: var(--activo); color: var(--sobre-activo); }
 
 /* -- Layout de dos columnas */
 .layout-principal {
@@ -602,10 +621,10 @@ label {
   padding: 0 16px;
   background: var(--activo);
   border-color: var(--activo);
-  color: #fff;
+  color: var(--sobre-activo);
   font-weight: 600;
 }
-.btn-pausa.btn-reanudar:hover { opacity: 0.9; background: var(--activo); color: #fff; }
+.btn-pausa.btn-reanudar:hover { opacity: 0.9; background: var(--activo); color: var(--sobre-activo); }
 .btn-foco { display: inline-flex; align-items: center; gap: 8px; height: 38px; }
 .btn-terminar-dia { display: inline-flex; align-items: center; gap: 8px; height: 38px; background: var(--card2); }
 .foco-botones kbd {
@@ -717,7 +736,7 @@ td {
   box-sizing: border-box;
   border-radius: 999px;
   background: var(--activo);
-  color: #fff;
+  color: var(--sobre-activo);
   font-size: 11px;
   font-weight: 700;
 }
@@ -805,7 +824,7 @@ td {
   font-weight: 700;
   line-height: 1;
 }
-.at-hijos-llena { background: var(--tipo-c); border-color: var(--tipo-c); color: #fff; }
+.at-hijos-llena { background: var(--tipo-c); border-color: var(--tipo-c); color: var(--card); }
 .at-hijos-foco  { background: var(--foco-solido); border-color: var(--foco-solido); color: var(--foco-sobre-solido); }
 
 .at-id { flex-shrink: 0; font-family: var(--fuente-mono); font-size: 14px; font-weight: 600; color: var(--texto); }
@@ -814,8 +833,8 @@ td {
   flex-shrink: 0;
   font-size: 11px;
   font-weight: 600;
-  color: #7A4F00;
-  background: #FCEFD3;
+  color: var(--aviso-texto);
+  background: var(--aviso-fondo);
   border-radius: 6px;
   padding: 2px 7px;
 }
@@ -897,7 +916,9 @@ td {
 /* Formulario en columnas */
 .form-fila { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; margin: 10px 0; }
 .form-campo { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 180px; }
-.form-campo > span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--suave); }
+/* Etiqueta del campo: el primer span (titulo de grupo) o el label asociado */
+.form-campo > span:first-child,
+.form-campo > label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--suave); margin-right: 0; cursor: default; }
 .form-campo input[type="text"], .form-campo select { width: 100%; }
 .form-campo .checkboxes { display: flex; flex-wrap: wrap; gap: 4px; padding-top: 2px; }
 
@@ -1259,6 +1280,11 @@ details[open] summary::before { content: "\25BC  "; }
 }
 
 .zona.encima { border-color: var(--activo); color: var(--activo); }
+.zona-elegir {
+  padding: 0; border: none; background: none;
+  font: inherit; color: var(--activo); text-decoration: underline; cursor: pointer;
+}
+.zona-elegir:hover { background: none; border: none; color: var(--activo); opacity: 0.8; }
 
 /* -- Pendientes */
 .pendiente { display: flex; gap: 10px; align-items: center; margin: 8px 0; font-size: 13px; flex-wrap: wrap; }
@@ -1311,6 +1337,8 @@ a.btn-enlace:hover {
 .buscar-zona {
   position: relative;
   margin-left: auto;
+  flex: 0 1 230px;
+  min-width: 160px;
 }
 
 #buscador-global {
@@ -1320,7 +1348,7 @@ a.btn-enlace:hover {
   border-radius: 20px;
   background: var(--fondo);
   color: var(--texto);
-  width: 230px;
+  width: 100%;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -1334,7 +1362,7 @@ a.btn-enlace:hover {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  min-width: 380px;
+  min-width: min(380px, calc(100vw - 32px));
   background: var(--card);
   border: 1.5px solid var(--borde);
   border-radius: 12px;
@@ -1518,8 +1546,8 @@ a:hover { opacity: 0.8; }
 .det-reabrir { height: 40px; }
 .det-confirm-txt { font-size: 13px; color: var(--texto); }
 .det-estado-cancelar { height: 36px; }
-.det-descartar-btn { height: 36px; background: var(--error); border-color: var(--error); color: #fff; font-weight: 600; }
-.det-descartar-btn:hover { background: var(--error); border-color: var(--error); color: #fff; opacity: 0.88; }
+.det-descartar-btn { height: 36px; background: var(--error); border-color: var(--error); color: var(--sobre-error); font-weight: 600; }
+.det-descartar-btn:hover { background: var(--error); border-color: var(--error); color: var(--sobre-error); opacity: 0.88; }
 
 .det-aviso-proyecto {
   display: flex;
@@ -1577,6 +1605,7 @@ a:hover { opacity: 0.8; }
 }
 .env-botones input:checked + span { background: var(--texto); color: var(--card); border-color: var(--texto); }
 .env-botones input:disabled + span { opacity: 0.55; cursor: not-allowed; }
+.env-botones input:focus-visible + span { outline: 2px solid var(--activo); outline-offset: 2px; }
 
 .campo-error { display: block; margin-top: 8px; font-size: 12px; color: var(--error); }
 
@@ -1599,6 +1628,7 @@ a:hover { opacity: 0.8; }
   border: 1px solid var(--borde); border-radius: 10px;
   background: var(--card); color: var(--texto);
   font-size: 13px; font-weight: 500; line-height: 1.25; text-align: left; cursor: pointer;
+  white-space: normal;
 }
 .tipo-btn:hover { border-color: var(--activo); background: var(--card); }
 .tipo-btn.activo { border-width: 2px; padding: 5px 11px; font-weight: 600; }
@@ -1673,7 +1703,7 @@ a:hover { opacity: 0.8; }
 .npl-hered { display: flex; align-items: center; height: 44px; font-family: var(--fuente-mono); font-weight: 600; color: var(--suave); }
 
 .npl-notas-cab { display: flex; align-items: baseline; justify-content: space-between; }
-.npl-notas-cab > span:first-child { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--suave); }
+.npl-notas-cab > label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--suave); margin-right: 0; cursor: default; }
 .npl-guardado { font-size: 12px; color: var(--jira-fg); }
 #npl-notas { min-height: 120px; }
 
@@ -1710,7 +1740,7 @@ a:hover { opacity: 0.8; }
 .npl-cancel-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--npl-bg); border: 1px solid var(--npl-fg); }
 .npl-cancel-confirm > span { flex: 1 1 300px; font-size: 13px; color: var(--npl-fg); }
 .npl-cancel-confirm button { height: 36px; padding: 0 14px; font-size: 13px; }
-.npl-cancel-si { background: var(--error); color: #fff; border-color: var(--error); font-weight: 600; }
+.npl-cancel-si { background: var(--error); color: var(--sobre-error); border-color: var(--error); font-weight: 600; }
 
 /* Pie de acciones */
 .npl-acciones { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 6px; border-top: 1px solid var(--borde); }
@@ -1752,7 +1782,7 @@ a:hover { opacity: 0.8; }
   color: var(--suave);
 }
 .det-paso-done .det-paso-num { background: var(--foco-solido); color: var(--foco-sobre-solido); }
-.det-paso-cur .det-paso-num { background: var(--activo); color: #fff; }
+.det-paso-cur .det-paso-num { background: var(--activo); color: var(--sobre-activo); }
 .det-paso-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .det-paso-tit { font-size: 13px; font-weight: 600; color: var(--texto); }
 .det-paso-cur .det-paso-tit { color: var(--revisar-fg); font-weight: 700; }
@@ -1807,4 +1837,9 @@ a:hover { opacity: 0.8; }
   .layout-principal { padding: 16px 12px; }
   .card { padding: 16px 18px; }
   .campo > span:first-child { min-width: 110px; }
+}
+
+/* Ventana a media pantalla: los 4 tipos de Nueva atencion pasan a 2 columnas */
+@media (max-width: 720px) {
+  .tipo-botones { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
