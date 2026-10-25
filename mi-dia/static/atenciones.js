@@ -201,7 +201,10 @@ function llenarPadres(prefijo, excluir, actual) {
   if (typeof fuera === "string") fuera = fuera ? [fuera] : [];
   sel.innerHTML = '<option value="">Sin padre</option>' +
     atenciones
-      .filter(function (a) { return fuera.indexOf(a.id) === -1 && (!a.padre_id || a.id === actual); })
+      // Solo atenciones sin padre y que no sean interrupciones (una NPL nunca es padre)
+      .filter(function (a) {
+        return fuera.indexOf(a.id) === -1 && ((!a.padre_id && a.tipo !== "npl") || a.id === actual);
+      })
       .map(function (a) {
         var label = (a.tracking_id || "Sin Tracking ID") +
           (a.tracking_code ? " - " + a.tracking_code : "") +

@@ -194,6 +194,9 @@ def validar_padre_id(padre_id, id_propio):
 def validar_un_nivel(padre_registro, id_propio):
     # Un solo nivel de anidacion: el padre debe ser una atencion sin padre y una
     # atencion con hijas no puede colgar de otra (sus hijas quedarian como nietas).
+    # Una interrupcion nunca es padre: no tiene issue en Jira donde colgar hijas.
+    if padre_registro["datos"].get("tipo") == "npl":
+        raise ErrorUsuario("Una interrupcion no puede ser atencion padre")
     if padre_registro["datos"].get("padre_id"):
         raise ErrorUsuario("La atencion padre ya es hija de otra; elige una atencion sin padre")
     if id_propio and any(r["datos"].get("padre_id") == id_propio for r in buscar_atenciones()):
