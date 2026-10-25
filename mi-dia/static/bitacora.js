@@ -524,7 +524,7 @@ function editarDetalle() {
   var nota = document.getElementById("i-nota");
   if (detalle.temporal) {
     nota.hidden = false;
-    nota.textContent = "Al completar Tracking ID, proyecto y entornos se crean las carpetas definitivas.";
+    nota.textContent = "Al completar Tracking ID y proyecto se crean las carpetas definitivas. Sin entorno, la atencion va a la carpeta Sin entorno del proyecto.";
   } else {
     nota.hidden = true;
   }

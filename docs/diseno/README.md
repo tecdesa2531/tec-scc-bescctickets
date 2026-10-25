@@ -154,7 +154,7 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 - **Atención padre** en una fila propia, **antes** del proyecto. Al elegir un padre se ocultan proyecto, entornos y HU, y aparece "Hereda proyecto, entornos y HU de …".
 - **Proyecto, Entornos y HU** en un bloque gris en una sola fila:
   - Proyecto: 6 letras con autocompletado. Valor por defecto según el tipo: INFRAS para INT, DOCINF para DOC, vacío para Ticket y CON.
-  - Entornos: botones DEV / PRE / PRO. DEV + PRO sin PRE muestra un error y bloquea Crear.
+  - Entornos: botones DEV / PRE / PRO, **opcionales**. Sin entorno, la atención nace igualmente definitiva, en la carpeta `000_SinEntorno` de su proyecto; por eso el aviso de "temporal" solo lista Tracking ID y proyecto. DEV + PRO sin PRE muestra un error y bloquea Crear.
   - HU: Semanal | Independiente.
 - **Solo en tickets:** URL ServiceNow y Área de trabajo Edge en la misma fila. El área se sugiere como `TRACKINGID-PROYECTO`.
 - **Nota por tipo** debajo, usando el término **Tracking ID**, no "número interno".

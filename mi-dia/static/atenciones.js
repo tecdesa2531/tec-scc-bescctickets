@@ -346,14 +346,12 @@ function validarNueva() {
 
   var tidOk   = esTicket ? tid !== "" : true;
   var projOk  = conPadre || /^[A-Z]{6}$/.test(proyecto);
-  var necesitaEnv = (tipo === "ticket" || tipo === "int") && !conPadre;
-  var envOk   = !necesitaEnv || entornos.length > 0;
+  // Sin entorno tambien es definitiva: va a la carpeta 000_SinEntorno del proyecto
   var envInvalido = !conPadre && entornos.indexOf("DEV") !== -1 && entornos.indexOf("PRO") !== -1 && entornos.indexOf("PRE") === -1;
 
   var falta = [];
   if (!tidOk)  falta.push("Tracking ID");
   if (!projOk) falta.push("proyecto");
-  if (!envOk)  falta.push("entorno");
   var temporal  = falta.length > 0;
   var tituloOk  = titulo !== "";
   var puedeCrear = tituloOk && !envInvalido;
