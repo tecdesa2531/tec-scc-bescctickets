@@ -132,83 +132,6 @@
       <button class="principal" onclick="mostrarNueva()">+ Nueva atencion</button>
     </div>
 
-    <div id="form-nueva" class="formulario" hidden>
-
-      <!-- Tipo -->
-      <div class="campo" style="margin-bottom:14px">
-        <span>Tipo</span>
-        <select id="n-tipo" onchange="ajustarNueva()">
-          <option value="ticket">Ticket</option>
-          <option value="int">Iniciativa interna</option>
-          <option value="doc">Documentacion</option>
-          <option value="con">Consulta o Reunion</option>
-        </select>
-      </div>
-
-      <!-- Numero interno + Titulo -->
-      <div class="form-fila">
-        <div class="form-campo" style="flex:0 0 auto;min-width:180px">
-          <span id="n-label-numero">Numero interno</span>
-          <input type="text" id="n-numero-preview" class="num-id" disabled>
-          <input type="text" id="n-tracking-id" hidden oninput="sugerirWorkspace()">
-        </div>
-        <div class="form-campo" style="flex:3">
-          <span>Titulo</span>
-          <input type="text" id="n-titulo">
-        </div>
-      </div>
-
-      <!-- Proyecto + Entornos -->
-      <div class="form-fila">
-        <div id="n-campo-proyecto" class="form-campo">
-          <span>Proyecto</span>
-          <input type="text" id="n-proyecto" list="n-proyecto-lista" placeholder="Codigo del proyecto" maxlength="6" autocomplete="off" oninput="sugerirWorkspace()">
-          <datalist id="n-proyecto-lista"></datalist>
-        </div>
-        <div class="form-campo" id="n-campo-entornos">
-          <span>Entornos</span>
-          <div class="checkboxes">
-            <label><input type="checkbox" name="n-entorno" value="DEV">DEV</label>
-            <label><input type="checkbox" name="n-entorno" value="PRE">PRE</label>
-            <label><input type="checkbox" name="n-entorno" value="PRO">PRO</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- URL ServiceNow + Area Edge (solo ticket) -->
-      <div class="form-fila" id="n-campo-url">
-        <div class="form-campo">
-          <span>URL ServiceNow</span>
-          <input type="text" id="n-url">
-        </div>
-        <div class="form-campo">
-          <span>Area de trabajo Edge</span>
-          <input type="text" id="n-workspace">
-        </div>
-      </div>
-
-      <!-- HU + Padre -->
-      <div class="form-fila">
-        <div id="n-campo-hu" class="campo">
-          <span>HU</span>
-          <select id="n-hu">
-            <option value="semanal">Semanal</option>
-            <option value="independiente">Independiente</option>
-          </select>
-        </div>
-        <div class="campo">
-          <span>Atencion padre (opcional)</span>
-          <select id="n-padre" onchange="ajustarNueva()"></select>
-        </div>
-      </div>
-
-      <p class="suave" id="n-nota" style="margin:8px 0"></p>
-      <div class="fila">
-        <button class="principal" onclick="crearAtencion()">Crear</button>
-        <button onclick="ocultarNueva()">Cancelar</button>
-      </div>
-    </div>
-
     <div id="lista-atenciones" class="lista-at"></div>
   </div>
 
@@ -305,12 +228,13 @@
             <label><input type="checkbox" name="i-entorno" value="PRO"><span>PRO</span></label>
           </div>
         </div>
-        <div class="form-campo" id="e-campo-hu" style="flex:0 0 180px">
+        <div class="form-campo" id="e-campo-hu" style="flex:0 0 auto">
           <span>HU</span>
-          <select id="e-hu">
-            <option value="semanal">Semanal</option>
-            <option value="independiente">Independiente</option>
-          </select>
+          <div class="hu-seg" role="group" aria-label="HU">
+            <button type="button" class="hu-btn" data-hu="semanal" onclick="elegirHu('e','semanal')">Semanal</button>
+            <button type="button" class="hu-btn" data-hu="independiente" onclick="elegirHu('e','independiente')">Independiente</button>
+          </div>
+          <input type="hidden" id="e-hu" value="semanal">
         </div>
       </div>
       <div class="det-ed-grid" id="e-campo-url">
@@ -446,6 +370,96 @@
   </div>
 
 </main>
+
+<!-- Nueva atencion (dialogo centrado sobre la pagina) -->
+<div id="dlg-nueva" class="dlg" hidden role="dialog" aria-modal="true" aria-labelledby="dlg-nueva-titulo">
+  <div class="dlg-panel">
+    <div class="dlg-cab">
+      <h2 id="dlg-nueva-titulo">Nueva atencion</h2>
+      <button type="button" class="dlg-cerrar" aria-label="Cerrar" onclick="ocultarNueva()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="dlg-cuerpo">
+      <div id="n-aviso-idea" class="aviso-idea" hidden>Creada desde una idea pendiente. Al crearla, la idea queda como convertida.</div>
+
+      <!-- Tipo -->
+      <div class="form-campo">
+        <span>Tipo</span>
+        <div class="tipo-botones" role="group" aria-label="Tipo">
+          <button type="button" class="tipo-btn" data-tipo="ticket" onclick="elegirTipoNueva('ticket')"><span class="tipo-dot tipo-dot-ticket"></span>Ticket</button>
+          <button type="button" class="tipo-btn" data-tipo="int" onclick="elegirTipoNueva('int')"><span class="tipo-dot tipo-dot-int"></span>Iniciativa interna</button>
+          <button type="button" class="tipo-btn" data-tipo="doc" onclick="elegirTipoNueva('doc')"><span class="tipo-dot tipo-dot-doc"></span>Documentacion</button>
+          <button type="button" class="tipo-btn" data-tipo="con" onclick="elegirTipoNueva('con')"><span class="tipo-dot tipo-dot-con"></span>Consulta o Reunion</button>
+        </div>
+        <input type="hidden" id="n-tipo" value="ticket">
+      </div>
+
+      <!-- Tracking ID + Titulo -->
+      <div class="det-ed-grid">
+        <div class="form-campo" style="flex:0 0 220px">
+          <span id="n-label-id">Tracking ID</span>
+          <input type="text" id="n-tracking-id" class="mono-input" placeholder="Ej. PTSK0000123" oninput="sugerirWorkspace(); validarNueva()">
+          <input type="text" id="n-tracking-auto" class="mono-input" readonly hidden>
+        </div>
+        <div class="form-campo" style="flex:1 1 300px">
+          <span>Titulo</span>
+          <input type="text" id="n-titulo" placeholder="Que hay que hacer" oninput="validarNueva()">
+        </div>
+      </div>
+
+      <!-- Atencion padre -->
+      <div class="form-campo" id="n-campo-padre">
+        <span>Atencion padre (opcional)</span>
+        <select id="n-padre" onchange="ajustarNueva()"></select>
+      </div>
+      <div id="n-aviso-padre" class="aviso-hereda" hidden></div>
+
+      <!-- Proyecto + Entornos + HU (bloque gris) -->
+      <div class="det-ed-bloque" id="n-bloque">
+        <div class="form-campo" id="n-campo-proyecto" style="flex:0 0 160px">
+          <span>Proyecto</span>
+          <input type="text" id="n-proyecto" class="mono-input" list="n-proyecto-lista" placeholder="6 letras" maxlength="6" autocomplete="off" oninput="sugerirWorkspace(); validarNueva()">
+          <datalist id="n-proyecto-lista"></datalist>
+        </div>
+        <div class="form-campo" id="n-campo-entornos" style="flex:0 0 auto">
+          <span>Entornos</span>
+          <div class="env-botones">
+            <label><input type="checkbox" name="n-entorno" value="DEV" onchange="validarNueva()"><span>DEV</span></label>
+            <label><input type="checkbox" name="n-entorno" value="PRE" onchange="validarNueva()"><span>PRE</span></label>
+            <label><input type="checkbox" name="n-entorno" value="PRO" onchange="validarNueva()"><span>PRO</span></label>
+          </div>
+          <span id="n-env-error" class="campo-error" hidden>DEV y PRO sin PRE no es una combinacion valida.</span>
+        </div>
+        <div class="form-campo" id="n-campo-hu" style="flex:0 0 auto">
+          <span>HU</span>
+          <div class="hu-seg" role="group" aria-label="HU">
+            <button type="button" class="hu-btn" data-hu="semanal" onclick="elegirHu('n','semanal')">Semanal</button>
+            <button type="button" class="hu-btn" data-hu="independiente" onclick="elegirHu('n','independiente')">Independiente</button>
+          </div>
+          <input type="hidden" id="n-hu" value="semanal">
+        </div>
+      </div>
+
+      <!-- URL ServiceNow + Area Edge (solo ticket) -->
+      <div class="det-ed-grid" id="n-campo-url">
+        <div class="form-campo" style="flex:1 1 300px"><span>URL ServiceNow (opcional)</span><input type="text" id="n-url" placeholder="https://..."></div>
+        <div class="form-campo" style="flex:0 0 240px"><span>Area de trabajo Edge (opcional)</span><input type="text" id="n-workspace" class="mono-input" placeholder="NUMERO-PROYECTO"></div>
+      </div>
+
+      <p class="suave" id="n-nota" style="margin:0"></p>
+    </div>
+
+    <div class="dlg-pie">
+      <div id="n-destino" class="dlg-destino"></div>
+      <div class="dlg-pie-acc">
+        <button type="button" onclick="ocultarNueva()">Cancelar</button>
+        <button type="button" class="principal" id="n-crear" onclick="crearAtencion()">Crear</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Aviso "Foco en ... / Deshacer" (se oculta solo a los 5 s) -->
 <div id="aviso-foco" class="aviso-foco" hidden>

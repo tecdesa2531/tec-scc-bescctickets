@@ -476,7 +476,7 @@ function editarDetalle() {
   document.getElementById("e-titulo").value    = d.titulo || "";
   document.getElementById("e-url").value       = d.url_servicenow || "";
   document.getElementById("e-workspace").value = d.workspace_edge || "";
-  document.getElementById("e-hu").value        = d.hu_tipo || "semanal";
+  marcarHu("e", d.hu_tipo || "semanal");
   document.getElementById("i-tracking-id").value = d.tracking_id || "";
   llenarProyectos("i", d.tracking_code);
   marcarEntornos("i-entorno", d.entornos || []);

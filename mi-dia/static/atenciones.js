@@ -242,52 +242,136 @@ function sugerirWorkspace() {
   if (tid && proy) document.getElementById("n-workspace").value = tid + "-" + proy;
 }
 
-// -- Nueva atencion
+// -- HU como segmento (compartido alta y edicion)
+function marcarHu(prefijo, valor) {
+  var hu = valor || "semanal";
+  var oculto = document.getElementById(prefijo + "-hu");
+  if (oculto) oculto.value = hu;
+  document.querySelectorAll("#" + prefijo + "-campo-hu .hu-btn").forEach(function (b) {
+    b.classList.toggle("activo", b.getAttribute("data-hu") === hu);
+  });
+}
+
+function elegirHu(prefijo, valor) { marcarHu(prefijo, valor); }
+
+// -- Nueva atencion (dialogo)
+var _nuevaOrigen = null;
+
 function mostrarNueva(titulo, padreId) {
-  document.getElementById("form-nueva").hidden = false;
+  _nuevaOrigen = document.activeElement;
+  document.getElementById("dlg-nueva").hidden = false;
+  document.getElementById("n-aviso-idea").hidden   = !ideaEnConversion;
   document.getElementById("n-titulo").value        = titulo || "";
   document.getElementById("n-tracking-id").value   = "";
   document.getElementById("n-url").value           = "";
   document.getElementById("n-workspace").value     = "";
-  document.getElementById("n-numero-preview").value = "...";
   marcarEntornos("n-entorno", []);
+  marcarHu("n", "semanal");
   llenarPadres("n", "");
   document.getElementById("n-padre").value = padreId || "";
-  ajustarNueva();
-  document.getElementById("n-titulo").focus();
+  elegirTipoNueva("ticket");   // marca activo + ajusta (sin mover el foco)
+  enfocarNueva();
 }
 
 function ocultarNueva() {
-  document.getElementById("form-nueva").hidden = true;
+  document.getElementById("dlg-nueva").hidden = true;
   ideaEnConversion = null;
+  if (_nuevaOrigen && _nuevaOrigen.focus) _nuevaOrigen.focus();
+  _nuevaOrigen = null;
+}
+
+function enfocarNueva() {
+  var tipo = document.getElementById("n-tipo").value;
+  var id = tipo === "ticket" ? "n-tracking-id" : "n-titulo";
+  document.getElementById(id).focus();
+}
+
+function elegirTipoNueva(tipo) {
+  document.getElementById("n-tipo").value = tipo;
+  document.querySelectorAll("#dlg-nueva .tipo-btn").forEach(function (b) {
+    b.classList.toggle("activo", b.getAttribute("data-tipo") === tipo);
+  });
+  ajustarNueva();   // no mueve el foco
 }
 
 async function ajustarNueva() {
-  var tipo    = document.getElementById("n-tipo").value;
-  var defecto = { ticket: "", int: "INFRAS", doc: "DOCINF", con: "" }[tipo];
-  llenarProyectos("n", defecto);
+  var tipo     = document.getElementById("n-tipo").value;
   var esTicket = tipo === "ticket";
-  document.getElementById("n-label-numero").textContent = esTicket ? "Numero ServiceNow" : "Numero interno";
-  document.getElementById("n-numero-preview").hidden    = esTicket;
-  document.getElementById("n-tracking-id").hidden       = !esTicket;
+  var defecto  = { ticket: "", int: "INFRAS", doc: "DOCINF", con: "" }[tipo];
+  llenarProyectos("n", defecto);
+
+  document.getElementById("n-label-id").textContent = esTicket ? "Tracking ID (ServiceNow)" : "Tracking ID";
+  document.getElementById("n-tracking-id").hidden   = !esTicket;
+  document.getElementById("n-tracking-auto").hidden = esTicket;
+
   var tienePadre = document.getElementById("n-padre").value !== "";
-  document.getElementById("n-campo-hu").hidden       = tienePadre;
-  document.getElementById("n-campo-proyecto").hidden = tienePadre;
-  document.getElementById("n-campo-entornos").hidden = tienePadre;
-  document.getElementById("n-campo-url").hidden      = tipo !== "ticket";
+  document.getElementById("n-bloque").hidden    = tienePadre;
+  document.getElementById("n-campo-url").hidden = !esTicket;
+
+  var avisoPadre = document.getElementById("n-aviso-padre");
+  avisoPadre.hidden = !tienePadre;
+  if (tienePadre) {
+    var padre = atenciones.find(function (a) { return a.id === document.getElementById("n-padre").value; });
+    var etiqueta = padre ? (padre.tracking_id || padre.numero || "la atencion padre") : "la atencion padre";
+    avisoPadre.innerHTML = "Hereda proyecto, entornos y HU de <b>" + esc(etiqueta) + "</b>.";
+  }
+
   var notas = {
-    ticket: "El numero interno se asigna al crear. Si ya tienes el numero de ServiceNow puedes ingresarlo ahora; si no, lo completas despues.",
-    int:    "El numero de Iniciativa interna se asigna automaticamente.",
-    doc:    "El numero de Documentacion se asigna automaticamente. Si la documentacion es de un ticket, registrala en su bitacora.",
-    con:    "El numero de Consulta o Reunion se asigna automaticamente. El proyecto puedes asignarlo despues."
+    ticket: "Si ya tienes el numero de ServiceNow, ingresalo ahora; si no, lo completas despues.",
+    int:    "El Tracking ID de la Iniciativa interna se asigna automaticamente.",
+    doc:    "El Tracking ID de la Documentacion se asigna automaticamente. Si la documentacion es de un ticket, registrala en su bitacora.",
+    con:    "El Tracking ID de la Consulta o Reunion se asigna automaticamente. El proyecto puedes asignarlo despues."
   };
   document.getElementById("n-nota").textContent = notas[tipo];
-  try {
-    var sig = await leer("/api/atencion/siguiente_numero?tipo=" + encodeURIComponent(tipo));
-    document.getElementById("n-numero-preview").value = sig.numero;
-  } catch (e) {
-    document.getElementById("n-numero-preview").value = "...";
+
+  if (!esTicket) {
+    try {
+      var sig = await leer("/api/atencion/siguiente_numero?tipo=" + encodeURIComponent(tipo));
+      document.getElementById("n-tracking-auto").value = sig.tracking_id || "...";
+    } catch (e) {
+      document.getElementById("n-tracking-auto").value = "...";
+    }
   }
+  validarNueva();
+}
+
+function validarNueva() {
+  var tipo      = document.getElementById("n-tipo").value;
+  var esTicket  = tipo === "ticket";
+  var conPadre  = document.getElementById("n-padre").value !== "";
+  var titulo    = document.getElementById("n-titulo").value.trim();
+  var proyecto  = leerProyecto("n");
+  var tid       = (document.getElementById("n-tracking-id").value || "").trim();
+  var entornos  = leerEntornos("n-entorno");
+
+  var tidOk   = esTicket ? tid !== "" : true;
+  var projOk  = conPadre || /^[A-Z]{6}$/.test(proyecto);
+  var necesitaEnv = (tipo === "ticket" || tipo === "int") && !conPadre;
+  var envOk   = !necesitaEnv || entornos.length > 0;
+  var envInvalido = !conPadre && entornos.indexOf("DEV") !== -1 && entornos.indexOf("PRO") !== -1 && entornos.indexOf("PRE") === -1;
+
+  var falta = [];
+  if (!tidOk)  falta.push("Tracking ID");
+  if (!projOk) falta.push("proyecto");
+  if (!envOk)  falta.push("entorno");
+  var temporal  = falta.length > 0;
+  var tituloOk  = titulo !== "";
+  var puedeCrear = tituloOk && !envInvalido;
+
+  document.getElementById("n-env-error").hidden = !envInvalido;
+
+  var destino = document.getElementById("n-destino");
+  if (temporal) {
+    destino.className = "dlg-destino temporal";
+    destino.textContent = "Se creara como temporal: falta " + falta.join(", ") + ". Lo completas despues en el detalle.";
+  } else {
+    destino.className = "dlg-destino ok";
+    destino.textContent = "Se creara con sus carpetas definitivas.";
+  }
+
+  var btn = document.getElementById("n-crear");
+  btn.disabled = !puedeCrear;
+  btn.title = !tituloOk ? "Falta el titulo" : (envInvalido ? "Corrige los entornos" : "Crear la atencion");
 }
 
 async function crearAtencion() {
@@ -297,7 +381,7 @@ async function crearAtencion() {
     tipo:           tipo,
     titulo:         document.getElementById("n-titulo").value,
     tracking_code:  leerProyecto("n"),
-    tracking_id:    document.getElementById("n-tracking-id").value,
+    tracking_id:    tipo === "ticket" ? document.getElementById("n-tracking-id").value : "",
     entornos:       leerEntornos("n-entorno"),
     padre_id:       padreId,
     url_servicenow: document.getElementById("n-url").value,
@@ -392,9 +476,8 @@ async function confirmarIdeaBitacora(id) {
 
 function ideaAAtencion(id) {
   var idea = ideas.find(function (i) { return i.id === id; });
+  ideaEnConversion = id;          // antes de abrir, para que se vea el aviso de idea
   mostrarNueva(idea.texto);
-  ideaEnConversion = id;
-  document.getElementById("form-nueva").scrollIntoView();
 }
 
 async function descartarIdea(id) {

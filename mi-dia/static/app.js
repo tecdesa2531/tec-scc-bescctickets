@@ -89,9 +89,18 @@ document.addEventListener("keydown", function (e) {
   var t = e.target;
   if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.tagName === "SELECT" || t.isContentEditable)) return;
   if (document.getElementById("vista-inicio").hidden) return;
+  if (!document.getElementById("dlg-nueva").hidden) return;   // dialogo abierto: sin atajos
   var k = (e.key || "").toLowerCase();
   if (k === "i") { e.preventDefault(); focoIdea(); }
   else if (k === "n") { e.preventDefault(); iniciarInterrupcion(); }
+});
+
+// -- Esc cierra el dialogo de Nueva atencion (clic fuera no lo cierra)
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" && !document.getElementById("dlg-nueva").hidden) {
+    e.preventDefault();
+    ocultarNueva();
+  }
 });
 
 // -- Actualizacion periodica

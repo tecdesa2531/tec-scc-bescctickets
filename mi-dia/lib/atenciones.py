@@ -869,7 +869,11 @@ def resumen_atenciones():
 def proximo_numero(tipo):
     if tipo not in config.TIPOS_ATENCION:
         raise ErrorUsuario("Tipo no valido")
-    return {"numero": siguiente_numero_atencion(tipo)}
+    # El tracking_id es solo vista previa para tipos propios (10 digitos). Al crear,
+    # el servidor asigna el Tracking ID definitivo, que es el que se usa.
+    prefijo_propio = config.PREFIJOS_PROPIOS.get(tipo)
+    tracking_id = siguiente_codigo_propio(prefijo_propio) if prefijo_propio else ""
+    return {"numero": siguiente_numero_atencion(tipo), "tracking_id": tracking_id}
 
 
 def buscar_atencion_por_numero(numero):

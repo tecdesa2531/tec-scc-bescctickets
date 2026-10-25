@@ -1539,6 +1539,84 @@ a:hover { opacity: 0.8; }
 .env-botones input:checked + span { background: var(--texto); color: var(--card); border-color: var(--texto); }
 .env-botones input:disabled + span { opacity: 0.55; cursor: not-allowed; }
 
+.campo-error { display: block; margin-top: 8px; font-size: 12px; color: var(--error); }
+
+/* HU como segmento Semanal | Independiente (compartido alta y edicion) */
+.hu-seg { display: inline-flex; padding: 3px; background: var(--card2); border: 1px solid var(--borde); border-radius: 10px; gap: 2px; }
+.hu-btn {
+  height: 34px; padding: 0 14px;
+  border: none; border-radius: 8px;
+  background: transparent; color: var(--texto-medio);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+}
+.hu-btn:hover { background: transparent; border: none; }
+.hu-btn.activo { background: var(--card); color: var(--texto); font-weight: 600; box-shadow: 0 1px 2px rgba(28, 26, 39, 0.12); }
+
+/* Tipo como 4 botones con punto de color (Nueva atencion) */
+.tipo-botones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.tipo-btn {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 48px; padding: 6px 12px;
+  border: 1px solid var(--borde); border-radius: 10px;
+  background: var(--card); color: var(--texto);
+  font-size: 13px; font-weight: 500; line-height: 1.25; text-align: left; cursor: pointer;
+}
+.tipo-btn:hover { border-color: var(--activo); background: var(--card); }
+.tipo-btn.activo { border-width: 2px; padding: 5px 11px; font-weight: 600; }
+.tipo-btn.activo[data-tipo="ticket"] { border-color: var(--tkt-fg); background: var(--tkt-bg); }
+.tipo-btn.activo[data-tipo="int"]    { border-color: var(--int-fg); background: var(--int-bg); }
+.tipo-btn.activo[data-tipo="doc"]    { border-color: var(--doc-fg); background: var(--doc-bg); }
+.tipo-btn.activo[data-tipo="con"]    { border-color: var(--con-fg); background: var(--con-bg); }
+.tipo-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.tipo-dot-ticket { background: var(--tkt-fg); }
+.tipo-dot-int    { background: var(--int-fg); }
+.tipo-dot-doc    { background: var(--doc-fg); }
+.tipo-dot-con    { background: var(--con-fg); }
+
+/* Avisos del dialogo */
+.aviso-hereda { padding: 10px 12px; border-radius: 8px; background: var(--con-bg); border: 1px solid var(--con-fg); color: var(--con-fg); font-size: 13px; }
+.aviso-hereda b { font-family: var(--fuente-mono); }
+.aviso-idea { padding: 10px 12px; border-radius: 8px; background: var(--idea-bg); border: 1px solid var(--idea-bd); color: var(--idea-label); font-size: 13px; }
+
+/* Dialogo centrado (Nueva atencion) */
+.dlg {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background: rgba(10, 9, 14, 0.5);
+}
+.dlg-panel {
+  width: 100%;
+  max-width: 780px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
+  border: 1px solid var(--borde);
+  border-radius: 14px;
+  box-shadow: 0 18px 60px rgba(10, 9, 14, 0.35);
+  overflow: hidden;
+}
+.dlg-cab { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid var(--borde); }
+.dlg-cab h2 { margin: 0; font-size: 18px; font-weight: 600; }
+.dlg-cerrar {
+  width: 40px; height: 40px; border-radius: 10px; border: none;
+  background: transparent; color: var(--texto-medio); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.dlg-cerrar:hover { background: var(--card2); border: none; }
+.dlg-cuerpo { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 18px; }
+.dlg-pie { display: flex; align-items: center; gap: 16px; padding: 14px 22px; border-top: 1px solid var(--borde); flex-wrap: wrap; }
+.dlg-destino { flex: 1 1 260px; min-width: 0; padding: 10px 12px; border-radius: 8px; font-size: 13px; line-height: 1.45; }
+.dlg-destino.ok       { background: var(--jira-bg); border: 1px solid var(--jira-fg); color: var(--jira-fg); }
+.dlg-destino.temporal { background: var(--aviso-fondo); border: 1px solid var(--aviso-borde); color: var(--aviso-texto); }
+.dlg-pie-acc { display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
+#n-crear:disabled { background: var(--borde); color: var(--suave); cursor: not-allowed; }
+
 /* -- Detalle: pasos hacia Jira */
 .det-pasos {
   list-style: none;
