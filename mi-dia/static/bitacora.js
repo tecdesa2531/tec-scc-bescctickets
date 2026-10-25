@@ -507,14 +507,26 @@ function editarDetalle() {
   // URL y Area Edge solo en tickets
   document.getElementById("e-campo-url").hidden = d.tipo !== "ticket";
 
-  // Padre solo cuando es temporal
-  var mostrarPadre = detalle.temporal;
-  document.getElementById("e-campo-padre").hidden = !mostrarPadre;
-  if (mostrarPadre) {
-    llenarPadres("e", [detalle.id].concat(descendientesDe(detalle.id)));
-    document.getElementById("e-padre").value = d.padre_id || "";
+  // Padre: editable si es temporal o si aun no esta procesada. En una atencion
+  // ya ubicada, asignarlo o cambiarlo mueve su carpeta dentro de la del padre.
+  var padreEditable = detalle.temporal || !detalle.procesada;
+  document.getElementById("e-campo-padre").hidden = false;
+  llenarPadres("e", [detalle.id].concat(descendientesDe(detalle.id)));
+  var selPadre = document.getElementById("e-padre");
+  selPadre.value    = d.padre_id || "";
+  selPadre.disabled = !padreEditable;
+  // Una atencion ubicada con padre no puede volver a "Sin padre"
+  selPadre.querySelector('option[value=""]').disabled = !!d.padre_id && !detalle.temporal;
+  var notaPadre = document.getElementById("e-padre-nota");
+  if (!padreEditable) {
+    notaPadre.textContent = "Esta atencion ya fue procesada; el padre quedo fijo.";
+    notaPadre.hidden = false;
+  } else if (!detalle.temporal) {
+    notaPadre.textContent = "Al asignar o cambiar el padre, la atencion se mueve dentro de la carpeta del padre y hereda su proyecto, entornos y HU.";
+    notaPadre.hidden = false;
+  } else {
+    notaPadre.hidden = true;
   }
-  document.getElementById("e-padre-nota").hidden = true;
 
   // HU, proyecto y entornos se ocultan si hereda de un padre
   document.getElementById("e-campo-hu").hidden       = !!d.padre_id;
@@ -589,7 +601,8 @@ function pintarInterrupcion() {
   // Padre + proyecto (heredado si hay padre)
   llenarPadres("npl", [detalle.id].concat(descendientesDe(detalle.id)));
   document.getElementById("npl-padre").value    = d.padre_id || "";
-  document.getElementById("npl-padre").disabled = (!detalle.temporal && procesada) || cerrada || cancelada;
+  document.getElementById("npl-padre").disabled = (!detalle.temporal && procesada) || cancelada;
+  document.querySelector('#npl-padre option[value=""]').disabled = conPadre && !detalle.temporal;
   llenarProyectos("npl", d.tracking_code);
   document.getElementById("npl-campo-proyecto").hidden    = conPadre;
   document.getElementById("npl-proyecto-heredado").hidden = !conPadre;
@@ -615,7 +628,7 @@ function pintarInterrupcion() {
         '<span class="npl-cerrada-k">Resumen</span><span class="texto">' +
           (npl.resumen ? mdToHtml(npl.resumen) : "") + "</span>" +
       "</div>";
-    editarZona.hidden = procesada;   // editable hasta que el agente la procese
+    editarZona.hidden = procesada;   // editable hasta que se procese
   } else {
     resumenCerrada.hidden = true;
     editarZona.hidden = true;
@@ -817,7 +830,7 @@ function pintarJira() {
   }
   cont.innerHTML = filas.length
     ? filas.join("")
-    : '<span class="suave">El agente aun no ha creado el issue en Jira.</span>';
+    : '<span class="suave">Aun no se ha creado el issue en Jira.</span>';
 }
 
 var SVG_LOCK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
@@ -988,11 +1001,15 @@ async function guardarDatos() {
       });
     } else {
       // Carpetas definitivas: Tracking ID, proyecto y entornos estan fijos.
-      // Solo se guardan titulo, URL, Area Edge y, si aplica, la HU.
+      // Se guardan titulo, URL, Area Edge, la HU si aplica y, si cambio, el padre.
+      var nuevoPadre  = document.getElementById("e-padre").value;
+      var cambiaPadre = !detalle.procesada && nuevoPadre && nuevoPadre !== (detalle.datos.padre_id || "");
       if (!document.getElementById("e-campo-hu").hidden) {
         datosGen.hu_tipo = document.getElementById("e-hu").value;
       }
       await enviar("/api/atencion/datos", datosGen);
+      // Asignar o cambiar el padre mueve la carpeta dentro de la del padre
+      if (cambiaPadre) await enviar("/api/atencion/padre", { id: detalle.id, padre_id: nuevoPadre });
     }
     proyectos = await leer("/api/proyectos");
     await cargarAtenciones();

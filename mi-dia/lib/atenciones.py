@@ -506,7 +506,7 @@ def cambiar_padre(parametros):
         if not nuevo_padre_id:
             raise ErrorUsuario("Debes elegir una atencion padre")
         if atencion_procesada(registro):
-            raise ErrorUsuario("El agente ya proceso esta atencion; el padre ya no se puede cambiar")
+            raise ErrorUsuario("Esta atencion ya fue procesada; el padre ya no se puede cambiar")
         if nuevo_padre_id == registro["id"]:
             raise ErrorUsuario("Una atencion no puede ser su propio padre")
         if _es_descendiente(nuevo_padre_id, registro["id"]):
@@ -695,7 +695,7 @@ def cambiar_proyecto_interrupcion(parametros):
         if datos.get("padre_id"):
             raise ErrorUsuario("Con atencion padre, el proyecto lo pone el padre")
         if atencion_procesada(registro):
-            raise ErrorUsuario("El agente ya proceso esta interrupcion; el proyecto ya no se puede cambiar")
+            raise ErrorUsuario("Esta interrupcion ya fue procesada; el proyecto ya no se puede cambiar")
         codigo = str(parametros.get("tracking_code", "")).strip().upper()
         if not re.match(r"^[A-Z]{6}$", codigo):
             raise ErrorUsuario("El codigo de proyecto debe tener 6 letras")
@@ -712,7 +712,7 @@ def guardar_notas_interrupcion(parametros):
     with config.BLOQUEO:
         registro = buscar_atencion(parametros.get("id", ""))
         if atencion_procesada(registro):
-            raise ErrorUsuario("El agente ya proceso esta interrupcion; ya no se puede editar")
+            raise ErrorUsuario("Esta interrupcion ya fue procesada; ya no se puede editar")
         datos_bitacora = bitacora.leer_bitacora(registro)
         entrada = _entrada_interrupcion(datos_bitacora)
         entrada["texto"] = str(parametros.get("texto", "")).strip()
@@ -723,7 +723,7 @@ def agregar_adjunto_interrupcion(parametros):
     with config.BLOQUEO:
         registro = buscar_atencion(parametros.get("id", ""))
         if atencion_procesada(registro):
-            raise ErrorUsuario("El agente ya proceso esta interrupcion; ya no se puede editar")
+            raise ErrorUsuario("Esta interrupcion ya fue procesada; ya no se puede editar")
         carpeta_trabajo, carpeta_proceso = carpetas_de(registro)
         datos_bitacora = bitacora.leer_bitacora(registro)
         entrada = _entrada_interrupcion(datos_bitacora)
@@ -744,7 +744,7 @@ def cerrar_interrupcion(parametros):
         if registro["datos"].get("tipo") != "npl":
             raise ErrorUsuario("Esta atencion no es una interrupcion")
         if atencion_procesada(registro):
-            raise ErrorUsuario("El agente ya proceso esta interrupcion; el cierre ya no se puede editar")
+            raise ErrorUsuario("Esta interrupcion ya fue procesada; el cierre ya no se puede editar")
         carpeta_trabajo, carpeta_proceso = carpetas_de(registro)
         datos_bitacora = bitacora.leer_bitacora(registro)
         entrada = _entrada_interrupcion(datos_bitacora)
@@ -778,7 +778,7 @@ def cancelar_interrupcion(parametros):
         if registro["datos"].get("tipo") != "npl":
             raise ErrorUsuario("Esta atencion no es una interrupcion")
         if atencion_procesada(registro):
-            raise ErrorUsuario("El agente ya proceso esta interrupcion; ya no se puede cancelar")
+            raise ErrorUsuario("Esta interrupcion ya fue procesada; ya no se puede cancelar")
         carpeta_trabajo, carpeta_proceso = carpetas_de(registro)
         _rmtree_robusto(carpeta_trabajo)
         _rmtree_robusto(carpeta_proceso)

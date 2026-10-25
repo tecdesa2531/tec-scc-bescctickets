@@ -54,11 +54,11 @@ También hay **documentación** (de un ticket o propia) y **llamadas o reuniones
 
 Una atención puede tener un padre. Reglas:
 
-- El padre se asigna al crear o al editar una atención **temporal** (sin ubicación definitiva); una vez ubicada, el padre no se puede cambiar. El frontend omite el campo `padre_id` del payload si la atención ya está ubicada, para no disparar el error del backend.
+- El padre se asigna al crear la atención o al editarla, **mientras no haya sido procesada** (`atencion_procesada`). Si la atención es temporal, solo se fija el vínculo y hereda el proyecto. Si ya está ubicada, `cambiar_padre` (`/api/atencion/padre`) mueve su carpeta dentro de la del padre y hereda su proyecto y carpeta de entorno. No se permite quitar el padre de una atención ubicada, colgarla de una de sus hijas ni de un padre sin carpeta definitiva. Una vez procesada, el padre queda fijo.
 - En la lista, los hijos aparecen indentados bajo su padre con el ID alineado a la derecha. El padre muestra un badge con el número de hijos **antes del ID**; si algún hijo está en foco, el badge cambia a verde.
 - Clic en el badge o en la celda ID del padre: expande o contrae los hijos.
 - Clic en la celda Proyecto (padre o hijo): copia `tracking_id-tracking_code` al portapapeles. Para hijos sin proyecto propio se usa el proyecto del padre.
-- El campo **Atencion padre** en el formulario de edición se deshabilita si ya tiene padre asignado.
+- El campo **Atención padre** del formulario de edición se deshabilita cuando la atención ya fue procesada. Si está ubicada y ya tiene padre, la opción "Sin padre" se deshabilita.
 - En la lista, las líneas divisorias solo aparecen entre grupos (después del último hijo de cada padre o después de un padre sin hijos). No hay línea entre el padre y sus hijos, ni entre los hijos del mismo padre.
 
 ### Atención

@@ -99,7 +99,8 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 ### Cabecera (modo edición, al pulsar ✎)
 - Mismos campos y **mismos componentes** que Nueva atención: entornos como botones DEV / PRE / PRO, HU como segmento Semanal | Independiente, proyecto con autocompletado y atención padre.
 - Si la atención ya tiene carpetas definitivas, el Tracking ID, el proyecto y los entornos aparecen bloqueados en gris, con un candado y un aviso. Solo se editan el título, la HU y la URL de ServiceNow.
-- Si es temporal, todo es editable y aparece también la atención padre.
+- Si es temporal, todo es editable.
+- **Atención padre:** el campo aparece siempre. Se puede asignar o cambiar si la atención es temporal **o aún no ha sido procesada**. En una atención ya ubicada, asignar o cambiar el padre **mueve su carpeta** dentro de la del padre y hereda su proyecto, entornos y HU (la nota bajo el campo lo explica). Una atención ubicada que ya tiene padre no puede volver a "Sin padre" (la opción aparece deshabilitada). El nuevo padre debe tener carpeta definitiva y no puede ser una hija suya. Una vez procesada, el campo queda bloqueado con la nota "Esta atención ya fue procesada; el padre quedó fijo".
 
 ### Reunión sin proyecto (CON)
 - Bajo los accesos aparece un aviso ámbar compacto: "Falta el proyecto del equipo que te llamó [______] Guardar".
@@ -177,7 +178,7 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
   - "Cancelar interrupción" va como texto rojo a la izquierda.
 - **Bloque de cierre:** tipo de contacto (Llamada Teams | Chat Teams), quién contactó, ticket relacionado (se oculta si hay padre) y resumen (Markdown).
 - **Pendiente de cerrar:** aviso ámbar con lo que falta y los campos vacíos marcados en rojo.
-- **Atendida y aún no procesada:** el cierre se muestra en solo lectura (tipo de contacto, quién, ticket y resumen) y debajo un enlace discreto **"Editar cierre"** que reabre el bloque con los datos. Al procesarse, el enlace desaparece.
+- **Atendida y aún no procesada:** el cierre se muestra en solo lectura (tipo de contacto, quién, ticket y resumen) y debajo un enlace discreto **"Editar cierre"** que reabre el bloque con los datos. La atención padre también sigue editable hasta que se procese. Al procesarse, el enlace desaparece y todo queda en solo lectura.
 - **Cancelar:** confirmación dentro de la misma tarjeta ("Se descartará la interrupción y se borrarán sus carpetas y adjuntos. No va a Jira." · No, volver / Sí, cancelar), no con `confirm()`. Al cancelar se vuelve a la vista principal y queda sin foco.
 - **Procesada:** todo en solo lectura con el aviso "Esta interrupción ya fue procesada. Solo lectura".
 
@@ -231,7 +232,7 @@ Tipografía: **fuentes del sistema** (no se usan Google Fonts por la laptop corp
 ## Reglas generales
 
 - **Tracking ID** es el nombre único del identificador de cualquier atención. Correlativos propios: 10 dígitos (`JINT0000000001`). Ticket: el número de ServiceNow.
-- Los textos de la interfaz **no mencionan Copilot**.
+- Los textos de la interfaz **no mencionan Copilot, el agente ni IA**, tampoco los mensajes de error que llegan del servidor ("Esta atención ya fue procesada…").
 - Se reemplazan **todos** los `prompt()`, `confirm()` y `alert()` por campos y avisos dentro de la propia pantalla.
 - **Errores:** aparecen en un aviso abajo al centro, con el estilo del aviso de foco pero con los colores de error y un botón para cerrarlo. No desaparece solo; si llega otro error mientras está visible, se reemplaza el texto.
 - **Botones deshabilitados:** siempre en gris y sin efecto al pasar el cursor, para que no parezcan activos.

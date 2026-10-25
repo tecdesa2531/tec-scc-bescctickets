@@ -33,7 +33,7 @@ Ultima actualizacion: 2026-10-22
 - [ ] La atencion hija aparece anidada bajo el padre en la lista.
 - [ ] La carpeta de la hija se crea dentro de la carpeta del padre.
 - [ ] La hija hereda el proyecto del padre automaticamente.
-- [ ] No se puede cambiar el padre de una atencion ya ubicada.
+- [ ] El padre se puede asignar o cambiar mientras la atencion no haya sido procesada; si ya esta ubicada, su carpeta se mueve dentro de la del padre. No se puede quitar el padre de una atencion ubicada.
 
 **RF relacionados:** RF-008, RF-009, RF-017
 **Estado:** implementada
