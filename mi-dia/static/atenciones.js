@@ -64,7 +64,7 @@ function htmlFila(a, nivel, mapa, idFoco) {
   var colapsado  = tieneHijos && leerColapsado(a.id);
   var hijoEnFoco = tieneHijos && tieneDescendienteFoco(a.id, idFoco);
 
-  var idTexto = a.tracking_id || (a.temporal ? "Sin Tracking ID" : (a.numero || "Sin ID"));
+  var idTexto = a.tracking_id || "Sin Tracking ID";
   var codigo  = a.tracking_code ||
     (nivel > 0 && a.padre_id && mapa[a.padre_id] ? mapa[a.padre_id].tracking_code : "");
   var proj = codigo || (a.temporal ? "Sin proyecto" : "");
@@ -201,7 +201,7 @@ function llenarPadres(prefijo, excluir) {
     atenciones
       .filter(function (a) { return fuera.indexOf(a.id) === -1; })
       .map(function (a) {
-        var label = (a.tracking_id || a.numero || "Sin ID") +
+        var label = (a.tracking_id || "Sin Tracking ID") +
           (a.tracking_code ? " - " + a.tracking_code : "") +
           " - " + a.titulo + " [" + (NOMBRES_ESTADO[a.estado] || a.estado) + "]";
         return '<option value="' + esc(a.id) + '">' + esc(label) + "</option>";
@@ -219,8 +219,6 @@ function llenarProyectos(prefijo, valor) {
   var input = document.getElementById(prefijo + "-proyecto");
   if (input) input.value = valor || "";
 }
-
-function mostrarNuevoCodigo() {}
 
 function leerProyecto(prefijo) {
   return (document.getElementById(prefijo + "-proyecto").value || "").trim().toUpperCase();
@@ -314,7 +312,7 @@ async function ajustarNueva() {
   avisoPadre.hidden = !tienePadre;
   if (tienePadre) {
     var padre = atenciones.find(function (a) { return a.id === document.getElementById("n-padre").value; });
-    var etiqueta = padre ? (padre.tracking_id || padre.numero || "la atencion padre") : "la atencion padre";
+    var etiqueta = padre ? (padre.tracking_id || "Sin Tracking ID") : "la atencion padre";
     avisoPadre.innerHTML = "Hereda proyecto, entornos y HU de <b>" + esc(etiqueta) + "</b>.";
   }
 

@@ -24,7 +24,7 @@ function pintarDropdown(resultados) {
   dd.innerHTML = resultados.map(function (r) {
     var destino = "/" + r.tipo + "/" + encodeURIComponent(r.numero);
     return "<a class=\"dd-item\" href=\"" + destino + "\" data-titulo=\"" + esc(r.titulo) + "\" onclick=\"cerrarDropdown()\">" +
-      "<span class=\"dd-id\">"   + esc(r.tracking_id || r.numero)      + "</span>" +
+      "<span class=\"dd-id\">"   + esc(r.tracking_id || "Sin Tracking ID")      + "</span>" +
       "<span class=\"dd-titulo\">" + esc(r.titulo) + "</span>" +
       "<span class=\"dd-tc\">"   + esc(r.tracking_code)                + "</span>" +
       "</a>";

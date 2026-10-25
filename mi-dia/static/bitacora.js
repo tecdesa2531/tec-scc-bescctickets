@@ -1022,8 +1022,6 @@ async function abrirCarpeta(raiz) {
   catch (error) { mostrarError(error); }
 }
 
-function ponerFocoActual() { focoAtencion(detalle.id); }
-
 // -- Redactor de entradas (barra fija)
 var redactorTipo = "avance";
 

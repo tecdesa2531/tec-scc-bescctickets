@@ -67,7 +67,7 @@ function pintarPildora() {
     return;
   }
   var reg = id ? atencionPorId(id) : null;
-  var corto  = reg ? (reg.tracking_id || reg.numero || "") : "";
+  var corto  = reg ? (reg.tracking_id || "Sin Tracking ID") : "";
   var codigo = reg ? (reg.tracking_code || "") : "";
   pildoraDestino = id || null;
   pil.classList.add(enPausa ? "pildora-pausa" : "pildora-foco");
@@ -115,7 +115,7 @@ function pintarFoco() {
     var id  = enFoco ? foco.actual.atencion_id : idPausa;
     var reg = id ? atencionPorId(id) : null;
     document.getElementById("foco-kicker").textContent = enPausa ? "EN PAUSA / ULTIMA ATENCION" : "EN FOCO";
-    document.getElementById("foco-id").textContent = reg ? (reg.tracking_id || reg.numero || "") : "";
+    document.getElementById("foco-id").textContent = reg ? (reg.tracking_id || "Sin Tracking ID") : "";
     document.getElementById("foco-titulo-link").textContent = reg ? reg.titulo : (foco.actual.etiqueta || "");
     document.getElementById("foco-timer").textContent = duracion(segundosDesde(foco.actual.inicio));
     act.classList.toggle("foco-activo-pausa", !!enPausa);
@@ -154,7 +154,7 @@ function pintarFranja() {
   }
   franja.hidden = false;
   franjaNplId = npl.id;
-  document.getElementById("franja-detalle").textContent = npl.tracking_id || npl.numero || "";
+  document.getElementById("franja-detalle").textContent = npl.tracking_id || "Sin Tracking ID";
   actualizarFranjaTimer();
   iniciarTickFranja();
 }
@@ -231,7 +231,7 @@ async function focoAlAbrir(id) {
   if (!abierta) return;
   if (foco && foco.actual && foco.actual.atencion_id === id) return;
   var r = await cambiarFoco({ tipo: "atencion", atencion_id: id, origen: "abrir" });
-  if (r) mostrarAvisoFoco(a.tracking_id || a.numero || "la atencion");
+  if (r) mostrarAvisoFoco(a.tracking_id || "Sin Tracking ID");
 }
 
 // -- Aviso "Foco en ... / Deshacer"

@@ -16,7 +16,6 @@ var vistaBitacora = (function () {
   try { return localStorage.getItem("focus-flow-vista-bitacora") || "corregido"; } catch (e) { return "corregido"; }
 })();
 
-var NOMBRES_TIPO    = { ticket: "Ticket", int: "Iniciativa interna", doc: "Documentacion", con: "Consulta o Reunion", npl: "Interrupcion" };
 var NOMBRES_ESTADO  = { en_curso: "En curso", en_espera: "En espera", atendido: "Atendido", reabierto: "Reabierto", descartado: "Descartado" };
 var NOMBRES_ENTRADA = { solicitud: "Solicitud", asignacion: "Asignacion", avance: "Avance", cierre: "Cierre", interrupcion: "Interrupcion" };
 
@@ -110,7 +109,7 @@ function leerComoDataUrl(archivo) {
 }
 
 function nombreAtencion(a) {
-  return (a.tracking_id || a.numero || "Sin ID") + " - " + a.titulo;
+  return (a.tracking_id || "Sin Tracking ID") + " - " + a.titulo;
 }
 
 function abrirDetalleNueva(tipo, numero) {

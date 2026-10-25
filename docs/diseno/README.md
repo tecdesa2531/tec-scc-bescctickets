@@ -208,7 +208,7 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 | Consulta | `#6127C9` / `#ECE4FD` | `#B79BFF` / `#2A2045` |
 | Interrupción | `#A3154C` / `#FCE7F0` | `#FF8DB8` / `#3D1828` |
 | Revisar y dar conforme | `#A3154C` / `#FDF0F5` | `#FF8DB8` / `#33192A` |
-| En Jira | `#1A7F46` / `#E3F5EA` | `#5FD08F` / `#183324` |
+| En Jira | `#197C45` / `#E3F5EA` | `#5FD08F` / `#183324` |
 | Texto medio | `#3B3850` | `#CFCBDB` |
 | En foco (sólido) | `#1F9D55` | `#5FD08F` |
 | Texto sobre foco sólido | `#FFFFFF` | `#0B1F14` |
@@ -243,6 +243,7 @@ Tipografía: **fuentes del sistema** (no se usan Google Fonts por la laptop corp
 ## Confirmado en el código
 
 - **Correlativos:** el `tracking_id` de los tipos propios es de **10 dígitos** (`JINT0000000001`, `JNPL0000000017`), como pide este diseño. Existe además un campo interno `numero` de 9 dígitos que no se muestra en la interfaz (el formulario de Nueva atención previsualiza el Tracking ID, no el `numero`).
+- **Sin Tracking ID:** cuando una atención aún no lo tiene, la interfaz muestra "Sin Tracking ID" en todos los sitios (lista, píldora, franja, aviso de foco, selector de padre y buscador), nunca el `numero`.
 
 ## Pendientes
 
