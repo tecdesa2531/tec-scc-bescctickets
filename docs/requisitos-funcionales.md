@@ -35,6 +35,7 @@ Se ejecuta como servidor local Python en la laptop corporativa con Windows.
 | RF-051 | Calcular el tiempo total de una interrupcion desde que se abrio hasta que se cerro. | implementado |
 | RF-052 | Dejar una interrupcion sin datos obligatorios completos en estado "Pendiente de cerrar" y mostrarla como alerta hasta completarse. | implementado |
 | RF-056 | Permitir editar las notas, los adjuntos, la atencion padre y los datos de cierre de una interrupcion ya cerrada, mientras el agente no la haya procesado; mostrar el resumen en Markdown con enlaces largos acortados, igual que el resto de la bitacora. | implementado |
+| RF-058 | Ofrecer un check de "fase independiente" en una atencion hija de tipo int, doc o con cuya raiz tiene HU independiente, editable mientras no tenga issue en Jira, y ponerla en la cola de inicio como fase propia cuando esta marcado. | implementado |
 
 ## Bitacora
 
@@ -98,4 +99,4 @@ Se ejecuta como servidor local Python en la laptop corporativa con Windows.
 | RF-053 | Subir una interrupcion sin atencion padre como comentario en la subtarea fija de interrupciones de la HU semanal vigente. | futuro |
 | RF-054 | Subir una interrupcion cuya atencion padre tiene HU independiente como comentario en la fase fija "Consultas y seguimiento", que debe existir en toda HU independiente. | futuro |
 | RF-055 | Subir una interrupcion cuya atencion padre es una subtarea de una HU semanal como comentario directo en esa subtarea existente, sin crear nada nuevo. | futuro |
-| RF-057 | Crear como subtarea propia bajo la HU de la raiz, sin pasar por la propuesta de fases, una atencion hija de tipo int, doc o con marcada como fase independiente cuya raiz tiene HU independiente; la herramienta debe ofrecer el check y ponerla en la cola de inicio. | pendiente |
+| RF-057 | Crear en Jira, como subtarea propia bajo la HU de la raiz y sin pasar por la propuesta de fases, el issue de una atencion hija int/doc/con marcada como fase independiente; subir sus comentarios a esa subtarea y cerrarla en su propio /procede, sin que la raiz la incluya entre sus fases. | futuro |

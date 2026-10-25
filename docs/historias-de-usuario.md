@@ -298,10 +298,10 @@ Ultima actualizacion: 2026-10-25
 **para** que tenga su propia subtarea en Jira sin esperar al analisis de fases de la atencion padre.
 
 **Criterios de aceptacion:**
-- [ ] El check solo aparece en atenciones hijas que no son ticket ni interrupcion.
+- [x] El check solo aparece en una hija int, doc o con cuya raiz tiene HU independiente, y queda bloqueado cuando ya hay issue en Jira.
 - [ ] Al iniciarla, se crea su subtarea bajo la HU del padre con su titulo.
 - [ ] Sus comentarios suben a su propia subtarea, que se cierra al terminar la atencion.
 - [ ] El analisis de fases del padre no la incluye.
 
-**RF relacionados:** RF-057
-**Estado:** pendiente
+**RF relacionados:** RF-058 (herramienta, implementado), RF-057 (agente, futuro)
+**Estado:** herramienta lista; la subida a Jira queda a cargo del agente (futuro)
