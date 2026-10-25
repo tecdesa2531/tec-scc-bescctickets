@@ -11,7 +11,7 @@ Esta etapa corre cuando Jhans marca la atencion como *atendida* (`accion: pendie
 
 ## 0. Atencion tipo `npl` (interrupcion)
 
-Una interrupcion no sigue los pasos 2, 4 y 5: no tiene correos que leer ni issue propio que describir. Corrige unicamente el campo `resumen` del objeto `npl` en `ticket-datos.json` (redaccion clara, ortografia) y guarda la version corregida en `bitacora-correccion.json`, enganchada por el `bitacora_id` de su unica entrada (tipo `interrupcion`), igual que cualquier otra entrada. Las "notas" (`texto` de esa entrada) no se corrigen: son apuntes propios de Jhans, nunca suben a Jira. No escribas `descripcion` ni `titulo_jira`: una NPL nunca tiene issue propio (ver "Interrupciones" en `copilot-instructions.md`). Avisa en una linea que dejaste el resumen corregido para revisar.
+Una interrupcion **no pasa por `/limpia`**: la herramienta nunca la pone en `pendiente_limpieza`. Su resumen se corrige en `/procede` (ver skill `jira-comentarios`). Si te la piden por ID, avisa que no hay nada que limpiar.
 
 ## 1. Ubicar la atencion
 
@@ -34,6 +34,8 @@ Escribe el texto corregido en `<raiz_proceso>/<relativa>/040_ProcesoJira/bitacor
 { "correcciones": { "e20261018163626...": { "texto": "Al ejecutar `flux get ks` aparece un error en el EKS.", "corregido": "2026-10-21 15:40" } } }
 ```
 
+El texto corregido **sigue en Markdown**, como el original (la herramienta lo muestra con el selector Original / Corregido): no lo pases a formato wiki aqui; eso se hace al subir (`jira-comentarios`).
+
 `corregido` es la fecha y hora local en que escribes la correccion, formato `AAAA-MM-DD HH:MM`. Tomala de la terminal (`python -c "import datetime; print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M'))"`); no la inventes.
 
 **Limpieza incremental.** `/limpia` puede correr varias veces sobre la misma atencion (por ejemplo, si Jhans no dio el conforme, o si reabrio y agrego entradas). Antes de corregir:
@@ -51,7 +53,7 @@ En `ticket-datos.json`, completa `correos[].resumen` con un resumen breve de lo 
 
 ## 5. Descripcion y titulo_jira (de la herramienta)
 
-Esta `descripcion` es la **de la herramienta, NO la del issue de Jira** (esa se arma aparte al subir). Es un texto en **markdown** (la herramienta renderiza `## titulo`, `- lista`, `**negrita**`, `` `codigo` `` y enlaces `[texto](url)`). Va **primero DATOS y luego un resumen breve**:
+Esta `descripcion` es la **de la herramienta, NO la del issue de Jira** (esa se arma aparte al subir). Es un texto en **markdown** (la herramienta renderiza `## titulo`, `- lista`, `**negrita**`, `` `codigo` `` y enlaces `[texto](https://...)`). Va **primero DATOS y luego un resumen breve**:
 
 ```markdown
 ## Datos
@@ -64,7 +66,7 @@ Esta `descripcion` es la **de la herramienta, NO la del issue de Jira** (esa se 
 En pocas lineas, que se hizo segun el historial de la bitacora.
 ```
 
-- **Datos** primero: Tracking ID (enlace `[ID](url)` solo si la atencion tiene `url_servicenow`; si no, el ID a secas), Proyecto (`tracking_code`), Entorno(s) y Solicitante (del correo de solicitud o del campo `solicitante` de `ticket-datos.json`; si no hay, omite esa linea y no preguntes).
+- **Datos** primero: Tracking ID (enlace `[ID](https://...)` solo si la atencion tiene `url_servicenow`; si no, el ID a secas), Proyecto (`tracking_code`), Entorno(s) (omite la linea si `entornos` es `["SIN_ENTORNO"]`) y Solicitante (del correo de solicitud o del campo `solicitante` de `ticket-datos.json`, solo el nombre, sin el correo; si no hay, omite esa linea y no preguntes).
 - **Resumen** despues: explica brevemente lo que se hizo, segun el recorrido de la bitacora (no copies el COMO/QUIERO/PARA de Jira).
 - **titulo_jira**: corto y claro, que exprese lo que realmente es la atencion. La fuente depende del estado de la atencion:
   - Si ya hay padre en Jira (`jira.padre_key` o alguna subtarea con `key`): el titulo propuesto debe ser coherente con el `titulo` de `ticket-datos.json` que uso `/inicia` para crearlo. No lo cambies radicalmente; es una refinacion.

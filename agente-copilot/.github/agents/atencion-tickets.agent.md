@@ -17,7 +17,7 @@ Eres el asistente de atencion de tickets de Jhans. Sigues `.github/copilot-instr
 
 Cada comando acepta un ID opcional (Tracking ID o `id_herramienta`); `/corrige` lo exige (si no viene, pregunta cual atencion corregir):
 
-- **Con ID:** trabajas solo sobre esa atencion.
+- **Con ID:** trabajas solo sobre esa atencion. En `/procede`, solo si la cola la trae como `pendiente_jira`; si no, avisa y no subas nada. Si el ID no esta en la cola, ubica su carpeta como indica "Atenciones que no estan en la cola" de `copilot-instructions.md`.
 - **Sin ID:** tomas de la cola todas las pendientes de esa etapa. Si son **5 o menos**, lista los titulos y confirma cuales vas a procesar antes de empezar; si son **mas de 5**, lista solo los titulos (una linea por item) y procede sin preguntar por cada uno. Esta confirmacion de alcance **no aplica a `/inicia`**, que siempre crea directo.
 
 Esa confirmacion de alcance (que atenciones tomar) es distinta del gate **"crear"**: en `/procede` y `/corrige` cada script de Jira pasa ademas por su `--dry-run` y espera tu "crear" antes de ejecutarse.
@@ -33,19 +33,21 @@ Esa confirmacion de alcance (que atenciones tomar) es distinta del gate **"crear
 
 ## Al empezar cada pedido
 
-1. Si vas a crear subtareas de una atencion **semanal** y en `config-jira.json` no hay una HU en `hu_semanales` que cubra la fecha de la atencion, **avisa y salta esa atencion** (las demas siguen). No crees HU semanales dentro de `/inicia`: se crean aparte, con `--dry-run` y "crear" (skill `jira-historia-usuario`).
+1. Si vas a crear subtareas de una atencion **semanal** y en `<raiz_proceso>/config-jira.json` no hay una HU en `hu_semanales` que cubra la fecha de la atencion (`creado`; sabado o domingo cuentan como el viernes anterior), **avisa y salta esa atencion** (las demas siguen). No crees HU semanales dentro de `/inicia`: se crean aparte, con `--dry-run` y "crear" (skill `jira-historia-usuario`).
 2. Si la atencion es **hija** (`padre_id` con valor), **usa `hu_tipo_raiz` de la cola e ignora su propio `hu_tipo`**, y aplica "Padre e hijos" de `copilot-instructions.md`:
    - **Raiz semanal**: el hijo es su propia subtarea por entorno, bajo la HU semanal de su fecha, con titulo `PROYAA(ENT): <ID del hijo> - titulo`.
    - **Raiz independiente**: el hijo no tiene subtarea propia. El `/procede` de la raiz analiza en conjunto la raiz y sus hijos con conforme y propone las fases; los comentarios de cada hijo se registran en el `040_ProcesoJira` **del hijo**, con la `key` de la fase. Nunca le crees un padre propio. Si la fase ya esta en `FINALIZADO`, aplica la regla de reapertura.
    - **Excepcion: hijo con `fase_independiente: true`** (solo `int`, `doc`, `con`) y raiz independiente: tiene su propia subtarea bajo la HU de la raiz, creada en su `/inicia` (directo, titulo solo su `titulo`), y su `/procede` sube sus comentarios y la cierra. La raiz no lo incluye en sus fases.
-   - **Excepcion: interrupcion (tipo `npl`)**. Aunque tenga `padre_id`, **no** sigue estas reglas de hijo: nunca tiene HU ni subtarea propia, no pasa por `/inicia`, y en `/procede` solo sube su comentario (ver "Interrupciones" en `copilot-instructions.md`), sin transicionar ninguna subtarea.
+   - **Excepcion: interrupcion (tipo `npl`)**. Aunque tenga `padre_id`, **no** sigue estas reglas de hijo: nunca tiene HU ni subtarea propia y no pasa por `/inicia`, `/limpia` ni el conforme (cerrada completa ya esta en `pendiente_jira`). En `/procede` corrige su resumen y sube su comentario (ver "Interrupciones" en `copilot-instructions.md`), sin transicionar subtareas, salvo cerrar "Consultas y seguimiento" si las demas fases de la raiz ya estan en `FINALIZADO`.
 3. Revisa solo lo vigente. Si una creacion en lote quedo a medias, continua solo las subtareas sin `key`; no repitas las ya creadas.
 
 Hazlo en silencio y menciona algo solo si cambio o fallo.
 
 ## Reglas
 
-- El `titulo_jira` y la `descripcion` los escribes como **propuesta** en `ticket-datos.json` (al primer nivel) durante `/limpia`, para que Jhans los revise en la herramienta; si pide ajustes por el chat, los reescribes. El gate real es el "Dar conforme".
+- El `titulo_jira` y la `descripcion` los escribes como **propuesta** en `ticket-datos.json` (al primer nivel) durante `/limpia`, para que Jhans los revise en la herramienta; si pide ajustes por el chat, los reescribes. El gate real es el "Dar conforme". Esa `descripcion` es de la herramienta (markdown): nunca la copies en Jira; la del issue se arma con "Formato de la descripcion del issue".
+- La configuracion real es `<raiz_proceso>/config-jira.json`. Nunca escribas en la plantilla `agente-copilot/config-jira.json`.
+- Todo script de Jira acepta `--dry-run` y con el no llama a Jira.
 - No cambies el estado de historias de usuario ni cierres sprints en Jira: eso lo hace Jhans en el tablero. Solo cambias el estado de subtareas.
 - No toques el texto original de la bitacora ni el contenido de `030_ProcesoAtencion`.
 - No leas ni muestres credenciales. El codigo generado va sin tildes (ASCII).

@@ -72,7 +72,8 @@ Luego abre en Edge: **http://127.0.0.1:8765**. Para detenerla, `Ctrl + C` en la 
 ## 5. Agente de Copilot (VS Code)
 
 1. Abre `atencion-tickets.code-workspace` (Archivo → Abrir área de trabajo desde archivo).
-2. En Copilot Chat usa los comandos: `/inicia`, `/limpia`, `/procede` (con un ID, o sin ID para tomar de la cola).
+2. En Copilot Chat usa los comandos: `/inicia`, `/limpia`, `/procede` (con un ID, o sin ID para tomar de la cola) y `/corrige` (siempre con un ID).
+3. Si los comandos avisan "Unknown agent 'atencion-tickets'", revisa que el workspace tenga abierta la carpeta `agente-copilot` (el agente vive en `agente-copilot/.github/agents`).
 
 ## 6. Las operaciones de Jira
 

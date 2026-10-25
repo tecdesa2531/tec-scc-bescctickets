@@ -1,18 +1,18 @@
 ---
-agent: agent
-description: Sube a Jira las atenciones con el conforme dado (subtareas y comentarios).
+agent: atencion-tickets
+description: Sube a Jira las atenciones con el conforme dado y las interrupciones cerradas (subtareas y comentarios).
 ---
 
 # Comando PROCEDE
 
 Sigue `.github/copilot-instructions.md`. Esta es la etapa `pendiente_jira`.
 
-- Si en la peticion viene un ID, trabaja solo sobre esa atencion.
+- Si en la peticion viene un ID, trabaja solo sobre esa atencion, y solo si la cola la trae como `pendiente_jira`; si no, avisame y no subas nada.
 - Si no viene ID, lee `003_Herramienta/agente-cola.json` y toma las atenciones con `accion: "pendiente_jira"`. Si son **5 o menos**, confirmame cuales vas a subir antes de empezar; si son **mas de 5**, listalas y procede. (Esto es aparte del "crear" de cada script.)
 
-Antes de subir, **si el padre aun no existe en Jira (no se corrio `/inicia`), crealo primero**: la HU independiente o las subtareas semanales (revisa `jira.padre_key` y las `key` de `subtareas[]`). Esto **no** aplica a una interrupcion (ver abajo) ni a una hija normal de raiz independiente: su padre es la HU de la raiz, nunca le crees uno propio.
+Antes de subir, **si el padre aun no existe en Jira (no se corrio `/inicia`), crealo primero**: la HU independiente o las subtareas semanales (revisa `jira.padre_key` y las `key` de `subtareas[]`), con `titulo_jira`. **Si ya existe**, actualiza primero su titulo a `titulo_jira` y rearma su descripcion de Jira (formato wiki, "Formato de la descripcion del issue") con lo que aporto `/limpia`; nunca copies la `descripcion` de la herramienta. Nada de esto aplica a una interrupcion (ver abajo) ni a una hija normal de raiz independiente: su padre es la HU de la raiz, nunca le crees uno propio.
 
-**Interrupcion (tipo `npl`):** nunca tiene padre propio. **No** le crees HU ni subtareas, y **no** la trates como atencion hija aunque tenga `padre_id`. Sube su unico comentario al destino que le corresponde (ver "Interrupciones" en `copilot-instructions.md` y el skill `jira-comentarios`), sin aplicar criterio de descarte. Al terminar **no** transiciones ninguna subtarea: el destino es compartido o pertenece a otra atencion.
+**Interrupcion (tipo `npl`):** nunca tiene padre propio y no pasa por `/limpia` ni por el conforme. **No** le crees HU ni subtareas, y **no** la trates como atencion hija aunque tenga `padre_id`. Antes del `--dry-run`, corrige su `npl.resumen` y guardalo en `bitacora-correccion.json` (nunca modifiques `npl` en `ticket-datos.json`); el dry-run me muestra el texto final. Sube su unico comentario al destino que le corresponde (ver "Interrupciones" en `copilot-instructions.md` y el skill `jira-comentarios`), sin aplicar criterio de descarte. Al terminar **no** transiciones subtareas (el destino es compartido o pertenece a otra atencion), salvo cerrar "Consultas y seguimiento" si todas las demas fases de la raiz ya estan en `FINALIZADO`.
 
 Usa el texto corregido de `bitacora-correccion.json`. Entre las entradas `para_jira: true` aplica criterio: no subas todas, deja solo lo coherente.
 
@@ -25,7 +25,7 @@ Genera los scripts `.py` en `040_ProcesoJira`, corre primero un `--dry-run` y mu
 
 ## Cierre de subtareas al terminar
 
-Una vez subidos todos los comentarios de una atencion (incluido el comentario de cierre), **transiciona cada subtarea a `FINALIZADO`** (nunca en una interrupcion) usando el skill `jira-subtareas` (seccion "Cambio de estado"). El comentario de cierre debe quedar subido **antes** de cambiar el estado. Actualiza tambien el campo `estado` de cada entrada en `subtareas[]` de `ticket-datos.json` a `"FINALIZADO"`.
+Una vez subidos todos los comentarios de una atencion (incluido el comentario de cierre), **transiciona cada subtarea a `FINALIZADO`** (en una interrupcion, solo el caso de "Consultas y seguimiento" de arriba) usando el skill `jira-subtareas` (seccion "Cambio de estado"). El comentario de cierre debe quedar subido **antes** de cambiar el estado. Actualiza tambien el campo `estado` de cada entrada en `subtareas[]` de `ticket-datos.json` a `"FINALIZADO"`.
 
 - **Semanal** (y todo hijo de raiz semanal): cierra cada subtarea de entorno vigente de esta atencion (la que no esta en `FINALIZADO`). Las de sus hijos las cierra el `/procede` de cada hijo.
 - **Independiente**: cierra cada subtarea de fase (lo hace el `/procede` de la raiz, no el de un hijo).

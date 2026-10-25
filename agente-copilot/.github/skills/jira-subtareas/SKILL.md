@@ -11,7 +11,9 @@ Sigue `.github/copilot-instructions.md`. Generas el script `.py` en `040_Proceso
 - **Subtareas creadas en `/inicia`** (semanal, hija de raiz semanal, o hija con `fase_independiente: true`): directo, sin `--dry-run` ni "crear".
 - **Todo lo demas** (`/procede`, cambios de estado, `/corrige`): primero `--dry-run` y, tras el "crear" de Jhans, la ejecucion real.
 
-Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el proyecto tiene varios destinos, se repite por cada uno.
+Los datos de Jira salen del destino del proyecto (`<raiz_proceso>/config-jira.json`). Hoy cada proyecto tiene un solo destino; si trae mas de uno, avisa y pregunta antes de crear.
+
+**Fecha de la atencion** (para elegir la HU semanal): la fecha de `creado` en `ticket-datos.json`; si cae sabado o domingo, cuenta como el viernes anterior. Si ninguna HU de `hu_semanales` cubre esa fecha, avisa y salta esa atencion.
 
 ## Cuando se crean
 
@@ -21,11 +23,11 @@ Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el pro
   - Raiz **semanal** (en `/inicia`): se crea **como una semanal**: una subtarea por entorno bajo la HU de `hu_semanales` que cubre la fecha del hijo, titulo `PROYAA(ENT): <ID del hijo> - titulo` (si no tiene entornos propios, los de la raiz).
   - Raiz **independiente**: el hijo **no** tiene subtarea propia. Sus entradas se analizan junto con las de la raiz al proponer las fases de la HU (en el `/procede` de la raiz). Ver "Padre e hijos" en `copilot-instructions.md`.
   - Raiz **independiente** con `fase_independiente: true` (solo `int`, `doc`, `con`; en `/inicia`, directo): el hijo **si** tiene su propia subtarea, una sola, bajo la HU de la raiz (`parent.key` = `jira.padre_key` de la raiz), con `summary` solo el `titulo` del hijo levemente mejorado y la descripcion de tarea de HU independiente (sin DEPENDENCIA si no aplica). No pasa por la aprobacion de fases. Guardala en `subtareas[]` **del hijo** con `fase`, `entornos`, `key`, `url` y `estado: ""`. Si la raiz no tiene HU, avisa y salta ese hijo. En su `/procede`, actualiza (PUT `/issue/<key>`) el `summary` a su `titulo_jira` (solo el titulo) y la descripcion; si se salto `/inicia`, la crea ahi mismo (con `--dry-run`/"crear") con `titulo_jira`. Ese mismo `/procede` la cierra.
-- **Fase fija "Consultas y seguimiento"** (HU independiente, por una NPL): no es una fase propuesta desde la bitacora, es **fija** y se crea **perezosa**: la primera vez que una interrupcion (`padre_id` con `hu_tipo_raiz: "independiente"`) necesita subir su comentario en el `/procede` de esa NPL y la fase todavia no existe en `subtareas[]` de la raiz (buscala por `fase == "Consultas y seguimiento"`). Nunca se crea en `/inicia` ni junto con las demas fases propuestas; no pasa por la aprobacion de fases de Jhans (es fija, siempre la misma). Se crea con el mismo mecanismo de una tarea de HU independiente (`parent.key` = `jira.padre_key` de la raiz, `summary`: solo `"Consultas y seguimiento"`), dentro del mismo `--dry-run`/"crear" del `/procede` de la NPL. Guardala en `subtareas[]` de la raiz como cualquier otra fase (con la siguiente `secuencia` disponible). Las siguientes NPL de esa misma HU la reutilizan: no la vuelvas a crear. Si la raiz todavia no tiene HU (`jira.padre_key` vacio), no la crees: avisa y salta esa NPL. No la incluyas al proponer las fases de la raiz ni repartas ahi comentarios de la bitacora normal. Queda abierta mientras la HU este abierta: la cierra el `/procede` de la raiz junto con las demas fases, y en el cierre de sprint pasa a la Parte 02 como cualquier subtarea pendiente.
+- **Fase fija "Consultas y seguimiento"** (HU independiente, por una NPL): no es una fase propuesta desde la bitacora, es **fija** y se crea **perezosa**: la primera vez que una interrupcion (`padre_id` con `hu_tipo_raiz: "independiente"`) necesita subir su comentario en el `/procede` de esa NPL y la fase todavia no existe en `subtareas[]` de la raiz (buscala por `fase == "Consultas y seguimiento"`). Nunca se crea en `/inicia` ni junto con las demas fases propuestas; no pasa por la aprobacion de fases de Jhans (es fija, siempre la misma). Se crea con el mismo mecanismo de una tarea de HU independiente (`parent.key` = `jira.padre_key` de la raiz, `summary`: solo `"Consultas y seguimiento"`), dentro del mismo `--dry-run`/"crear" del `/procede` de la NPL; sus archivos (payload, respuesta, log) van en el `040_ProcesoJira` de la NPL. Guardala en `subtareas[]` de la raiz como cualquier otra fase (con la siguiente `secuencia` disponible). Las siguientes NPL de esa misma HU la reutilizan: no la vuelvas a crear. Si la raiz todavia no tiene HU (`jira.padre_key` vacio), no la crees: avisa y salta esa NPL. No la incluyas al proponer las fases de la raiz ni repartas ahi comentarios de la bitacora normal. Queda abierta mientras la HU este abierta: la cierra el `/procede` de la raiz junto con las demas fases, y en el cierre de sprint pasa a la Parte 02 como cualquier subtarea pendiente. **Excepcion:** si despues del comentario de la NPL todas las demas fases de la raiz ya estan en `FINALIZADO` (la raiz ya termino y su `/procede` no volvera a correr), el `/procede` de la NPL la pasa a `FINALIZADO`, para que no quede abierta en una HU terminada.
 
 ## Titulo
 
-- **Semanal** (una por entorno): `PROYAA(PRE): PTSK0000123 - titulo` (sin parentesis si no hay entorno). En `/inicia` aun no existe `titulo_jira`; toma el `titulo` de `ticket-datos.json`, mejoralo levemente (ortografia, claridad) y usalo. No lo copies literal pero no lo reescribas desde cero. En `/procede`, actualiza (PUT `/issue/<key>`) el titulo a `titulo_jira` y la descripcion con lo que aporto `/limpia` (solicitante, correos, captura), porque en `/inicia` pudo quedar minima.
+- **Semanal** (una por entorno): `PROYAA(PRE): PTSK0000123 - titulo` (sin parentesis si no hay entorno, incluido `["SIN_ENTORNO"]`). En `/inicia` aun no existe `titulo_jira`; toma el `titulo` de `ticket-datos.json`, mejoralo levemente (ortografia, claridad) y usalo. No lo copies literal pero no lo reescribas desde cero. En `/procede`, actualiza (PUT `/issue/<key>`) el titulo a la forma completa con `titulo_jira` y rearma la descripcion con el formato de abajo y lo que aporto `/limpia` (solicitante, correos, captura), porque en `/inicia` pudo quedar minima. Nunca copies la `descripcion` de la herramienta (markdown).
 - **Independiente** (tareas de la HU): **solo el nombre de la tarea** (`fase`), sin proyecto ni Tracking ID, porque ya estan en la HU padre. La subtarea de un hijo con `fase_independiente: true` sigue la misma regla: solo su `titulo` en `/inicia` y su `titulo_jira` desde `/procede`.
 
 ## Descripcion (formato wiki de Jira, saltos como `\n`)
@@ -50,8 +52,9 @@ Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el pro
 
 - `*COMO*` es el rol de Jhans segun el proyecto (nube/infra), **nunca** un nombre.
 - Tracking ID como enlace `[ID|URL]` solo si la atencion tiene `url_servicenow`; si no, deja solo el ID.
-- **Solicitante** = quien pidio la atencion; su nombre sale del **correo de solicitud** (entrada tipo `solicitud`), **no** del de asignacion (ese es quien asigno, otra persona). Si no hay correo de solicitud, usa `solicitante` de `ticket-datos.json`; si tampoco hay, **omite la linea** (no preguntes).
-- La **captura del correo de asignacion** va embebida en la descripcion: subela como adjunto (`POST /issue/<key>/attachments`) y referenciala con `!archivo.png|thumbnail!`. No se adjunta el `.eml` de asignacion. **Si no hay correo de asignacion**, usa la captura del **correo de solicitud** (`captura_correo_solicitud`); si no hay ninguno, **omite la seccion de captura**.
+- **Solicitante** = quien pidio la atencion; su nombre sale del **correo de solicitud** (entrada tipo `solicitud`), **no** del de asignacion (ese es quien asigno, otra persona). Si no hay correo de solicitud, usa `solicitante` de `ticket-datos.json`; si tampoco hay, **omite la linea** (no preguntes). Pon solo el nombre, sin el correo.
+- Sin entorno (`["SIN_ENTORNO"]`), omite la linea `Entorno`.
+- La **captura del correo de asignacion** (`040_ProcesoJira/AAAAMMDD_captura_correo_asignado.<ext>`, en las `capturas` de la entrada `asignacion`) va embebida en la descripcion: subela como adjunto (`POST /issue/<key>/attachments`) y referenciala con su nombre real, `!archivo|thumbnail!`. No se adjunta el `.eml` de asignacion. **Si no hay correo de asignacion**, usa la captura del **correo de solicitud** (`..._captura_correo_solicitud.<ext>`); si no hay ninguno, **omite la seccion de captura**.
 - **Sin correos** (lo normal en `JINT`, `JDOC`, `JCON`): redacta el COMO/QUIERO/PARA y el OBJETIVO breves a partir del `titulo`. Nunca te detengas por falta de correos, solicitante o capturas.
 - El `.eml` y la captura del **correo de cierre** van en el comentario final, no aqui (ver `jira-comentarios`).
 
@@ -68,7 +71,7 @@ Los datos de Jira salen del destino del proyecto (`config-jira.json`). Si el pro
 <resultado verificable>
 ```
 
-La captura de asignacion se sube como adjunto y se referencia en la descripcion con `!archivo.png|thumbnail!`. La captura y el `.eml` del correo de cierre van en el comentario final (ver `jira-comentarios`).
+La tarea **no** lleva COMO/QUIERO/PARA, DATOS ni captura: la captura del correo de asignacion va en la descripcion de la HU. La captura y el `.eml` del correo de cierre van en el comentario final (ver `jira-comentarios`).
 
 ## Payload
 
@@ -94,15 +97,35 @@ Para **independiente**, agrupa todas las tareas aprobadas en un solo `jira-crear
 }
 ```
 
-Para **semanal**, una entrada por entorno con `parent.key` = la `key` de la HU de `hu_semanales` cuya ventana (`inicio`-`fin`) cubre la fecha de la atencion, y el `summary` con el formato `PROYAA(PRE): ID - titulo`. Esa misma `key` de HU es la que guardas como `hu_key` de la subtarea.
+Para **semanal**, una entrada por entorno, con `entorno` en lugar de `secuencia` y `fase`, `parent.key` = la `key` de la HU de `hu_semanales` cuya ventana (`inicio`-`fin`) cubre la fecha de la atencion, y el `summary` con el formato `PROYAA(PRE): ID - titulo`. Esa misma `key` de HU es la que guardas como `hu_key` de la subtarea:
+
+```json
+{
+  "subtareas": [
+    {
+      "entorno": "PRE",
+      "fields": {
+        "project": { "key": "PRYA" },
+        "issuetype": { "id": "10001" },
+        "parent": { "key": "PRYA-999" },
+        "assignee": { "accountId": "000000:aaaaaaaa-0000-0000-0000-000000000001" },
+        "summary": "PROYAA(PRE): PTSK0000123 - Exportar data de tablas",
+        "description": "*COMO* DevOps del equipo de nube, *QUIERO* ..."
+      }
+    }
+  ]
+}
+```
+
+La subtarea de un hijo con `fase_independiente: true` es una sola entrada con `fase` (sin `secuencia` ni `entorno`).
 
 - `issuetype.id` = `tipo_subtarea_id`; `assignee.accountId` = `asignado_account_id`; `parent.key` = la HU (independiente: `jira.padre_key`; semanal: la HU de `hu_semanales` que cubre la fecha de la atencion). Si el destino tiene `prioridad` o `etiquetas`, agregalos.
-- En independiente, en `/procede`: si `jira.padre_key` no existe (se salto `/inicia`), crea primero la HU usando `titulo_jira` (siguiendo el skill `jira-historia-usuario`) y guarda la key antes de crear las tareas. Si ya existe, **actualiza primero la HU** (PUT `/issue/<padre_key>`) con `titulo_jira` y la `descripcion` corregida, antes de crear las tareas.
+- En independiente, en `/procede`: si `jira.padre_key` no existe (se salto `/inicia`), crea primero la HU usando `titulo_jira` (siguiendo el skill `jira-historia-usuario`) y guarda la key antes de crear las tareas. Si ya existe, **actualiza primero la HU** (PUT `/issue/<padre_key>`) con el titulo completo (`titulo_jira`) y la descripcion de Jira rearmada con el formato de `jira-historia-usuario` (nunca la `descripcion` de la herramienta), antes de crear las tareas.
 - En semanal, en `/procede`: si `subtareas[]` no tiene ninguna con `key` (se salto `/inicia`), crea primero las subtareas por entorno (como lo haria `/inicia`) usando `titulo_jira` en lugar del `titulo`, y guardalas antes de subir comentarios.
 
 ## Script de creacion (referencia)
 
-Recorre `jira-crear_subtareas.json` en orden de `secuencia`, crea cada subtarea y guarda las keys en `jira-respuesta_subtareas.json`. Si se interrumpe, omite las que ya tengan key. Acepta `--dry-run` para simular sin tocar Jira: en `/procede` corres primero el dry-run, y tras el "crear" de Jhans lo ejecutas sin `--dry-run`; en `/inicia` lo ejecutas directo. El script nunca pide confirmacion por teclado.
+Recorre `jira-crear_subtareas.json` (las de independiente en orden de `secuencia`), crea cada subtarea y guarda las keys en `jira-respuesta_subtareas.json`, por `secuencia` (independiente), `entorno` (semanal) o `fase` (hijo con fase independiente). Si se interrumpe, omite las que ya tengan key. Acepta `--dry-run` para simular sin tocar Jira ni archivos: en `/procede` corres primero el dry-run, y tras el "crear" de Jhans lo ejecutas sin `--dry-run`; en `/inicia` lo ejecutas directo. El script nunca pide confirmacion por teclado.
 
 ```python
 import json
@@ -114,8 +137,14 @@ CARPETA = os.path.dirname(os.path.abspath(__file__))
 CREAR = os.path.join(CARPETA, "jira-crear_subtareas.json")
 RESP = os.path.join(CARPETA, "jira-respuesta_subtareas.json")
 
+# Nombres de ejemplo: usa los del destino (url_var, email_var, token_var)
 URL = os.environ["JIRA_ACMEBANK_URL"].rstrip("/") + "/rest/api/2"
 AUTH = os.environ["JIRA_ACMEBANK_EMAIL"] + ":" + os.environ["JIRA_ACMEBANK_TOKEN"]
+
+
+def clave_de(sub):
+    # Independiente: por secuencia; semanal: por entorno; fase independiente: por fase
+    return str(sub.get("secuencia") or sub.get("entorno") or sub.get("fase", ""))
 
 
 def crear_una(fields):
@@ -138,8 +167,8 @@ def main():
     if os.path.isfile(RESP):
         hechas = json.load(open(RESP, encoding="utf-8"))
     seco = "--dry-run" in sys.argv
-    for sub in sorted(datos["subtareas"], key=lambda s: s["secuencia"]):
-        clave_local = str(sub["secuencia"])
+    for sub in sorted(datos["subtareas"], key=lambda s: s.get("secuencia", 0)):
+        clave_local = clave_de(sub)
         if hechas.get(clave_local, {}).get("key"):
             continue
         if seco:
@@ -147,9 +176,12 @@ def main():
             continue
         respuesta = crear_una(sub["fields"])
         clave = respuesta.get("key")
-        hechas[clave_local] = {"fase": sub.get("fase", ""), "key": clave or "",
+        hechas[clave_local] = {"fase": sub.get("fase", ""), "entorno": sub.get("entorno", ""),
+                               "key": clave or "",
                                "error": "" if clave else json.dumps(respuesta)}
         print(("OK " + clave) if clave else ("ERROR en " + sub["fields"]["summary"]))
+    if seco:
+        return
     with open(RESP, "w", encoding="utf-8") as archivo:
         json.dump(hechas, archivo, ensure_ascii=False, indent=2)
 
@@ -169,7 +201,7 @@ Despues de ejecutarse: guarda las `key` y `url` en `subtareas[]` de `ticket-dato
 | correo atendido / "cerrada" | `FINALIZADO` | comentario de cierre con la captura |
 | "descarta ..." | `FINALIZADO` | comentario con el motivo |
 
-El script consulta las transiciones disponibles (`GET /issue/<key>/transitions`), busca la que lleva al estado destino y la aplica (`POST /issue/<key>/transitions`). Si no hay transicion directa (el flujo exige pasar antes por otro estado), avisa a Jhans para que lo mueva a mano. Tras cada transicion aplicada, guarda en `subtareas[].estado` de `ticket-datos.json` el nombre exacto del estado destino (`En curso`, `Espera externa`, `FINALIZADO`). Nunca cambies el estado de la HU ni cierres sprints: solo subtareas. El `/procede` de una interrupcion (NPL) **nunca** cambia el estado de ninguna subtarea.
+El script consulta las transiciones disponibles (`GET /issue/<key>/transitions`), busca la que lleva al estado destino y la aplica (`POST /issue/<key>/transitions`). Si no hay transicion directa (el flujo exige pasar antes por otro estado), avisa a Jhans para que lo mueva a mano. Tras cada transicion aplicada, guarda en `subtareas[].estado` de `ticket-datos.json` el nombre exacto del estado destino (`En curso`, `Espera externa`, `FINALIZADO`). Nunca cambies el estado de la HU ni cierres sprints: solo subtareas. El `/procede` de una interrupcion (NPL) no cambia el estado de ninguna subtarea, salvo pasar "Consultas y seguimiento" a `FINALIZADO` cuando las demas fases de la raiz ya lo estan (ver arriba).
 
 **Subtarea reabierta.** Si en un `/procede` posterior la subtarea ya esta en `FINALIZADO` y la atencion se reabrio con **trabajo nuevo** (entradas nuevas por subir), reabrela antes de comentar: `FINALIZADO -> En curso`, sube los comentarios nuevos (`jira-comentarios`) y vuelve a cerrarla (`En curso -> FINALIZADO`). Si lo nuevo es solo evidencia o una aclaracion, comenta sin reabrir.
 

@@ -5,7 +5,7 @@ description: Cierre de semana y cierre de sprint. Son distintos. Cierre de seman
 
 # Cierre de semana y de sprint
 
-Sigue `.github/copilot-instructions.md`. Generas los scripts `.py` y **los ejecutas tu** en la terminal tras la confirmacion "crear" de Jhans (primero un `--dry-run`). Jhans crea el sprint y lo cierra en el tablero; el agente crea las HU semanales y, al cerrar sprint, las HU padre de la Parte 02.
+Sigue `.github/copilot-instructions.md`. Generas los scripts `.py` en `<raiz_proceso>/003_Herramienta/020_ProcesoSprint/` (con su `jira-ejecuciones.log`; creala si no existe) y **los ejecutas tu** en la terminal tras la confirmacion "crear" de Jhans (primero un `--dry-run`). Jhans crea el sprint y lo cierra en el tablero; el agente crea las HU semanales y, al cerrar sprint, las HU padre de la Parte 02.
 
 **Son dos operaciones distintas.** La diferencia clave: la "Parte 02" (la continuacion duplicada del trabajo) **solo** nace en el cierre de sprint, nunca en el de semana, para no duplicar contenido dentro del sprint activo.
 
@@ -13,7 +13,7 @@ Sigue `.github/copilot-instructions.md`. Generas los scripts `.py` y **los ejecu
 
 Las subtareas semanales que siguen abiertas al terminar una semana **cambian de padre** a la HU de la semana siguiente. No se crea una subtarea nueva ni se duplica nada: es el mismo issue, movido de HU.
 
-1. **Como encontrarlas:** la cola no trae estas atenciones (ya tienen su subtarea y no les queda accion pendiente), asi que aqui, **y solo aqui** (cierre de semana y de sprint), recorres en **solo lectura** los `ticket-datos.json` de la raiz de proceso. Toma las subtareas **abiertas** (su `estado` no es `FINALIZADO`) cuyo `hu_key` es la HU de la semana que cierra (la de `hu_semanales` cuyo rango termina). Si una subtarea antigua no tiene `hu_key`, deducelo por la fecha de la atencion y avisalo. Incluye a los **hijos**: para ellos usa el `hu_tipo` de la atencion raiz, no el suyo (ver "Padre e hijos" en `copilot-instructions.md`). Muestrale la lista de titulos a Jhans. Si son **5 o menos**, confirma cuales continuan antes de proceder; si son **mas de 5**, procede con todas sin preguntar por cada una. Si alguna termino o se descarta, aplica ese caso en vez de mover.
+1. **Como encontrarlas:** la cola no trae estas atenciones (ya tienen su subtarea y no les queda accion pendiente), asi que aqui, **y solo aqui** (cierre de semana y de sprint), recorres en **solo lectura** los `ticket-datos.json` de la raiz de proceso. Toma las subtareas **abiertas** (su `estado` no es `FINALIZADO`) cuyo `hu_key` es la HU de la semana que cierra (la de `hu_semanales` cuyo rango termina). Si una subtarea antigua no tiene `hu_key`, deducelo por la fecha de la atencion (`creado`; sabado o domingo cuentan como el viernes anterior) y avisalo. Incluye a los **hijos**: para ellos usa el `hu_tipo` de la atencion raiz, no el suyo (ver "Padre e hijos" en `copilot-instructions.md`). Muestrale la lista de titulos a Jhans. Si son **5 o menos**, confirma cuales continuan antes de proceder; si son **mas de 5**, procede con todas sin preguntar por cada una. Si alguna termino o se descarta, aplica ese caso en vez de mover.
 2. La HU de la semana siguiente debe existir en `hu_semanales`; si no, creala primero (skill `jira-historia-usuario`).
 3. Por cada subtarea que continua:
    - Agrega un comentario breve de continuidad (skill `jira-comentarios`): `*Continua la proxima semana.*` con un resumen de una linea. Asi queda el historial en Jira.
@@ -24,21 +24,28 @@ Las atenciones con **HU independiente** no se tocan en el cierre de semana.
 
 **Subtarea fija de interrupciones.** La de la semana que cierra (`subtarea_interrupciones_key` en su entrada de `hu_semanales`) **no** cambia de padre ni continua: pasa a `FINALIZADO` (transicion del skill `jira-subtareas`), en el mismo `--dry-run`/"crear" del cierre. La semana siguiente usa la suya propia. Si la entrada no tiene esa key (no hubo interrupciones sin padre esa semana), no hay nada que cerrar.
 
+Script de cambio de padre (referencia). Con `--dry-run` solo muestra el cambio, sin llamar a Jira.
+
 ```python
 import json
 import os
 import subprocess
+import sys
 
 CARPETA = os.path.dirname(os.path.abspath(__file__))
 # Ajusta al generar el script: key de la subtarea y HU de la semana siguiente.
 SUBTAREA = "PRYA-1002"
 HU_SIGUIENTE = "PRYA-1005"
 
+# Nombres de ejemplo: usa los del destino (url_var, email_var, token_var)
 URL = os.environ["JIRA_ACMEBANK_URL"].rstrip("/") + "/rest/api/2"
 AUTH = os.environ["JIRA_ACMEBANK_EMAIL"] + ":" + os.environ["JIRA_ACMEBANK_TOKEN"]
 
 
-def mover():
+def mover(seco):
+    if seco:
+        print("[dry-run] movera " + SUBTAREA + " a la HU " + HU_SIGUIENTE)
+        return
     tmp = os.path.join(CARPETA, "_parent.json")
     with open(tmp, "w", encoding="utf-8") as archivo:
         json.dump({"fields": {"parent": {"key": HU_SIGUIENTE}}}, archivo)
@@ -52,7 +59,7 @@ def mover():
 
 
 if __name__ == "__main__":
-    mover()
+    mover("--dry-run" in sys.argv)
 ```
 
 ## Cierre de sprint (pasa al sprint siguiente)

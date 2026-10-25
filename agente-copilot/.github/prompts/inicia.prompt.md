@@ -1,5 +1,5 @@
 ---
-agent: agent
+agent: atencion-tickets
 description: Crea en Jira el padre de una atencion (HU independiente o subtarea semanal).
 ---
 
@@ -12,7 +12,7 @@ Sigue `.github/copilot-instructions.md`. Es un paso **opcional**: crea el padre 
 
 Crea **solo el padre**:
 - `hu_tipo` independiente -> crea la **historia de usuario** (skill `jira-historia-usuario`) y guarda `jira.padre_key`, `jira.padre_url` y `jira.tipo_padre: "hu"` en `ticket-datos.json`.
-- `hu_tipo` semanal -> crea una **subtarea por entorno** bajo la HU de la semana que corresponde por fecha (`hu_semanales` de `config-jira.json`) (skill `jira-subtareas`) y guardalas en `subtareas[]` con `entorno`, `hu_key` (la HU semanal de la que cuelga), `key`, `url` y `estado: ""`. **No** uses `jira.padre_key` en una semanal. Si no hay HU semanal que cubra la fecha, **avisame y salta esa atencion**; no crees HU semanales aqui.
+- `hu_tipo` semanal -> crea una **subtarea por entorno** bajo la HU de la semana que cubre la fecha de la atencion (`creado`; sabado o domingo cuentan como el viernes anterior) en `hu_semanales` de `<raiz_proceso>/config-jira.json` (skill `jira-subtareas`) y guardalas en `subtareas[]` con `entorno`, `hu_key` (la HU semanal de la que cuelga), `key`, `url` y `estado: ""`. **No** uses `jira.padre_key` en una semanal. Si no hay HU semanal que cubra la fecha, **avisame y salta esa atencion**; no crees HU semanales aqui.
 - **Atencion hija** (`padre_id` con valor): usa `hu_tipo_raiz` de la cola, no su propio `hu_tipo`. Con raiz **semanal**, crea su subtarea por entorno como una semanal (titulo `PROYAA(ENT): <ID del hijo> - titulo`). Con raiz **independiente** no le toca `/inicia` (la herramienta no la pone en la cola); si te la piden por ID, avisame que no hay nada que crear. **Excepcion:** si tiene `fase_independiente: true` (solo `int`, `doc`, `con`), crea su subtarea bajo la HU de la raiz (`jira.padre_key` de la raiz), con titulo solo su `titulo` levemente mejorado, y guardala en `subtareas[]` del hijo. Si la raiz aun no tiene HU, avisame y salta ese hijo. Ver "Padre e hijos" en `copilot-instructions.md`.
 - **Interrupcion (tipo `npl`)**: nunca tiene padre propio (siempre sube como comentario en `/procede`). La herramienta no la pone en `pendiente_inicio`; si te la piden por ID, avisame que no hay nada que crear.
 

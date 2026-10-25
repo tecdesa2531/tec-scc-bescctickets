@@ -5,7 +5,7 @@ Este agente de GitHub Copilot prepara tus atenciones para Jira. No organiza carp
 ## Instalar (una sola vez)
 
 1. Abre en VS Code un workspace que incluya tres carpetas: `agente-copilot` y tus dos raíces de datos (la de trabajo y la de proceso). Lo más cómodo es un archivo `.code-workspace` con las tres.
-2. Revisa `config-jira.json`: los destinos de Jira y el mapeo de cada proyecto, con tus valores reales (viven fuera del repositorio).
+2. Copia la plantilla `config-jira.json` a la raíz de proceso (`<raiz_proceso>/config-jira.json`) y pon ahí tus valores reales: los destinos de Jira y el mapeo de cada proyecto. El agente solo lee y actualiza esa copia; la plantilla del repositorio queda con valores ficticios.
 3. Revisa tus variables de entorno de credenciales, las que nombra `config-jira.json` en cada destino (`url_var`, `email_var`, `token_var`).
 4. En Copilot Chat elige el agente **atencion-tickets** o usa directamente los comandos `/inicia`, `/limpia`, `/procede` y `/corrige`.
 
@@ -26,11 +26,11 @@ En `/limpia`, el agente deja **su propuesta** de descripción y título en `tick
 
 Si una atención semanal no tiene HU semanal que cubra su fecha, `/inicia` te avisa y la salta: primero crea las HU semanales del sprint.
 
-Las **interrupciones** (llamadas y chats sin agendar, tipo NPL) nunca tienen issue propio: en `/limpia` solo se corrige su resumen y en `/procede` se suben como un comentario, en la subtarea fija de interrupciones de la semana (sin padre), en la fase "Consultas y seguimiento" de la HU independiente del padre, o directo en la subtarea del padre si es semanal.
+Las **interrupciones** (llamadas y chats sin agendar, tipo NPL) nunca tienen issue propio y no pasan por `/limpia` ni por el conforme: al cerrarlas con los datos completos quedan listas para `/procede`, que corrige el resumen, te lo muestra en el dry-run y, con tu "crear", lo sube como un comentario. Va a la subtarea fija de interrupciones de la semana (sin padre), a la fase "Consultas y seguimiento" de la HU independiente del padre, o directo a la subtarea del padre si es semanal.
 
 ## Lo que haces tú
 
-- En **Focus Flow**: trabajas, llevas la bitácora, marcas *Terminar* (el agente limpia el texto) y, tras revisarlo, *Dar conforme* (el agente sube a Jira).
+- En **Focus Flow**: trabajas, llevas la bitácora, marcas *Terminar* (el agente limpia el texto) y, tras revisarlo, *Dar conforme* (el agente sube a Jira). Una interrupción solo necesita *Cerrar interrupción* con los datos completos.
 - Revisas el texto corregido con el selector *Original / Corregido* antes de dar el conforme.
 - En `/procede`, `/corrige` y la creación de HU semanales, confirmas con **"crear"** en el chat cuando el agente te muestra el dry-run; él ejecuta el script `.py` en la terminal (no tienes que copiar comandos ni buscar carpetas). `/inicia` es la excepción: crea el padre directo, sin dry-run.
 - Cierras la historia de usuario y el sprint en el tablero de Jira, y asocias la HU nueva a la épica y al sprint.
@@ -39,4 +39,5 @@ Las **interrupciones** (llamadas y chats sin agendar, tipo NPL) nunca tienen iss
 
 - La herramienta deja `003_Herramienta/agente-cola.json` con los pendientes y su acción; el agente lo lee en vez de recorrer las carpetas.
 - El agente escribe el texto corregido en `040_ProcesoJira/bitacora-correccion.json`, y la `descripcion`, el `titulo_jira` y las `key`/`url` de los issues en `ticket-datos.json`.
-- El contrato completo está en `copilot-instructions.md`.
+- Las HU semanales y los cierres de semana y de sprint dejan sus scripts en `<raiz_proceso>/003_Herramienta/020_ProcesoSprint/`.
+- El contrato completo está en `.github/copilot-instructions.md`.
