@@ -192,14 +192,16 @@ function descendientesDe(id) {
 }
 
 // -- Dropdown de padre
-function llenarPadres(prefijo, excluir) {
+// Un solo nivel de anidacion: solo se ofrecen como padre atenciones sin padre.
+// "actual" (el padre ya asignado) se incluye siempre para que se vea seleccionado.
+function llenarPadres(prefijo, excluir, actual) {
   var sel = document.getElementById(prefijo + "-padre");
   if (!sel) return;
   var fuera = excluir || [];
   if (typeof fuera === "string") fuera = fuera ? [fuera] : [];
   sel.innerHTML = '<option value="">Sin padre</option>' +
     atenciones
-      .filter(function (a) { return fuera.indexOf(a.id) === -1; })
+      .filter(function (a) { return fuera.indexOf(a.id) === -1 && (!a.padre_id || a.id === actual); })
       .map(function (a) {
         var label = (a.tracking_id || "Sin Tracking ID") +
           (a.tracking_code ? " - " + a.tracking_code : "") +

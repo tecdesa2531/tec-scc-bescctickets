@@ -185,9 +185,19 @@ def validar_padre_id(padre_id, id_propio):
     if padre_id == id_propio:
         raise ErrorUsuario("Una atencion no puede ser su propio padre")
     try:
-        buscar_atencion(padre_id)
+        padre_registro = buscar_atencion(padre_id)
     except ErrorUsuario:
         raise ErrorUsuario("La atencion padre no existe")
+    validar_un_nivel(padre_registro, id_propio)
+
+
+def validar_un_nivel(padre_registro, id_propio):
+    # Un solo nivel de anidacion: el padre debe ser una atencion sin padre y una
+    # atencion con hijas no puede colgar de otra (sus hijas quedarian como nietas).
+    if padre_registro["datos"].get("padre_id"):
+        raise ErrorUsuario("La atencion padre ya es hija de otra; elige una atencion sin padre")
+    if id_propio and any(r["datos"].get("padre_id") == id_propio for r in buscar_atenciones()):
+        raise ErrorUsuario("Esta atencion tiene atenciones hijas, por eso no puede tener padre")
 
 
 def crear_atencion(parametros):
@@ -514,11 +524,6 @@ def cambiar_padre(parametros):
         # Con issue en Jira, mover la atencion dejaria Jira desalineado con las carpetas
         if tiene_issue_jira(registro["datos"]):
             raise ErrorUsuario("Esta atencion tiene su issue en Jira; el padre ya no se puede cambiar")
-        hijas = [r for r in buscar_atenciones() if r["datos"].get("padre_id") == registro["id"]]
-        if hijas and not registro["temporal"]:
-            # Al moverla, sus hijas quedarian como nietas y la busqueda solo recorre un
-            # nivel de anidacion: dejarian de verse en la herramienta.
-            raise ErrorUsuario("Esta atencion tiene atenciones hijas; por ahora no se puede cambiar su padre")
         if atencion_procesada(registro):
             raise ErrorUsuario("Esta atencion ya fue procesada; el padre ya no se puede cambiar")
         if nuevo_padre_id == registro["id"]:
@@ -529,6 +534,7 @@ def cambiar_padre(parametros):
             return registro["id"]
 
         padre_registro = buscar_atencion(nuevo_padre_id)
+        validar_un_nivel(padre_registro, registro["id"])
         if padre_registro["temporal"]:
             raise ErrorUsuario("La atencion padre aun no tiene carpeta definitiva; completa su proyecto e ID")
         codigo = padre_registro["datos"].get("tracking_code", "")

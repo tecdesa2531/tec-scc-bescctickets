@@ -31,6 +31,7 @@ Ultima actualizacion: 2026-10-22
 
 **Criterios de aceptacion:**
 - [ ] La atencion hija aparece anidada bajo el padre en la lista.
+- [ ] Solo hay un nivel: el padre debe ser una atencion sin padre y una hija no puede tener hijas.
 - [ ] La carpeta de la hija se crea dentro de la carpeta del padre.
 - [ ] La hija hereda el proyecto del padre automaticamente.
 - [ ] El padre se puede asignar o cambiar mientras la atencion no haya sido procesada; si ya esta ubicada, su carpeta se mueve dentro de la del padre. No se puede quitar el padre de una atencion ubicada.

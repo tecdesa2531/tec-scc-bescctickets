@@ -511,10 +511,10 @@ function editarDetalle() {
   // Jira y no tiene hijas. En una atencion ya ubicada, asignarlo o cambiarlo
   // mueve su carpeta dentro de la del padre.
   var conIssue  = tieneIssueJira(d);
-  var conHijas  = !detalle.temporal && atenciones.some(function (a) { return a.padre_id === detalle.id; });
+  var conHijas  = atenciones.some(function (a) { return a.padre_id === detalle.id; });
   var padreEditable = (detalle.temporal || !detalle.procesada) && !conIssue && !conHijas;
   document.getElementById("e-campo-padre").hidden = false;
-  llenarPadres("e", [detalle.id].concat(descendientesDe(detalle.id)));
+  llenarPadres("e", [detalle.id].concat(descendientesDe(detalle.id)), d.padre_id);
   var selPadre = document.getElementById("e-padre");
   selPadre.value    = d.padre_id || "";
   selPadre.disabled = !padreEditable;
@@ -525,7 +525,7 @@ function editarDetalle() {
     notaPadre.textContent = "Esta atencion tiene su issue en Jira.";
     notaPadre.hidden = false;
   } else if (conHijas) {
-    notaPadre.textContent = "Esta atencion tiene atenciones hijas; por ahora no se puede cambiar su padre.";
+    notaPadre.textContent = "Esta atencion tiene atenciones hijas, por eso no puede tener padre.";
     notaPadre.hidden = false;
   } else if (!padreEditable) {
     notaPadre.textContent = "Esta atencion ya fue procesada; el padre quedo fijo.";
@@ -614,9 +614,10 @@ function pintarInterrupcion() {
   document.getElementById("npl-guardado").textContent = "";
 
   // Padre + proyecto (heredado si hay padre)
-  llenarPadres("npl", [detalle.id].concat(descendientesDe(detalle.id)));
+  llenarPadres("npl", [detalle.id].concat(descendientesDe(detalle.id)), d.padre_id);
   document.getElementById("npl-padre").value    = d.padre_id || "";
-  document.getElementById("npl-padre").disabled = (!detalle.temporal && procesada) || cancelada;
+  var nplConHijas = atenciones.some(function (a) { return a.padre_id === detalle.id; });
+  document.getElementById("npl-padre").disabled = (!detalle.temporal && procesada) || cancelada || nplConHijas;
   document.querySelector('#npl-padre option[value=""]').disabled = conPadre && !detalle.temporal;
   llenarProyectos("npl", d.tracking_code);
   document.getElementById("npl-campo-proyecto").hidden    = conPadre;

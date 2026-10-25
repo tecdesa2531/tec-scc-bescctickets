@@ -100,9 +100,9 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 - Mismos campos y **mismos componentes** que Nueva atención: entornos como botones DEV / PRE / PRO, HU como segmento Semanal | Independiente, proyecto con autocompletado y atención padre.
 - Si la atención ya tiene carpetas definitivas, el Tracking ID, el proyecto y los entornos aparecen bloqueados en gris, con un candado y un aviso. Solo se editan el título, la HU y la URL de ServiceNow.
 - Si es temporal, todo es editable.
-- **Atención padre:** el campo aparece siempre. Se puede asignar o cambiar si la atención es temporal **o aún no ha sido procesada**. En una atención ya ubicada, asignar o cambiar el padre **mueve su carpeta** dentro de la del padre y hereda su proyecto, entornos y HU (la nota bajo el campo lo explica). Una atención ubicada que ya tiene padre no puede volver a "Sin padre" (la opción aparece deshabilitada). El nuevo padre debe tener carpeta definitiva y no puede ser una hija suya. El campo queda bloqueado, con su nota, en tres casos:
+- **Atención padre:** el campo aparece siempre. Se puede asignar o cambiar si la atención es temporal **o aún no ha sido procesada**. En una atención ya ubicada, asignar o cambiar el padre **mueve su carpeta** dentro de la del padre y hereda su proyecto, entornos y HU (la nota bajo el campo lo explica). Una atención ubicada que ya tiene padre no puede volver a "Sin padre" (la opción aparece deshabilitada). El nuevo padre debe tener carpeta definitiva. **Un solo nivel de anidación:** el selector solo ofrece atenciones **sin padre** (una hija nunca puede ser padre). El campo queda bloqueado, con su nota, en tres casos:
   - **Tiene issue en Jira** (`jira.padre_key`, que crea `/inicia` al asignarse, o alguna `subtareas[].key`): "Esta atención tiene su issue en Jira". Moverla dejaría Jira desalineado con las carpetas.
-  - **Tiene atenciones hijas** (y ya está ubicada): "Esta atención tiene atenciones hijas; por ahora no se puede cambiar su padre". Al moverla, sus hijas pasarían a ser nietas, y la herramienta solo busca un nivel de anidación.
+  - **Tiene atenciones hijas:** "Esta atención tiene atenciones hijas, por eso no puede tener padre". Si las tuviera, sus hijas pasarían a ser nietas.
   - **Ya fue procesada** por otro motivo (propuesta de limpieza o archivo de corrección): "Esta atención ya fue procesada; el padre quedó fijo".
 
 ### Reunión sin proyecto (CON)
@@ -155,7 +155,7 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
   - Ticket: Tracking ID editable (letras, números, `-`, `_`), opcional.
   - Tipos propios: solo lectura, con el siguiente correlativo de **10 dígitos** (`JINT0000000002`). Es solo una **vista previa**: al crear, el servidor asigna el Tracking ID definitivo, que es el que vale aunque difiera del mostrado.
   - Título obligatorio.
-- **Atención padre** en una fila propia, **antes** del proyecto. Al elegir un padre se ocultan proyecto, entornos y HU, y aparece "Hereda proyecto, entornos y HU de …".
+- **Atención padre** en una fila propia, **antes** del proyecto. Solo se ofrecen atenciones **sin padre** (un solo nivel de anidación). Al elegir un padre se ocultan proyecto, entornos y HU, y aparece "Hereda proyecto, entornos y HU de …".
 - **Proyecto, Entornos y HU** en un bloque gris en una sola fila:
   - Proyecto: 6 letras con autocompletado. Valor por defecto según el tipo: INFRAS para INT, DOCINF para DOC, vacío para Ticket y CON.
   - Entornos: botones DEV / PRE / PRO, **opcionales**. Sin entorno, la atención nace igualmente definitiva, en la carpeta `000_SinEntorno` de su proyecto; por eso el aviso de "temporal" solo lista Tracking ID y proyecto. DEV + PRO sin PRE muestra un error y bloquea Crear.
