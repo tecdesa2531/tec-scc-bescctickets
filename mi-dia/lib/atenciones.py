@@ -839,6 +839,21 @@ def tiempo_por_atencion():
 # Consultas para la pantalla
 # ---------------------------------------------------------------------------
 
+def marcar_correcciones(registro, entradas):
+    # Agrega a cada entrada el texto corregido vigente del agente, o marca la
+    # correccion como vencida si la entrada se edito despues de corregirla.
+    correcciones = bitacora.leer_correcciones(registro)
+    for entrada in entradas:
+        correccion = correcciones.get(entrada["id"])
+        entrada["texto_corregido"] = ""
+        entrada["correccion_vencida"] = False
+        if correccion and correccion["texto"]:
+            if bitacora.correccion_vigente(entrada, correccion):
+                entrada["texto_corregido"] = correccion["texto"]
+            else:
+                entrada["correccion_vencida"] = True
+
+
 def paso_atencion(datos, entradas, pendientes):
     # Combina el estado con el camino a Jira para la etiqueta de la lista.
     # El estado manda: una atencion abierta nunca muestra un paso de Jira.
@@ -865,6 +880,7 @@ def resumen_atenciones():
         datos_bitacora = bitacora.leer_bitacora(registro)
         enviados = bitacora.ids_enviados(registro)
         entradas = datos_bitacora.get("entradas", [])
+        marcar_correcciones(registro, entradas)
         pendientes = bitacora.contar_pendientes(registro, entradas, enviados)
         lista.append({
             "id": registro["id"],
@@ -920,18 +936,10 @@ def _detalle_desde_registro(registro):
     carpeta_trabajo, carpeta_proceso = carpetas_de(registro)
     datos_bitacora = bitacora.leer_bitacora(registro)
     enviados = bitacora.ids_enviados(registro)
-    correcciones = bitacora.leer_correcciones(registro)
     entradas = datos_bitacora.get("entradas", [])
+    marcar_correcciones(registro, entradas)
     for entrada in entradas:
         entrada["enviada"] = entrada["id"] in enviados
-        correccion = correcciones.get(entrada["id"])
-        entrada["texto_corregido"] = ""
-        entrada["correccion_vencida"] = False
-        if correccion and correccion["texto"]:
-            if bitacora.correccion_vigente(entrada, correccion):
-                entrada["texto_corregido"] = correccion["texto"]
-            else:
-                entrada["correccion_vencida"] = True
     return {
         "id": registro["id"],
         "temporal": registro["temporal"],
