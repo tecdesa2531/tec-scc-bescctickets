@@ -57,7 +57,7 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 ### Lista de atenciones
 - **Filtros:** Abiertas | Por revisar (con contador) | Todas. Botón "+ Nueva atención".
 - **Cada fila tiene 3 zonas:**
-  1. Línea 1: etiqueta de tipo (ancho fijo, 46 px), **Tracking ID** en negrita, `- PROYECTO - ENTORNO`. En DOC, CON y NPL no se muestra el entorno.
+  1. Línea 1: etiqueta de tipo (ancho fijo, 46 px), **`PROYECTO | TRACKING_ID`** en negrita y, en gris medio, los entornos en minúscula: `NEXHUB | PTLND00000 - dev, pre`. Sin entorno (y siempre en DOC, CON y NPL) no se muestra la parte de entornos. Las temporales se ven como `Sin proyecto | Sin Tracking ID`. Este formato es solo de la lista; la cabecera del detalle, la píldora y el buscador mantienen el suyo.
   2. Línea 2: el tiempo de foco debajo de la etiqueta de tipo, alineado con ella, y el título alineado con el Tracking ID.
   3. A la derecha: una sola etiqueta de estado y la acción (Enfocar / En foco).
 - **Etiqueta de estado:** una sola etiqueta de **ancho fijo (112 px)**, alto 24 px, texto centrado. Une el estado y el camino a Jira:

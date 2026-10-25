@@ -100,9 +100,9 @@ function htmlFila(a, nivel, mapa, idFoco) {
     '<span class="at-tiempo">' + esc(duracion(a.segundos || 0)) + "</span>" +
   "</div>";
 
-  var linea1 = '<span class="at-id">' + esc(idTexto) + "</span>" +
-    (proj ? '<span class="at-proj">- ' + esc(proj) + "</span>" : "") +
-    (env ? '<span class="at-proj">- ' + esc(env) + "</span>" : "") +
+  // Primera linea: "PROYECTO | TRACKING_ID" destacado y "- entornos" en minuscula
+  var linea1 = '<span class="at-id">' + (proj ? esc(proj) + " | " : "") + esc(idTexto) + "</span>" +
+    (env ? '<span class="at-env">- ' + esc(env.toLowerCase()) + "</span>" : "") +
     (a.temporal ? '<span class="at-temporal">Temporal</span>' : "");
 
   var tituloCls = a.estado === "descartado" ? "at-titulo at-tachado ell" : "at-titulo ell";

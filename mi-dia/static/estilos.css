@@ -822,7 +822,7 @@ td {
 .at-hijos-foco  { background: var(--foco-solido); border-color: var(--foco-solido); color: var(--foco-sobre-solido); }
 
 .at-id { flex-shrink: 0; font-family: var(--fuente-mono); font-size: 14px; font-weight: 600; color: var(--texto); }
-.at-proj { flex-shrink: 0; font-size: 13px; font-weight: 600; color: var(--texto-medio); }
+.at-env { flex-shrink: 0; font-size: 13px; font-weight: 600; color: var(--texto-medio); }
 .at-temporal {
   flex-shrink: 0;
   font-size: 11px;
