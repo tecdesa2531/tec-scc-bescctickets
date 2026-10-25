@@ -1364,8 +1364,9 @@ async function guardarEntrada() {
         capturas: capturas, archivos: nuevosArchivos
       });
     }
+    var esEdicion = !!edicion;
     limpiarRedactor();
     await recargarDetalle();
-    scrollUltimaEntrada();
+    if (!esEdicion) scrollUltimaEntrada();
   } catch (error) { mostrarError(error); }
 }

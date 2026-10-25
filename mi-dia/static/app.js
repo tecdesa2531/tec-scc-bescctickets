@@ -80,6 +80,7 @@ document.addEventListener("click", function (e) {
   if (document.getElementById("r-barra").contains(e.target)) return;  // clic dentro de la barra
   if (document.getElementById("visor").contains(e.target)) return;    // clic dentro del visor (incluye cerrarlo)
   if (!document.getElementById("visor").hidden) return;               // clic que acaba de abrir el visor
+  if (e.target.closest(".entrada-editar")) return;                    // boton Editar de una entrada
   minimizarRedactor();
 });
 
