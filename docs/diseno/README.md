@@ -162,7 +162,7 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
   - HU: Semanal | Independiente.
 - **Solo en tickets:** URL ServiceNow y Área de trabajo Edge en la misma fila. El área se sugiere como `TRACKINGID-PROYECTO`.
 - **Nota por tipo** debajo, usando el término **Tracking ID**, no "número interno".
-- **Pie:** a la izquierda, cómo nacerá la atención (verde "Se creará con sus carpetas definitivas" o ámbar "Se creará como temporal: falta …"). A la derecha, Cancelar y Crear. Crear queda deshabilitado si falta el título o los entornos son inválidos, con un tooltip que lo explica. Crear abre el detalle (y aplica la regla de pasar el foco al abrir).
+- **Pie:** a la izquierda, solo si la atención nacerá temporal, el aviso ámbar "Se creará como temporal: falta …" (si nace definitiva no se muestra ningún mensaje). A la derecha, Cancelar y Crear. Crear queda deshabilitado si falta el título o los entornos son inválidos, con un tooltip que lo explica. Crear abre el detalle (y aplica la regla de pasar el foco al abrir).
 - **Desde una idea:** el título viene precargado y aparece un aviso. Al crear, la idea pasa a "convertida" con el `atencion_id` de la nueva atención.
 
 ---

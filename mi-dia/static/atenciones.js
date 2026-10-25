@@ -360,13 +360,12 @@ function validarNueva() {
 
   document.getElementById("n-env-error").hidden = !envInvalido;
 
+  // Solo se avisa cuando nacera temporal; si nace definitiva no hace falta mensaje
   var destino = document.getElementById("n-destino");
+  destino.hidden = !temporal;
   if (temporal) {
     destino.className = "dlg-destino temporal";
     destino.textContent = "Se creara como temporal: falta " + falta.join(", ") + ". Lo completas despues en el detalle.";
-  } else {
-    destino.className = "dlg-destino ok";
-    destino.textContent = "Se creara con sus carpetas definitivas.";
   }
 
   var btn = document.getElementById("n-crear");
