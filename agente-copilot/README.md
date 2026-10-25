@@ -11,7 +11,7 @@ Este agente de GitHub Copilot prepara tus atenciones para Jira. No organiza carp
 
 ## Uso diario
 
-Le hablas en corto. Cada comando acepta un ID (Tracking ID) o, sin ID, toma de la cola todas las pendientes de esa etapa (si son 5 o menos te pide confirmar cuáles; si son más, las lista y avanza):
+Le hablas en corto. Cada comando acepta un ID (Tracking ID) o, sin ID, toma de la cola todas las pendientes de esa etapa (si son 5 o menos te pide confirmar cuáles; si son más, las lista y avanza). `/inicia` no pide esa confirmación: crea directo. `/corrige` siempre necesita el ID.
 
 | Quieres | Le dices |
 |---|---|

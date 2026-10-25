@@ -248,6 +248,7 @@ El agente **no escanea** carpetas: lee `003_Herramienta/agente-cola.json`, que l
 - Las **HU independientes** no van en el config: viven en `jira.padre_key` de cada atención. Ambos tipos conviven en el sprint.
 - **Cierre de semana** (mismo sprint): las subtareas abiertas **cambian de padre** a la HU de la semana siguiente (PUT del `parent`), sin duplicar. Queda historial (comentario de continuidad).
 - **Cierre de sprint** (al siguiente, misma épica dentro del trimestre): lo que sigue abierto pasa como **Parte 02**; el agente crea las nuevas HU padre (semanales e independientes abiertas). Jhans crea el sprint y, al cambiar de trimestre, la épica nueva.
+- **Datos para los cierres (acordado el 2026-10-25):** cada subtarea semanal guarda en `ticket-datos.json` su `hu_key` (la HU semanal de la que cuelga) y su `estado` (nombre exacto del estado en Jira; vacío al crearla; abierta = distinto de `FINALIZADO`). Como la cola no trae las atenciones que solo tienen subtareas abiertas, en el cierre de semana y de sprint (y solo ahí) el agente recorre en solo lectura los `ticket-datos.json` de la raíz de proceso. La Parte 02 semanal se agrega como entrada nueva en `subtareas[]` con `parte: 2` (los comentarios van a la vigente de cada entorno); la Parte 02 independiente reemplaza a `jira.padre_key` y la HU anterior pasa a `jira.historial`. Si una hija de raíz independiente da el conforme cuando la fase ya está en `FINALIZADO`, su `/procede` aplica la regla de reapertura.
 
 ### 7.5 Archivos y dueños nuevos
 
