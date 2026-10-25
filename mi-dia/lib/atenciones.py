@@ -787,11 +787,12 @@ def cerrar_interrupcion(parametros):
         cambios = {"npl": {"tipo_contacto": tipo_contacto, "quien": quien, "resumen": resumen,
                            "ticket_relacionado": ticket_relacionado,
                            "pendiente_cierre": not completo}}
+        # Completa, queda lista para Jira: una NPL no pasa por limpieza ni
+        # conforme (ver cola.py).
         if completo:
             etiqueta_contacto = "Llamada" if tipo_contacto == "llamada" else "Chat"
             cambios["titulo"] = etiqueta_contacto + " con " + quien
             cambios["estado"] = "atendido"
-            cambios["listo_para_limpieza"] = texto_fecha(ahora())
         actualizar_datos(registro, cambios)
         indice.indexar_atencion(registro["datos"])
         _regenerar_cola()
@@ -865,6 +866,11 @@ def paso_atencion(datos, entradas, pendientes):
         return estado
     if estado == "descartado":
         return "descartado"
+    # Una interrupcion cerrada completa va directo a Jira (sin limpieza ni conforme).
+    if datos.get("tipo") == "npl":
+        if (datos.get("npl") or {}).get("pendiente_cierre"):
+            return "en_curso"
+        return "jira" if pendientes == 0 else "procede"
     # Solo las atenciones atendidas muestran el paso hacia Jira.
     hay_corregido = any(
         e.get("texto_corregido") and not e.get("correccion_vencida") for e in entradas)

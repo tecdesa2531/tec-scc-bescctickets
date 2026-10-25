@@ -16,6 +16,14 @@ def _raiz(datos, mapa):
     return datos
 
 
+def _hay_pendientes(registro):
+    # True si queda alguna entrada para Jira que aun no figura como subida.
+    datos_bitacora = bitacora.leer_bitacora(registro)
+    enviados = bitacora.ids_enviados(registro)
+    return bitacora.contar_pendientes(
+        registro, datos_bitacora.get("entradas", []), enviados) > 0
+
+
 def _accion(registro, mapa):
     # Devuelve la accion pendiente del agente, o "" si no hay nada que hacer.
     datos = registro["datos"]
@@ -24,21 +32,20 @@ def _accion(registro, mapa):
     estado = datos.get("estado", "")
     if estado == "descartado":
         return ""
-    jira = datos.get("jira") or {}
-    if datos.get("listo_para_jira"):
-        datos_bitacora = bitacora.leer_bitacora(registro)
-        enviados = bitacora.ids_enviados(registro)
-        pendientes = bitacora.contar_pendientes(
-            registro, datos_bitacora.get("entradas", []), enviados)
-        return "pendiente_jira" if pendientes else ""
-    if datos.get("listo_para_limpieza"):
-        return "pendiente_limpieza"
     # Una interrupcion (NPL) nunca tiene issue propio: siempre sube como
     # comentario (en la subtarea fija de interrupciones, en la fase fija
     # "Consultas y seguimiento", o directo en la subtarea del padre). No pasa
-    # por /inicia.
+    # por /inicia, /limpia ni el conforme: cerrarla con los datos completos ya
+    # la deja lista, y su texto se revisa en el dry-run de /procede.
     if datos.get("tipo") == "npl":
-        return ""
+        if estado != "atendido" or (datos.get("npl") or {}).get("pendiente_cierre"):
+            return ""
+        return "pendiente_jira" if _hay_pendientes(registro) else ""
+    jira = datos.get("jira") or {}
+    if datos.get("listo_para_jira"):
+        return "pendiente_jira" if _hay_pendientes(registro) else ""
+    if datos.get("listo_para_limpieza"):
+        return "pendiente_limpieza"
     # El padre esta creado si hay HU (independiente) o alguna subtarea con key (semanal).
     tiene_subtarea = any(s.get("key") for s in (datos.get("subtareas") or []))
     if not jira.get("padre_key") and not tiene_subtarea:
