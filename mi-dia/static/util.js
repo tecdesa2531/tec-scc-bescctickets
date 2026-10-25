@@ -68,8 +68,14 @@ async function enviar(ruta, datos) {
   return resultado;
 }
 
+// Aviso de error en linea: se queda hasta cerrarlo; uno nuevo reemplaza el texto
 function mostrarError(error) {
-  alert(error.message || String(error));
+  document.getElementById("aviso-error-texto").textContent = (error && error.message) || String(error);
+  document.getElementById("aviso-error").hidden = false;
+}
+
+function cerrarError() {
+  document.getElementById("aviso-error").hidden = true;
 }
 
 // -- Utilidades de tiempo y UI

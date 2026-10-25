@@ -507,6 +507,14 @@
   </div>
 </div>
 
+<!-- Aviso de error (no se oculta solo; un error nuevo reemplaza el texto) -->
+<div id="aviso-error" class="aviso-error" hidden role="alert">
+  <span id="aviso-error-texto"></span>
+  <button type="button" class="aviso-error-btn" aria-label="Cerrar aviso" onclick="cerrarError()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+</div>
+
 <!-- Aviso "Foco en ... / Deshacer" (se oculta solo a los 5 s) -->
 <div id="aviso-foco" class="aviso-foco" hidden>
   <span id="aviso-foco-texto"></span>
@@ -515,7 +523,7 @@
 
 <!-- Visor de capturas (pantalla completa dentro de la app) -->
 <div id="visor" class="visor" hidden role="dialog" aria-modal="true" aria-label="Captura" onclick="clicFueraVisor(event)">
-  <button class="visor-cerrar" aria-label="Cerrar" onclick="cerrarVisor()">
+  <button id="visor-cerrar" class="visor-cerrar" aria-label="Cerrar" onclick="cerrarVisor()">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
   </button>
   <button id="visor-prev" class="visor-nav visor-prev" aria-label="Captura anterior" onclick="visorMover(-1)">

@@ -55,6 +55,8 @@
 
   /* Error */
   --error:        #B42318;
+  --sobre-activo: #FFFFFF;   /* texto sobre fondo --activo */
+  --sobre-error:  #FFFFFF;   /* texto sobre fondo --error */
 
   /* Bloque de codigo (estilo Notion) */
   --codigo-fondo: #F7F6F3;
@@ -122,6 +124,8 @@ html[data-tema="oscuro"] {
 
   /* Error */
   --error:        #FF8A80;
+  --sobre-activo: #1A0A12;
+  --sobre-error:  #1A0A12;
 
   /* Bloque de codigo (estilo Notion) */
   --codigo-fondo: #2F2F2F;
@@ -290,6 +294,16 @@ button.principal:hover {
   opacity: 0.87;
   background: var(--activo);
   color: #fff;
+}
+
+/* Deshabilitado: gris y sin efecto hover, para cualquier boton */
+button:disabled,
+button:disabled:hover {
+  background: var(--borde);
+  border-color: var(--borde);
+  color: var(--suave);
+  opacity: 1;
+  cursor: not-allowed;
 }
 
 /* -- Controles de formulario */
@@ -463,7 +477,6 @@ label {
   font-weight: 600;
 }
 .idea-agregar:hover { background: var(--texto); color: var(--card); border: none; opacity: 0.87; }
-.idea-agregar:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* -- Franja de interrupcion (global) */
 .franja-npl {
@@ -637,7 +650,6 @@ label {
   color: var(--card);
 }
 .foco-inline-btn:hover { background: var(--texto); color: var(--card); border: none; opacity: 0.87; }
-.foco-inline-btn:disabled { background: var(--borde); color: var(--suave); cursor: not-allowed; opacity: 1; }
 
 /* Confirmacion en linea (terminar dia) */
 .foco-confirmar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
@@ -1060,7 +1072,6 @@ details[open] summary::before { content: "\25BC  "; }
 }
 .redactor-spacer { flex: 1; }
 .redactor-cancelar { height: 36px; padding: 0 12px; font-size: 13px; }
-#r-guardar:disabled { background: var(--borde); color: var(--suave); cursor: not-allowed; }
 
 /* Capturas pendientes: imagen a la izquierda, descripcion amplia a la derecha */
 .cap-vert {
@@ -1415,6 +1426,34 @@ a:hover { opacity: 0.8; }
 }
 .aviso-foco-btn:hover { background: transparent; color: var(--card); border: none; opacity: 0.85; }
 
+/* Aviso de error: como el de foco, con colores de error; por encima de dialogo y visor */
+.aviso-error {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(640px, calc(100vw - 32px));
+  padding: 10px 10px 10px 16px;
+  border-radius: 10px;
+  background: var(--error);
+  color: var(--sobre-error);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+  font-size: 13px;
+  font-weight: 500;
+}
+.aviso-error-btn {
+  flex-shrink: 0;
+  width: 28px; height: 28px; padding: 0;
+  display: flex; align-items: center; justify-content: center;
+  border: none; border-radius: 6px;
+  background: transparent; color: var(--sobre-error);
+}
+.aviso-error-btn:hover { background: transparent; color: var(--sobre-error); border: none; opacity: 0.8; }
+
 /* -- Detalle: cabecera */
 .det-cabecera { display: flex; flex-direction: column; gap: 16px; }
 .det-volver {
@@ -1615,7 +1654,6 @@ a:hover { opacity: 0.8; }
 .dlg-destino.ok       { background: var(--jira-bg); border: 1px solid var(--jira-fg); color: var(--jira-fg); }
 .dlg-destino.temporal { background: var(--aviso-fondo); border: 1px solid var(--aviso-borde); color: var(--aviso-texto); }
 .dlg-pie-acc { display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
-#n-crear:disabled { background: var(--borde); color: var(--suave); cursor: not-allowed; }
 
 /* -- Interrupcion (NPL) */
 #npl-card { display: flex; flex-direction: column; gap: 18px; }
