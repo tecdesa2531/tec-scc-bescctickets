@@ -283,10 +283,11 @@ Ultima actualizacion: 2026-10-25
 
 **Criterios de aceptacion:**
 - [ ] Sin atencion padre, se sube como comentario en la subtarea fija de interrupciones de la HU semanal vigente.
-- [ ] Con atencion padre de HU independiente, se sube como comentario en la fase fija "Consultas y seguimiento" de esa HU.
+- [ ] Con atencion padre de HU independiente, se sube como comentario en la fase fija "Consultas y seguimiento" de esa HU, que se crea con la primera interrupcion y no queda abierta si la HU ya termino.
 - [ ] Con atencion padre que es subtarea de una HU semanal, se sube como comentario directo en esa subtarea, sin crear nada nuevo.
+- [ ] Al cerrarla con los datos completos queda lista para subir, sin limpieza ni conforme; veo el texto final antes de confirmar la subida.
 
-**RF relacionados:** RF-053, RF-054, RF-055
+**RF relacionados:** RF-053, RF-054, RF-055, RF-059
 **Estado:** pendiente
 
 ---

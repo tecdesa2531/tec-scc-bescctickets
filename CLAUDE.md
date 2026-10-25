@@ -49,19 +49,20 @@ Los nombres de proyectos, tickets, claves de Jira y herramientas internas que ap
 
 | Archivo | Escribe | Lee |
 |---|---|---|
-| `ticket-datos.json` | Herramienta (Copilot solo completa `correos[].resumen` y `subtareas`) | Ambos |
+| `ticket-datos.json` | Herramienta (Copilot solo completa `correos[].resumen`, `descripcion`, `titulo_jira`, `jira` y `subtareas`) | Ambos |
+| `040_ProcesoJira/bitacora-correccion.json` | Copilot | Herramienta (original / corregido) |
 | `bitacora.json` | Herramienta | Copilot |
 | `040_ProcesoJira/jira-*.json` | Copilot | Herramienta (solo para saber qué se subió) |
 
-**Herramienta** (`organizador-atenciones/`): `servidor.py` (biblioteca estándar, `ThreadingHTTPServer`) + `index.html` (JavaScript sin librerías). Datos en JSON, sin base de datos. Su `README.md` documenta uso, formato de datos y la lista de prueba.
+**Herramienta** (`mi-dia/`): `servidor.py` (biblioteca estándar, `ThreadingHTTPServer`) + `index.html` (JavaScript sin librerías). Datos en JSON, sin base de datos. Su `README.md` documenta uso, formato de datos y la lista de prueba.
 
-**Agente Copilot** (`agente-copilot/.github/`): `copilot-instructions.md`, el agente `atencion-tickets`, los prompts `/inicia`, `/limpia`, `/procede` y `/corrige`, y cinco skills (`correo-procesar`, `jira-comentarios`, `jira-historia-usuario`, `jira-subtareas`, `sprint-cierre`; `indice-atenciones` ya se eliminó, el índice lo genera la herramienta). Ya trabaja sobre las dos raíces vía `agente-cola.json`: no organiza carpetas ni correos.
+**Agente Copilot** (`agente-copilot/.github/`): `copilot-instructions.md`, el agente `atencion-tickets`, los prompts `/inicia`, `/limpia`, `/procede` y `/corrige`, y cinco skills (`correo-procesar`, `jira-comentarios`, `jira-historia-usuario`, `jira-subtareas`, `sprint-cierre`; `indice-atenciones` ya se eliminó, el índice lo genera la herramienta). Ya trabaja sobre las dos raíces vía `agente-cola.json`: no organiza carpetas ni correos. Copilot solo carga `copilot-instructions.md` desde `agente-copilot/.github/`, y los prompts usan `agent: atencion-tickets`. El `config-jira.json` del repositorio es una plantilla; el real está en la raíz de proceso.
 
 ## Estado actual
 
 - **Etapas 1 a 4 terminadas y probadas**: accesos rápidos, atenciones, bitácora (correos, adjuntos, capturas, edición, bloqueo de enviadas, Terminar) y foco (pausa, idea, reunión, interrupción, terminar día, ideas pendientes).
 - **Etapa 5 (adaptar el agente Copilot al nuevo flujo) ya está hecha**: el agente lee las dos raíces vía `agente-cola.json` y trabaja solo con `/inicia`, `/limpia`, `/procede` y `/corrige`. La sección "Etapa 5" de `docs/diseno.md` queda como historial de esa decisión, no como pendiente.
-- **Modo Interrupción (NPL)** agregado en la herramienta: registra llamadas y chats sin agendar, con cierre diferido y vínculo a un ticket existente vía Atención padre (ver `docs/diseno.md`). Pendiente: el agente Copilot todavía no conoce el tipo `npl` ni sabe enrutar sus comentarios a Jira (los tres casos ya están documentados en `requisitos-funcionales.md`, RF-053 a RF-055).
+- **Modo Interrupción (NPL)** agregado en la herramienta: registra llamadas y chats sin agendar, con cierre diferido y vínculo a un ticket existente vía Atención padre (ver `docs/diseno.md`). No pasa por limpieza ni conforme: cerrada con los datos completos queda en `pendiente_jira` (RF-059). El agente ya conoce el tipo `npl`: corrige el resumen en `/procede` y enruta el comentario según los tres casos (RF-053 a RF-055); falta probarlo contra Jira en la laptop.
 - Después: flujos A-D como lista de pasos, índice semanal generado por la herramienta, relación DOC-ticket y, más adelante, la subida a Jira desde la herramienta.
 
 ## Cómo probar la herramienta aquí

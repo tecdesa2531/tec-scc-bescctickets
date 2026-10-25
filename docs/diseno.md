@@ -179,6 +179,11 @@ Quinto tipo de atención, para llamadas o chats de Teams sin agendar (a diferenc
   - **Sin padre:** comentario en la subtarea fija "Interrupciones y consultas no planificadas - semana X" de la HU semanal vigente.
   - **Padre con HU independiente** (la interrupción es hija de una raíz independiente): comentario en la fase fija **"Consultas y seguimiento"**, que debe existir siempre en toda HU independiente (no es una fase propuesta por el agente según el contenido de la bitácora: es obligatoria). Ver también la sección 7.4.
   - **Padre que es a su vez una subtarea de una HU semanal:** excepción a la regla general de hijos de una atención semanal (que crean una subtarea hermana nueva, sección 7.4): aquí el comentario va directo en esa subtarea ya existente, sin crear ninguna subtarea nueva para la interrupción.
+- **Actualizado el 2026-10-25 (revisión de alineación del agente):**
+  - **Sin limpieza ni conforme.** La tarjeta de Interrupción nunca tuvo *Dar conforme*, así que la NPL quedaba para siempre en `pendiente_limpieza` (verificado con la herramienta corriendo). Como no crea issue y el resumen lo escribe Jhans al cerrarla, el cierre completo ya la deja en `pendiente_jira` (`cola.py`, sin `listo_para_jira`). `/procede` corrige el resumen, lo guarda en `bitacora-correccion.json` (eso la bloquea) y lo muestra en el dry-run: la revisión es el "crear". RF-059.
+  - **"Consultas y seguimiento" se crea con la primera NPL que la necesita**, no siempre: reemplaza lo dicho arriba y en la sección 7.4. Si al subir el comentario las demás fases de la raíz ya están en `FINALIZADO`, el `/procede` de la NPL la cierra, para que no quede abierta en una HU terminada (ni pase a una Parte 02). RF-054.
+  - **Una NPL nunca es padre.** Antes, el selector de *Atención padre* y el servidor lo permitían, y las hijas quedaban sin destino en Jira. Ahora `validar_un_nivel` lo rechaza y el selector no ofrece NPL. RF-008.
+  - **De Markdown a formato wiki.** La herramienta guarda todo en Markdown (bitácora, corrección, resumen de NPL); el agente convierte a formato wiki solo al armar lo que va a Jira (tabla en `copilot-instructions.md`). `bitacora-correccion.json` sigue en Markdown.
 
 ## 6. Contrato con Copilot
 
@@ -235,7 +240,7 @@ El agente **no escanea** carpetas: lee `003_Herramienta/agente-cola.json`, que l
 
 ### 7.4 Mapeo a Jira
 
-- **Independiente** (flujo con el que arrancamos): el padre es la **HU**. Al `/procede`, el agente analiza la bitácora en orden, **propone las fases**, Jhans las aprueba y se crean las **subtareas** bajo esa HU; luego reparte los comentarios (el agente **razona** si van agrupados o uno por subtarea). Toda HU independiente incluye además una fase fija **"Consultas y seguimiento"** (no propuesta por el agente, siempre presente) para los comentarios de interrupciones (NPL) cuya atención padre cuelga de esa HU.
+- **Independiente** (flujo con el que arrancamos): el padre es la **HU**. Al `/procede`, el agente analiza la bitácora en orden, **propone las fases**, Jhans las aprueba y se crean las **subtareas** bajo esa HU; luego reparte los comentarios (el agente **razona** si van agrupados o uno por subtarea). Una HU independiente puede tener además una fase fija **"Consultas y seguimiento"** (no propuesta por el agente) para los comentarios de interrupciones (NPL) cuya atención padre cuelga de esa HU; se crea con la primera NPL que la necesita (actualizado el 2026-10-25, ver "Interrupciones").
 - **Hija marcada como fase independiente** (solo `int`/`doc`/`con`, raíz independiente; `fase_independiente` en la herramienta): a diferencia de las demás hijas de una raíz independiente, tiene su **propia subtarea** bajo la HU de la raíz, creada en su `/inicia` con su propio título y sin pasar por la propuesta de fases. Su `/procede` sube sus comentarios a esa subtarea y la cierra; la raíz no la incluye entre sus fases. Sigue sin ser HU (los hijos nunca suben a HU). Ver RF-057.
 - **Semanal**: el padre es una **subtarea** bajo la HU semanal vigente. Si la atención **tiene hijos**, cada hijo es **otra subtarea** bajo la misma HU semanal (planas, hermanas; los hijos nunca suben a HU).
 - **Selección con criterio**: entre las entradas `para_jira: true`, el agente no sube todas; descarta lo incoherente o redundante y deja solo lo que tiene sentido como comentario.
@@ -249,6 +254,12 @@ El agente **no escanea** carpetas: lee `003_Herramienta/agente-cola.json`, que l
 - **Cierre de semana** (mismo sprint): las subtareas abiertas **cambian de padre** a la HU de la semana siguiente (PUT del `parent`), sin duplicar. Queda historial (comentario de continuidad).
 - **Cierre de sprint** (al siguiente, misma épica dentro del trimestre): lo que sigue abierto pasa como **Parte 02**; el agente crea las nuevas HU padre (semanales e independientes abiertas). Jhans crea el sprint y, al cambiar de trimestre, la épica nueva.
 - **Datos para los cierres (acordado el 2026-10-25):** cada subtarea semanal guarda en `ticket-datos.json` su `hu_key` (la HU semanal de la que cuelga) y su `estado` (nombre exacto del estado en Jira; vacío al crearla; abierta = distinto de `FINALIZADO`). Como la cola no trae las atenciones que solo tienen subtareas abiertas, en el cierre de semana y de sprint (y solo ahí) el agente recorre en solo lectura los `ticket-datos.json` de la raíz de proceso. La Parte 02 semanal se agrega como entrada nueva en `subtareas[]` con `parte: 2` (los comentarios van a la vigente de cada entorno); la Parte 02 independiente reemplaza a `jira.padre_key` y la HU anterior pasa a `jira.historial`. Si una hija de raíz independiente da el conforme cuando la fase ya está en `FINALIZADO`, su `/procede` aplica la regla de reapertura.
+- **Alineación del agente (acordado el 2026-10-25):**
+  - La **fecha de la atención** (con la que se elige la HU semanal) es `creado` de `ticket-datos.json`; sábado y domingo cuentan como el viernes anterior. Si ninguna HU la cubre, el agente avisa y salta la atención.
+  - Los scripts de las HU semanales y de los cierres van en `<raiz_proceso>/003_Herramienta/020_ProcesoSprint/`.
+  - Para leer una atención que no está en la cola, el agente no escanea: la raíz de un hijo es la carpeta de un nivel arriba (un solo nivel de anidación) y un Tracking ID se ubica por el nombre de su carpeta `NNN_<TrackingID>`.
+  - El config real es `<raiz_proceso>/config-jira.json`; el agente nunca escribe en la plantilla del repositorio.
+  - `copilot-instructions.md` vive en `agente-copilot/.github/` (Copilot solo lo carga desde ahí), los prompts corren con `agent: atencion-tickets` y todo script de Jira acepta `--dry-run` sin llamar a Jira.
 
 ### 7.5 Archivos y dueños nuevos
 
