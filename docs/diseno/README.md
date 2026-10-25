@@ -40,7 +40,7 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 
 ### Franja de interrupción
 - Mientras hay una interrupción activa, se muestra una franja rosada arriba con el cronómetro **con segundos**, y los botones "Anotar" y "Cerrar interrupción".
-- El cronómetro mide el **tiempo de foco acumulado** de la interrupción (la suma de sus tramos). Es el mismo valor que el cronómetro grande de la vista de la interrupción.
+- El cronómetro mide el **tiempo de foco acumulado** de la interrupción: la suma de sus tramos de **todos los días**, con el mismo cálculo que el tiempo de la lista. Es el mismo valor que el cronómetro grande de la vista de la interrupción.
 - "Anotar" abre la interrupción. "Cerrar interrupción" la abre **con el bloque de cierre ya abierto** y el foco en pausa.
 
 ### Panel de foco
@@ -171,7 +171,7 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 
 - **Cabecera:** `[NPL] JNPL… - PROYECTO` y el título ("Interrupcion HH:MM"; al cerrarla, "Llamada con …" o "Chat con …"). A la derecha:
   - El **estado como etiqueta estática** (En curso / Pendiente de cerrar / Atendida / Cancelada), no como selector.
-  - Un **cronómetro grande con segundos** que mide el **tiempo de foco acumulado** de la interrupción (la suma de sus tramos), igual que la franja de la vista principal. Corre mientras la interrupción está en foco y se congela al pulsar "Cerrar interrupción", porque el foco pasa a pausa. Cerrada o procesada muestra ese total como "duración total". No incluye el tiempo que se tarda en llenar el cierre.
+  - Un **cronómetro grande con segundos** que mide el **tiempo de foco acumulado** de la interrupción (la suma de sus tramos de todos los días, el mismo cálculo que el tiempo de la lista), igual que la franja de la vista principal. Corre mientras la interrupción está en foco y se congela al pulsar "Cerrar interrupción", porque el foco pasa a pausa. Cerrada o procesada muestra ese total como "duración total". No incluye el tiempo que se tarda en llenar el cierre.
 - **Atención padre y Proyecto** en una fila. Con padre, el proyecto se muestra heredado y sin campo.
 - **Notas privadas:** se guardan solas (debounce de 800 ms) con el indicador "Guardando…" / "Guardado".
 - **Adjuntos:** miniaturas **sin descripción obligatoria**, y un recuadro para pegar, arrastrar o "elige un archivo". Clic en una miniatura abre el mismo visor de capturas. En una interrupción atendida o procesada ya no se pueden añadir.

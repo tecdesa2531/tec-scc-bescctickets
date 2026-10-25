@@ -159,14 +159,18 @@ function pintarFranja() {
   iniciarTickFranja();
 }
 
-// Tiempo de foco acumulado de una atencion: suma de sus tramos cerrados mas el
-// tramo abierto en vivo si es el foco actual. Lo usan la franja y el cronometro NPL.
+// Tiempo de foco acumulado de una atencion, con el mismo calculo que la lista:
+// a.segundos suma sus tramos de todos los dias hasta que se cargo la lista; si
+// ahora esta en foco, se suma en vivo lo que corre desde entonces (o desde que
+// empezo el tramo, si empezo despues). Lo usan la franja y el cronometro NPL.
 function segundosFocoNpl(id) {
-  var total = 0;
-  (foco.hoy || []).forEach(function (t) {
-    if (t.atencion_id === id && t.fin) total += (t.segundos || 0);
-  });
-  if (foco.actual && foco.actual.atencion_id === id) total += segundosDesde(foco.actual.inicio);
+  var a = atencionPorId(id);
+  var total = a ? (a.segundos || 0) : 0;
+  if (foco.actual && foco.actual.atencion_id === id) {
+    var inicio = new Date(foco.actual.inicio.replace(" ", "T")).getTime();
+    var desde  = Math.max(atencionesCargadas, inicio);
+    total += Math.max(0, Math.floor((Date.now() - desde) / 1000));
+  }
   return total;
 }
 

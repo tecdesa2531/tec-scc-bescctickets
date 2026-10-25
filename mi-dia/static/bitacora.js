@@ -797,6 +797,7 @@ async function mostrarCierreInterrupcion() {
   // Al abrir el cierre se pausa el foco: el cronometro se congela
   if (foco.actual && foco.actual.atencion_id === detalle.id) {
     await enviar("/api/foco/cambiar", { tipo: "pausa" });
+    await cargarAtenciones();   // el total de la lista ya incluye el tramo recien cerrado
     await cargarFoco();
     pintarEstadoDetalle();
   }

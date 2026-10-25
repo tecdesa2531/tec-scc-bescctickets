@@ -3,6 +3,7 @@
 // -- Estado global
 var proyectos = [];
 var atenciones = [];
+var atencionesCargadas = 0;
 var foco = { actual: null, anterior_abierto: null, hoy: [], totales: [] };
 var ideas = [];
 var detalle = null;
@@ -136,5 +137,6 @@ async function cargarTodo() {
 
 async function cargarAtenciones() {
   atenciones = await leer("/api/atenciones");
+  atencionesCargadas = Date.now();   // momento al que corresponde a.segundos
   pintarAtenciones();
 }
