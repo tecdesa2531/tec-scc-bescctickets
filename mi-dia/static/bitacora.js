@@ -507,9 +507,12 @@ function editarDetalle() {
   // URL y Area Edge solo en tickets
   document.getElementById("e-campo-url").hidden = d.tipo !== "ticket";
 
-  // Padre: editable si es temporal o si aun no esta procesada. En una atencion
-  // ya ubicada, asignarlo o cambiarlo mueve su carpeta dentro de la del padre.
-  var padreEditable = detalle.temporal || !detalle.procesada;
+  // Padre: editable si es temporal o si aun no esta procesada, no tiene issue en
+  // Jira y no tiene hijas. En una atencion ya ubicada, asignarlo o cambiarlo
+  // mueve su carpeta dentro de la del padre.
+  var conIssue  = tieneIssueJira(d);
+  var conHijas  = !detalle.temporal && atenciones.some(function (a) { return a.padre_id === detalle.id; });
+  var padreEditable = (detalle.temporal || !detalle.procesada) && !conIssue && !conHijas;
   document.getElementById("e-campo-padre").hidden = false;
   llenarPadres("e", [detalle.id].concat(descendientesDe(detalle.id)));
   var selPadre = document.getElementById("e-padre");
@@ -518,7 +521,13 @@ function editarDetalle() {
   // Una atencion ubicada con padre no puede volver a "Sin padre"
   selPadre.querySelector('option[value=""]').disabled = !!d.padre_id && !detalle.temporal;
   var notaPadre = document.getElementById("e-padre-nota");
-  if (!padreEditable) {
+  if (conIssue) {
+    notaPadre.textContent = "Esta atencion tiene su issue en Jira.";
+    notaPadre.hidden = false;
+  } else if (conHijas) {
+    notaPadre.textContent = "Esta atencion tiene atenciones hijas; por ahora no se puede cambiar su padre.";
+    notaPadre.hidden = false;
+  } else if (!padreEditable) {
     notaPadre.textContent = "Esta atencion ya fue procesada; el padre quedo fijo.";
     notaPadre.hidden = false;
   } else if (!detalle.temporal) {
@@ -546,6 +555,12 @@ function editarDetalle() {
   document.getElementById("det-guia").hidden       = true;
   document.getElementById("det-jira-links").hidden = true;
   document.getElementById("det-edicion").hidden    = false;
+}
+
+// Misma regla que tiene_issue_jira del servidor: padre creado en Jira o subtarea con key
+function tieneIssueJira(datos) {
+  if ((datos.jira || {}).padre_key) return true;
+  return (datos.subtareas || []).some(function (s) { return s.key; });
 }
 
 function salirEdicionDetalle() {
@@ -1003,7 +1018,8 @@ async function guardarDatos() {
       // Carpetas definitivas: Tracking ID, proyecto y entornos estan fijos.
       // Se guardan titulo, URL, Area Edge, la HU si aplica y, si cambio, el padre.
       var nuevoPadre  = document.getElementById("e-padre").value;
-      var cambiaPadre = !detalle.procesada && nuevoPadre && nuevoPadre !== (detalle.datos.padre_id || "");
+      var cambiaPadre = !document.getElementById("e-padre").disabled && nuevoPadre &&
+                        nuevoPadre !== (detalle.datos.padre_id || "");
       if (!document.getElementById("e-campo-hu").hidden) {
         datosGen.hu_tipo = document.getElementById("e-hu").value;
       }

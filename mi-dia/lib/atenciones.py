@@ -463,14 +463,20 @@ def guardar_datos_generales(parametros):
         _regenerar_cola()
 
 
-def atencion_procesada(registro):
-    # True si el agente ya dejo huella: creo issues en Jira (jira.padre_key o
-    # subtareas con key), escribio su propuesta en /limpia (titulo_jira o
-    # descripcion) o dejo el archivo de correccion de la bitacora.
-    datos = registro["datos"]
+def tiene_issue_jira(datos):
+    # True si la atencion ya tiene issue en Jira: el padre creado por /inicia
+    # (jira.padre_key) o alguna subtarea con key.
     if (datos.get("jira") or {}).get("padre_key"):
         return True
-    if any(st.get("key") for st in datos.get("subtareas", [])):
+    return any(st.get("key") for st in datos.get("subtareas", []))
+
+
+def atencion_procesada(registro):
+    # True si el agente ya dejo huella: creo issues en Jira (tiene_issue_jira),
+    # escribio su propuesta en /limpia (titulo_jira o descripcion) o dejo el
+    # archivo de correccion de la bitacora.
+    datos = registro["datos"]
+    if tiene_issue_jira(datos):
         return True
     if datos.get("titulo_jira") or datos.get("descripcion"):
         return True
@@ -505,6 +511,14 @@ def cambiar_padre(parametros):
         nuevo_padre_id = str(parametros.get("padre_id", "")).strip()
         if not nuevo_padre_id:
             raise ErrorUsuario("Debes elegir una atencion padre")
+        # Con issue en Jira, mover la atencion dejaria Jira desalineado con las carpetas
+        if tiene_issue_jira(registro["datos"]):
+            raise ErrorUsuario("Esta atencion tiene su issue en Jira; el padre ya no se puede cambiar")
+        hijas = [r for r in buscar_atenciones() if r["datos"].get("padre_id") == registro["id"]]
+        if hijas and not registro["temporal"]:
+            # Al moverla, sus hijas quedarian como nietas y la busqueda solo recorre un
+            # nivel de anidacion: dejarian de verse en la herramienta.
+            raise ErrorUsuario("Esta atencion tiene atenciones hijas; por ahora no se puede cambiar su padre")
         if atencion_procesada(registro):
             raise ErrorUsuario("Esta atencion ya fue procesada; el padre ya no se puede cambiar")
         if nuevo_padre_id == registro["id"]:

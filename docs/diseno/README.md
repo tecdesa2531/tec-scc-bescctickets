@@ -100,7 +100,10 @@ Para la implementación hay que tomar de aquí la estructura, los textos, los co
 - Mismos campos y **mismos componentes** que Nueva atención: entornos como botones DEV / PRE / PRO, HU como segmento Semanal | Independiente, proyecto con autocompletado y atención padre.
 - Si la atención ya tiene carpetas definitivas, el Tracking ID, el proyecto y los entornos aparecen bloqueados en gris, con un candado y un aviso. Solo se editan el título, la HU y la URL de ServiceNow.
 - Si es temporal, todo es editable.
-- **Atención padre:** el campo aparece siempre. Se puede asignar o cambiar si la atención es temporal **o aún no ha sido procesada**. En una atención ya ubicada, asignar o cambiar el padre **mueve su carpeta** dentro de la del padre y hereda su proyecto, entornos y HU (la nota bajo el campo lo explica). Una atención ubicada que ya tiene padre no puede volver a "Sin padre" (la opción aparece deshabilitada). El nuevo padre debe tener carpeta definitiva y no puede ser una hija suya. Una vez procesada, el campo queda bloqueado con la nota "Esta atención ya fue procesada; el padre quedó fijo".
+- **Atención padre:** el campo aparece siempre. Se puede asignar o cambiar si la atención es temporal **o aún no ha sido procesada**. En una atención ya ubicada, asignar o cambiar el padre **mueve su carpeta** dentro de la del padre y hereda su proyecto, entornos y HU (la nota bajo el campo lo explica). Una atención ubicada que ya tiene padre no puede volver a "Sin padre" (la opción aparece deshabilitada). El nuevo padre debe tener carpeta definitiva y no puede ser una hija suya. El campo queda bloqueado, con su nota, en tres casos:
+  - **Tiene issue en Jira** (`jira.padre_key`, que crea `/inicia` al asignarse, o alguna `subtareas[].key`): "Esta atención tiene su issue en Jira". Moverla dejaría Jira desalineado con las carpetas.
+  - **Tiene atenciones hijas** (y ya está ubicada): "Esta atención tiene atenciones hijas; por ahora no se puede cambiar su padre". Al moverla, sus hijas pasarían a ser nietas, y la herramienta solo busca un nivel de anidación.
+  - **Ya fue procesada** por otro motivo (propuesta de limpieza o archivo de corrección): "Esta atención ya fue procesada; el padre quedó fijo".
 
 ### Reunión sin proyecto (CON)
 - Bajo los accesos aparece un aviso ámbar compacto: "Falta el proyecto del equipo que te llamó [______] Guardar".
