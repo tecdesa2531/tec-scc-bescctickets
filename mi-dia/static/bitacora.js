@@ -397,7 +397,24 @@ function copiarAreaEdge() {
 function pintarEstadoDetalle() {
   var d = detalle.datos;
   var zona = document.getElementById("det-estado-zona");
-  if (d.tipo === "npl") { zona.innerHTML = ""; return; }
+  if (d.tipo === "npl") {
+    var npl = d.npl || {};
+    var etiqueta, clase;
+    if (d.estado === "descartado")       { etiqueta = "Cancelada";           clase = "npl-est-cancel"; }
+    else if (d.estado === "atendido")    { etiqueta = "Atendida";            clase = "npl-est-cerr"; }
+    else if (npl.pendiente_cierre)       { etiqueta = "Pendiente de cerrar";  clase = "npl-est-pend"; }
+    else                                 { etiqueta = "En curso";             clase = "npl-est-curso"; }
+    var enFoco  = foco.actual && foco.actual.atencion_id === detalle.id;
+    var cerrada = d.estado === "atendido" || d.estado === "descartado";
+    var sub = cerrada ? "duracion total" : (enFoco ? "en curso" : "en pausa");
+    zona.innerHTML =
+      '<div class="npl-cab-estado">' +
+        '<span class="npl-est ' + clase + '">' + etiqueta + "</span>" +
+        '<span id="npl-cronometro" class="npl-cronometro">' + fmtSegundos(segundosFocoNpl(detalle.id)) + "</span>" +
+        '<span class="npl-cronometro-sub">' + sub + "</span>" +
+      "</div>";
+    return;
+  }
   if (d.estado === "atendido") {
     zona.innerHTML = '<span class="det-estado-atendido"><span class="det-dot"></span>Atendido</span>' +
       '<button class="det-reabrir" onclick="reabrirDetalle()">Reabrir</button>';
@@ -529,78 +546,150 @@ function cancelarEdicionDetalle() { pintarDetalle(); }
 // -- Interrupcion (tipo npl)
 function pintarAdjuntosInterrupcion(entrada) {
   var cont = document.getElementById("npl-adjuntos");
-  var items = (entrada.capturas || []).map(function (c) {
-    return '<figure><a href="' + urlArchivo(c.raiz, c.ruta) + '" target="_blank">' +
-      '<img src="' + urlArchivo(c.raiz, c.ruta) + '" alt=""></a></figure>';
-  }).concat((entrada.archivos || []).map(function (a) {
-    return '<div class="suave"><a href="' + urlArchivo(a.raiz, a.ruta) + '" target="_blank">' +
-      esc(a.ruta.split("/").pop()) + "</a></div>";
-  }));
-  cont.innerHTML = items.length ? '<div class="capturas">' + items.join("") + "</div>"
-    : '<p class="suave">Sin adjuntos aun.</p>';
+  var caps = (entrada.capturas || []).map(function (c, i) {
+    return '<button type="button" class="npl-adj" onclick="abrirVisor(\'' + entrada.id + '\',' + i + ',this)">' +
+      '<img src="' + urlArchivo(c.raiz, c.ruta) + '" alt=""></button>';
+  });
+  var arch = (entrada.archivos || []).map(function (a) {
+    return '<a class="npl-adj npl-adj-arch" href="' + urlArchivo(a.raiz, a.ruta) + '" target="_blank" rel="noopener">' +
+      esc(a.ruta.split("/").pop()) + "</a>";
+  });
+  var items = caps.concat(arch);
+  cont.innerHTML = items.length ? items.join("") : '<p class="suave" style="margin:0">Sin adjuntos aun.</p>';
 }
 
 function pintarInterrupcion() {
   var d = detalle.datos;
   var npl = d.npl || {};
   var entrada = (detalle.entradas && detalle.entradas[0]) || { texto: "", capturas: [], archivos: [] };
-  var cerrada    = d.estado === "atendido" && !npl.pendiente_cierre;
-  var bloqueada  = detalle.procesada;
+  var procesada = detalle.procesada;
+  var cancelada = d.estado === "descartado";
+  var cerrada   = d.estado === "atendido" && !npl.pendiente_cierre;   // atendida completa
+  var pendiente = !!npl.pendiente_cierre;
+  var conPadre  = !!d.padre_id;
 
-  document.getElementById("npl-aviso").hidden = !npl.pendiente_cierre;
+  // Banners
+  document.getElementById("npl-lock").hidden = !procesada;
+  var aviso = document.getElementById("npl-aviso");
+  aviso.hidden = !pendiente;
+  if (pendiente) {
+    var faltan = [];
+    if (!npl.tipo_contacto) faltan.push("tipo de contacto");
+    if (!npl.quien)   faltan.push("quien contacto");
+    if (!npl.resumen) faltan.push("resumen");
+    aviso.textContent = "Pendiente de cerrar: falta " + (faltan.join(" y ") || "datos") +
+      ". Completalo abajo y guarda de nuevo.";
+  }
+
+  // Notas
   document.getElementById("npl-notas").value    = entrada.texto || "";
-  document.getElementById("npl-notas").disabled = bloqueada;
+  document.getElementById("npl-notas").disabled = procesada;
+  document.getElementById("npl-guardado").textContent = "";
+
+  // Padre + proyecto (heredado si hay padre)
   llenarPadres("npl", [detalle.id].concat(descendientesDe(detalle.id)));
   document.getElementById("npl-padre").value    = d.padre_id || "";
-  document.getElementById("npl-padre").disabled = !detalle.temporal && bloqueada;
+  document.getElementById("npl-padre").disabled = (!detalle.temporal && procesada) || cerrada || cancelada;
   llenarProyectos("npl", d.tracking_code);
-  document.getElementById("npl-campo-proyecto").hidden = !!d.padre_id;
-  document.getElementById("npl-proyecto").disabled     = bloqueada;
+  document.getElementById("npl-campo-proyecto").hidden    = conPadre;
+  document.getElementById("npl-proyecto-heredado").hidden = !conPadre;
+  if (conPadre) document.getElementById("npl-proyecto-hered-val").textContent = d.tracking_code || "";
+  document.getElementById("npl-proyecto").disabled = procesada;
+
+  // Adjuntos
   pintarAdjuntosInterrupcion(entrada);
-  document.getElementById("npl-zona").hidden = bloqueada;
+  document.getElementById("npl-zona").hidden = procesada || cerrada || cancelada;
 
-  var cancelada = d.estado === "descartado";
-  var btnCierre = document.getElementById("npl-btn-cierre");
-  btnCierre.hidden      = bloqueada || cancelada;
-  btnCierre.textContent = cerrada ? "Editar cierre" : "Cerrar interrupcion";
-
-  document.getElementById("npl-btn-cancelar").hidden = bloqueada || cancelada;
-
+  // Resumen de cierre (solo lectura) + enlace Editar cierre
   var resumenCerrada = document.getElementById("npl-resumen-cerrada");
+  var editarZona     = document.getElementById("npl-editar-cierre-zona");
   if (cerrada) {
     resumenCerrada.hidden = false;
-    var chips = [npl.tipo_contacto === "llamada" ? "Llamada Teams" : "Chat Teams", "Con: " + npl.quien];
-    if (npl.ticket_relacionado && !d.padre_id) chips.push("Ticket: " + npl.ticket_relacionado);
-    resumenCerrada.innerHTML = '<div class="meta-chips">' +
-      chips.map(function (c) { return '<span class="meta-chip">' + esc(c) + "</span>"; }).join("") + "</div>" +
-      (npl.resumen ? '<div class="texto">' + mdToHtml(npl.resumen) + "</div>" : "");
+    resumenCerrada.innerHTML =
+      '<div class="npl-cerrada-grid">' +
+        '<span class="npl-cerrada-k">Tipo de contacto</span><span>' +
+          (npl.tipo_contacto === "llamada" ? "Llamada Teams" : "Chat Teams") + "</span>" +
+        '<span class="npl-cerrada-k">Quien</span><span>' + esc(npl.quien || "") + "</span>" +
+        (npl.ticket_relacionado && !conPadre
+          ? '<span class="npl-cerrada-k">Ticket</span><span>' + esc(npl.ticket_relacionado) + "</span>" : "") +
+        '<span class="npl-cerrada-k">Resumen</span><span class="texto">' +
+          (npl.resumen ? mdToHtml(npl.resumen) : "") + "</span>" +
+      "</div>";
+    editarZona.hidden = procesada;   // editable hasta que el agente la procese
   } else {
     resumenCerrada.hidden = true;
+    editarZona.hidden = true;
   }
 
-  document.getElementById("npl-form-cierre").hidden = !npl.pendiente_cierre;
-  document.getElementById("npl-campo-ticket").hidden = !!d.padre_id;
-  if (npl.pendiente_cierre) {
-    marcarRadio("npl-tipo-contacto", npl.tipo_contacto || "");
-    document.getElementById("npl-quien").value   = npl.quien || "";
-    document.getElementById("npl-resumen").value = npl.resumen || "";
-    document.getElementById("npl-ticket").value  = npl.ticket_relacionado || "";
-  }
+  // Bloque de cierre: visible solo si esta pendiente (Cerrar/Editar lo abren aparte)
+  document.getElementById("npl-form-cierre").hidden  = !pendiente;
+  document.getElementById("npl-campo-ticket").hidden = conPadre;
+  rellenarCierreNpl(npl);
+
+  // Confirmacion de cancelar oculta
+  document.getElementById("npl-cancel-confirm").hidden = true;
+
+  // Pie de acciones: solo en curso o pendiente
+  document.getElementById("npl-acciones").hidden = procesada || cancelada || cerrada;
+  document.getElementById("npl-btn-cierre").textContent = pendiente ? "Guardar cierre" : "Cerrar interrupcion";
+
+  validarCierreNpl();
 }
 
-function leerRadio(nombre) {
-  var marcado = document.querySelector('input[name="' + nombre + '"]:checked');
-  return marcado ? marcado.value : "";
+function rellenarCierreNpl(npl) {
+  marcarContacto(npl.tipo_contacto || "");
+  document.getElementById("npl-quien").value   = npl.quien || "";
+  document.getElementById("npl-resumen").value = npl.resumen || "";
+  document.getElementById("npl-ticket").value  = npl.ticket_relacionado || "";
 }
 
-function marcarRadio(nombre, valor) {
-  document.querySelectorAll('input[name="' + nombre + '"]').forEach(function (r) {
-    r.checked = r.value === valor;
+function marcarContacto(valor) {
+  document.getElementById("npl-tipo-contacto").value = valor || "";
+  document.querySelectorAll("#npl-form-cierre .hu-btn").forEach(function (b) {
+    b.classList.toggle("activo", b.getAttribute("data-contacto") === valor);
   });
+}
+
+function elegirContacto(valor) { marcarContacto(valor); validarCierreNpl(); }
+
+function validarCierreNpl() {
+  var pend = !!((detalle && detalle.datos.npl) || {}).pendiente_cierre;
+  var q = document.getElementById("npl-quien");
+  var r = document.getElementById("npl-resumen");
+  if (q) q.classList.toggle("falta", pend && !q.value.trim());
+  if (r) r.classList.toggle("falta", pend && !r.value.trim());
+}
+
+function accionCierreNpl() {
+  if (document.getElementById("npl-form-cierre").hidden) mostrarCierreInterrupcion();
+  else cerrarInterrupcion();
+}
+
+function editarCierreInterrupcion() {
+  rellenarCierreNpl(detalle.datos.npl || {});
+  document.getElementById("npl-campo-ticket").hidden = !!detalle.datos.padre_id;
+  document.getElementById("npl-form-cierre").hidden = false;
+  document.getElementById("npl-resumen-cerrada").hidden = true;
+  document.getElementById("npl-editar-cierre-zona").hidden = true;
+  document.getElementById("npl-btn-cierre").textContent = "Guardar cierre";
+  document.getElementById("npl-acciones").hidden = false;
+  document.getElementById("npl-form-cierre").scrollIntoView({ block: "nearest" });
+}
+
+function pedirCancelarNpl() {
+  document.getElementById("npl-cancel-confirm").hidden = false;
+  document.getElementById("npl-acciones").hidden = true;
+}
+
+function ocultarCancelarNpl() {
+  document.getElementById("npl-cancel-confirm").hidden = true;
+  document.getElementById("npl-acciones").hidden = false;
 }
 
 var temporizadorNotasNpl = null;
 function guardarNotasInterrupcionDebounced() {
+  var ind = document.getElementById("npl-guardado");
+  if (ind) ind.textContent = "Guardando...";
   clearTimeout(temporizadorNotasNpl);
   temporizadorNotasNpl = setTimeout(guardarNotasInterrupcion, 800);
 }
@@ -609,6 +698,8 @@ async function guardarNotasInterrupcion() {
   if (!detalle) return;
   try {
     await enviar("/api/interrupcion/notas", { id: detalle.id, texto: document.getElementById("npl-notas").value });
+    var ind = document.getElementById("npl-guardado");
+    if (ind) ind.textContent = "Guardado";
   } catch (error) { mostrarError(error); }
 }
 
@@ -669,37 +760,34 @@ async function agregarAdjuntosInterrupcionSeleccionados(selector) {
 }
 
 async function mostrarCierreInterrupcion() {
-  document.getElementById("npl-form-cierre").hidden = false;
-  var npl = detalle.datos.npl || {};
-  marcarRadio("npl-tipo-contacto", npl.tipo_contacto || "");
-  document.getElementById("npl-quien").value   = npl.quien || "";
-  document.getElementById("npl-ticket").value  = npl.ticket_relacionado || "";
+  rellenarCierreNpl(detalle.datos.npl || {});
   document.getElementById("npl-campo-ticket").hidden = !!detalle.datos.padre_id;
-  document.getElementById("npl-resumen").value = npl.resumen || "";
-  document.getElementById("npl-form-cierre").scrollIntoView();
+  document.getElementById("npl-form-cierre").hidden = false;
+  document.getElementById("npl-btn-cierre").textContent = "Guardar cierre";
+  document.getElementById("npl-acciones").hidden = false;
+  document.getElementById("npl-form-cierre").scrollIntoView({ block: "nearest" });
+  // Al abrir el cierre se pausa el foco: el cronometro se congela
   if (foco.actual && foco.actual.atencion_id === detalle.id) {
     await enviar("/api/foco/cambiar", { tipo: "pausa" });
     await cargarFoco();
+    pintarEstadoDetalle();
   }
-}
-
-function ocultarCierreInterrupcion() {
-  if ((detalle.datos.npl || {}).pendiente_cierre) return;
-  document.getElementById("npl-form-cierre").hidden = true;
+  document.getElementById("npl-quien").focus();
 }
 
 async function cerrarInterrupcion() {
   try {
     var tienePadre = !!detalle.datos.padre_id;
-    var resultado = await enviar("/api/interrupcion/cerrar", {
+    await enviar("/api/interrupcion/cerrar", {
       id: detalle.id,
-      tipo_contacto: leerRadio("npl-tipo-contacto"),
+      tipo_contacto: document.getElementById("npl-tipo-contacto").value,
       quien: document.getElementById("npl-quien").value,
       resumen: document.getElementById("npl-resumen").value,
       ticket_relacionado: tienePadre ? "" : document.getElementById("npl-ticket").value
     });
-    await recargarDetalle();
-    if (!resultado.completo) alert("Faltan datos obligatorios. La interrupcion queda Pendiente de cerrar.");
+    await cargarAtenciones();
+    await cargarFoco();
+    await recargarDetalle();   // si queda incompleto, pintarInterrupcion muestra el aviso ambar
   } catch (error) { mostrarError(error); }
 }
 
@@ -919,7 +1007,7 @@ function tieneCorreoTipo(tipo) {
 }
 
 async function cancelarInterrupcion() {
-  if (!confirm("Cancelar esta interrupcion? Quedara descartada y no ira a Jira.")) return;
+  // La confirmacion se hace en linea (pedirCancelarNpl); aqui ya esta confirmada
   try {
     await enviar("/api/interrupcion/cancelar", { id: detalle.id });
     // La atencion se borro; volver a la principal (el foco queda sin foco)

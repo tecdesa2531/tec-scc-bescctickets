@@ -43,7 +43,7 @@
   <span id="franja-detalle" class="franja-detalle"></span>
   <span class="franja-sep"></span>
   <button class="franja-btn" onclick="anotarInterrupcion()">Anotar</button>
-  <button class="franja-btn franja-btn-pri" onclick="anotarInterrupcion()">Cerrar interrupcion</button>
+  <button class="franja-btn franja-btn-pri" onclick="cerrarDesdeFranja()">Cerrar interrupcion</button>
 </div>
 
 <!-- =============== VISTA INICIO =============== -->
@@ -267,50 +267,96 @@
 
   <!-- Interrupcion (solo si la atencion es tipo npl) -->
   <div class="card" id="npl-card" hidden>
-    <div class="card-titulo">Interrupcion</div>
-    <div id="npl-aviso" class="aviso" hidden>
-      Falta completar el cierre de esta interrupcion: tipo de contacto, quien contacto y el resumen.
+
+    <!-- Solo lectura (procesada) -->
+    <div id="npl-lock" class="npl-lock" hidden>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      Esta interrupcion ya fue procesada. Solo lectura.
     </div>
-    <div id="npl-resumen-cerrada" hidden></div>
-    <div class="campo">
-      <span>Notas</span>
-      <textarea id="npl-notas" placeholder="Palabras clave de los temas que van saliendo" oninput="guardarNotasInterrupcionDebounced()"></textarea>
+
+    <!-- Pendiente de cerrar -->
+    <div id="npl-aviso" class="redactor-aviso redactor-aviso-correo" hidden></div>
+
+    <!-- Atencion padre + Proyecto -->
+    <div class="det-ed-grid">
+      <div class="form-campo" style="flex:1 1 300px">
+        <span>Atencion padre (opcional)</span>
+        <select id="npl-padre" onchange="guardarPadreInterrupcion()"></select>
+      </div>
+      <div class="form-campo" id="npl-campo-proyecto" style="flex:0 0 160px">
+        <span>Proyecto</span>
+        <input type="text" id="npl-proyecto" class="mono-input" list="npl-proyecto-lista" placeholder="6 letras" maxlength="6" autocomplete="off" onchange="guardarProyectoInterrupcion()">
+        <datalist id="npl-proyecto-lista"></datalist>
+      </div>
+      <div class="form-campo" id="npl-proyecto-heredado" style="flex:0 0 160px" hidden>
+        <span>Proyecto</span>
+        <span id="npl-proyecto-hered-val" class="npl-hered"></span>
+      </div>
     </div>
-    <div class="campo">
-      <span>Atencion padre</span>
-      <select id="npl-padre" onchange="guardarPadreInterrupcion()"></select>
+
+    <!-- Notas privadas con autoguardado -->
+    <div class="form-campo">
+      <div class="npl-notas-cab">
+        <span>Notas (privadas, no van a Jira)</span>
+        <span id="npl-guardado" class="npl-guardado"></span>
+      </div>
+      <textarea id="npl-notas" placeholder="Palabras clave de lo que va saliendo en la llamada o chat..." oninput="guardarNotasInterrupcionDebounced()"></textarea>
     </div>
-    <div class="campo" id="npl-campo-proyecto">
-      <span>Proyecto</span>
-      <input type="text" id="npl-proyecto" list="npl-proyecto-lista" placeholder="Codigo del proyecto" maxlength="6" autocomplete="off" onchange="guardarProyectoInterrupcion()">
-      <datalist id="npl-proyecto-lista"></datalist>
-    </div>
-    <p class="suave" style="margin:0 0 10px">Si la interrupcion es sobre un ticket que ya existe en la herramienta, eligelo como padre: toma su proyecto. Si no, elige el proyecto del equipo que llamo (INFRAS por defecto) y, si tienes el numero del ticket, anotalo en "Ticket relacionado" al cerrar.</p>
-    <div id="npl-zona" class="zona" tabindex="0">
-      Pega capturas aqui con Ctrl+V, o arrastra archivos o grabaciones
-      <div style="margin-top:6px">
+
+    <!-- Adjuntos -->
+    <div class="form-campo">
+      <span>Adjuntos</span>
+      <div id="npl-adjuntos" class="npl-adjuntos"></div>
+      <div id="npl-zona" class="zona" tabindex="0">
+        Pega capturas con Ctrl+V, arrastra o
         <input type="file" id="npl-selector" multiple onchange="agregarAdjuntosInterrupcionSeleccionados(this)">
       </div>
     </div>
-    <div id="npl-adjuntos"></div>
-    <div class="fila">
-      <button class="principal" id="npl-btn-cierre" onclick="mostrarCierreInterrupcion()">Cerrar interrupcion</button>
-      <button id="npl-btn-cancelar" onclick="cancelarInterrupcion()">Cancelar interrupcion</button>
+
+    <!-- Bloque de cierre -->
+    <div class="det-ed-bloque npl-cierre" id="npl-form-cierre" hidden>
+      <span class="npl-cierre-tit">Cierre de la interrupcion</span>
+      <div class="npl-cierre-fila">
+        <div class="form-campo" style="flex:0 0 auto">
+          <span>Tipo de contacto</span>
+          <div class="hu-seg" role="group" aria-label="Tipo de contacto">
+            <button type="button" class="hu-btn" data-contacto="llamada" onclick="elegirContacto('llamada')">Llamada Teams</button>
+            <button type="button" class="hu-btn" data-contacto="chat" onclick="elegirContacto('chat')">Chat Teams</button>
+          </div>
+          <input type="hidden" id="npl-tipo-contacto" value="">
+        </div>
+        <div class="form-campo" style="flex:1 1 220px">
+          <span>Quien contacto</span>
+          <input type="text" id="npl-quien" placeholder="Nombre y equipo" oninput="validarCierreNpl()">
+        </div>
+        <div class="form-campo" id="npl-campo-ticket" style="flex:0 1 200px">
+          <span>Ticket relacionado (opcional)</span>
+          <input type="text" id="npl-ticket" class="mono-input" placeholder="Ej. TLND002998">
+        </div>
+      </div>
+      <div class="form-campo">
+        <span>Resumen (admite Markdown)</span>
+        <textarea id="npl-resumen" placeholder="Que se consulto y que se respondio" oninput="validarCierreNpl()"></textarea>
+      </div>
     </div>
 
-    <div class="formulario" id="npl-form-cierre" hidden>
-      <div class="campo">
-        <span>Tipo de contacto</span>
-        <label><input type="radio" name="npl-tipo-contacto" value="llamada">Llamada Teams</label>
-        <label><input type="radio" name="npl-tipo-contacto" value="chat">Chat Teams</label>
-      </div>
-      <div class="campo"><span>Quien contacto</span><input type="text" id="npl-quien"></div>
-      <div class="campo"><span>Resumen</span><textarea id="npl-resumen" placeholder="Quien, canal, temas tocados y como quedo"></textarea></div>
-      <div class="campo" id="npl-campo-ticket"><span>Ticket relacionado</span><input type="text" id="npl-ticket" placeholder="Solo si el ticket aun no existe en la herramienta"></div>
-      <div class="fila">
-        <button class="principal" onclick="cerrarInterrupcion()">Guardar cierre</button>
-        <button onclick="ocultarCierreInterrupcion()">Cancelar</button>
-      </div>
+    <!-- Resumen de cierre (solo lectura) + enlace Editar cierre -->
+    <div id="npl-resumen-cerrada" class="npl-cerrada" hidden></div>
+    <div id="npl-editar-cierre-zona" hidden>
+      <button type="button" class="npl-editar-cierre" onclick="editarCierreInterrupcion()">Editar cierre</button>
+    </div>
+
+    <!-- Confirmacion de cancelar (en linea) -->
+    <div id="npl-cancel-confirm" class="npl-cancel-confirm" hidden>
+      <span>Se descartara la interrupcion y se borraran sus carpetas y adjuntos. No va a Jira.</span>
+      <button type="button" class="npl-cancel-no" onclick="ocultarCancelarNpl()">No, volver</button>
+      <button type="button" class="npl-cancel-si" onclick="cancelarInterrupcion()">Si, cancelar</button>
+    </div>
+
+    <!-- Pie de acciones -->
+    <div id="npl-acciones" class="npl-acciones">
+      <button type="button" class="npl-cancelar-link" id="npl-btn-cancelar" onclick="pedirCancelarNpl()">Cancelar interrupcion</button>
+      <button type="button" class="principal" id="npl-btn-cierre" onclick="accionCierreNpl()">Cerrar interrupcion</button>
     </div>
   </div>
 

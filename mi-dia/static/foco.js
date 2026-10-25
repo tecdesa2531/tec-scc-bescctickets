@@ -138,6 +138,8 @@ function pintarFoco() {
   }
 
   pintarPildora(); pintarFranja(); pintarAtenciones();
+  // Si hay una interrupcion abierta, refresca su cabecera (cronometro y estado)
+  if (detalle && detalle.datos && detalle.datos.tipo === "npl") pintarEstadoDetalle();
 }
 
 // -- Franja de interrupcion (cronometro con segundos)
@@ -157,9 +159,23 @@ function pintarFranja() {
   iniciarTickFranja();
 }
 
+// Tiempo de foco acumulado de una atencion: suma de sus tramos cerrados mas el
+// tramo abierto en vivo si es el foco actual. Lo usan la franja y el cronometro NPL.
+function segundosFocoNpl(id) {
+  var total = 0;
+  (foco.hoy || []).forEach(function (t) {
+    if (t.atencion_id === id && t.fin) total += (t.segundos || 0);
+  });
+  if (foco.actual && foco.actual.atencion_id === id) total += segundosDesde(foco.actual.inicio);
+  return total;
+}
+
 function actualizarFranjaTimer() {
-  if (!foco.actual) return;
-  document.getElementById("franja-timer").textContent = fmtSegundos(segundosDesde(foco.actual.inicio));
+  if (!franjaNplId) return;
+  document.getElementById("franja-timer").textContent = fmtSegundos(segundosFocoNpl(franjaNplId));
+  // Si el detalle de esa NPL esta abierto, su cronometro grande coincide con la franja
+  var crono = document.getElementById("npl-cronometro");
+  if (crono && detalle && detalle.id === franjaNplId) crono.textContent = fmtSegundos(segundosFocoNpl(franjaNplId));
 }
 
 function iniciarTickFranja() {
@@ -173,6 +189,16 @@ function detenerTickFranja() {
 
 function anotarInterrupcion() {
   if (franjaNplId) abrirAtencion(franjaNplId);
+}
+
+// Abre el detalle de la interrupcion con el bloque de cierre ya abierto
+async function cerrarDesdeFranja() {
+  if (!franjaNplId) return;
+  await abrirAtencion(franjaNplId);
+  if (detalle && detalle.datos.tipo === "npl" &&
+      detalle.datos.estado !== "atendido" && detalle.datos.estado !== "descartado") {
+    mostrarCierreInterrupcion();
+  }
 }
 
 // -- Cronometros (refresco periodico ligero, sin volver a pedir datos)

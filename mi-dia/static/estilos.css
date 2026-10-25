@@ -1617,6 +1617,69 @@ a:hover { opacity: 0.8; }
 .dlg-pie-acc { display: flex; gap: 8px; justify-content: flex-end; flex-shrink: 0; }
 #n-crear:disabled { background: var(--borde); color: var(--suave); cursor: not-allowed; }
 
+/* -- Interrupcion (NPL) */
+#npl-card { display: flex; flex-direction: column; gap: 18px; }
+
+/* Cabecera: estado estatico + cronometro grande */
+.npl-cab-estado { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.npl-est { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 10px; }
+.npl-est-curso  { color: var(--jira-fg); background: var(--jira-bg); }
+.npl-est-pend   { color: var(--aviso-texto); background: var(--aviso-fondo); }
+.npl-est-cerr   { color: var(--texto-medio); background: var(--card2); }
+.npl-est-cancel { color: var(--error); background: var(--card2); }
+.npl-cronometro { font-family: var(--fuente-mono); font-size: 32px; font-weight: 600; color: var(--npl-fg); line-height: 1.1; }
+.npl-cronometro-sub { font-size: 12px; color: var(--suave); }
+
+.npl-lock { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 8px; background: var(--card2); border: 1px solid var(--borde); font-size: 13px; color: var(--texto-medio); }
+
+.npl-hered { display: flex; align-items: center; height: 44px; font-family: var(--fuente-mono); font-weight: 600; color: var(--suave); }
+
+.npl-notas-cab { display: flex; align-items: baseline; justify-content: space-between; }
+.npl-notas-cab > span:first-child { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--suave); }
+.npl-guardado { font-size: 12px; color: var(--jira-fg); }
+#npl-notas { min-height: 120px; }
+
+/* Adjuntos: miniaturas */
+.npl-adjuntos { display: flex; flex-wrap: wrap; gap: 10px; }
+.npl-adj {
+  width: 160px; height: 100px; padding: 0;
+  border: 1px solid var(--borde); border-radius: 8px;
+  background: var(--card2); overflow: hidden; cursor: zoom-in; line-height: 0;
+}
+.npl-adj:hover { border-color: var(--activo); background: var(--card2); }
+.npl-adj img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.npl-adj-arch {
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 8px; font-size: 12px; line-height: 1.4; color: var(--texto-medio);
+  cursor: pointer; text-decoration: none; word-break: break-word;
+}
+
+/* Bloque de cierre */
+.npl-cierre { flex-direction: column; gap: 14px; }
+.npl-cierre-tit { font-size: 14px; font-weight: 600; }
+.npl-cierre-fila { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: flex-start; }
+#npl-quien.falta, #npl-resumen.falta { border-color: var(--error); background: var(--aviso-fondo); }
+#npl-resumen { min-height: 90px; }
+
+/* Resumen de cierre (solo lectura) */
+.npl-cerrada { padding: 16px; border-radius: 12px; background: var(--card2); border: 1px solid var(--borde); }
+.npl-cerrada-grid { display: grid; grid-template-columns: 140px minmax(0, 1fr); row-gap: 8px; column-gap: 12px; font-size: 13px; }
+.npl-cerrada-k { color: var(--suave); }
+.npl-editar-cierre { background: none; border: none; padding: 0; color: var(--activo); font-size: 13px; cursor: pointer; }
+.npl-editar-cierre:hover { background: none; border: none; text-decoration: underline; }
+
+/* Confirmacion de cancelar */
+.npl-cancel-confirm { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--npl-bg); border: 1px solid var(--npl-fg); }
+.npl-cancel-confirm > span { flex: 1 1 300px; font-size: 13px; color: var(--npl-fg); }
+.npl-cancel-confirm button { height: 36px; padding: 0 14px; font-size: 13px; }
+.npl-cancel-si { background: var(--error); color: #fff; border-color: var(--error); font-weight: 600; }
+
+/* Pie de acciones */
+.npl-acciones { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 6px; border-top: 1px solid var(--borde); }
+.npl-cancelar-link { background: none; border: none; padding: 0 4px; color: var(--error); font-size: 13px; cursor: pointer; }
+.npl-cancelar-link:hover { background: none; border: none; text-decoration: underline; }
+#npl-btn-cierre { height: 44px; padding: 0 20px; }
+
 /* -- Detalle: pasos hacia Jira */
 .det-pasos {
   list-style: none;
