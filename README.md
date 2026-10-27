@@ -20,3 +20,12 @@ Herramientas personales para organizar el dia de trabajo en infraestructura y re
 | `CLAUDE.md`       | Contexto para Claude Code. |
 
 Este repositorio no contiene datos. Los datos viven en dos carpetas de OneDrive indicadas con variables de entorno (ver `mi-dia/README.md`).
+
+## Arrancar Focus Flow en Windows
+
+Ejecutar `iniciar_focus_flow.bat` con doble clic. Abre Edge en `http://127.0.0.1:8765` y mantiene la consola visible con los logs. Cerrar la ventana detiene el servidor.
+
+**Crear acceso directo en el escritorio**
+
+1. Clic derecho sobre `iniciar_focus_flow.bat` > **Enviar a** > **Escritorio (crear acceso directo)**.
+2. (Opcional) Clic derecho sobre el acceso directo > **Propiedades** > **Cambiar icono** para asignar un icono personalizado.
