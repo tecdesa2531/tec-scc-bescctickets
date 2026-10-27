@@ -131,7 +131,7 @@ class Manejador(BaseHTTPRequestHandler):
                 self.enviar(200, archivo.read(), "text/html; charset=utf-8")
         elif url.path.startswith("/static/"):
             nombre = os.path.basename(url.path)
-            if not re.match(r'^[\w.-]+\.(css|js)$', nombre):
+            if not re.match(r'^[\w.-]+\.(css|js|svg|ico|png)$', nombre):
                 self.enviar(404, b"No encontrado", "text/plain")
                 return
             ruta_static = os.path.join(CARPETA_CODIGO, "static", nombre)
@@ -139,7 +139,10 @@ class Manejador(BaseHTTPRequestHandler):
                 self.enviar(404, b"No encontrado", "text/plain")
                 return
             tipos_static = {".css": "text/css; charset=utf-8",
-                            ".js": "application/javascript; charset=utf-8"}
+                            ".js": "application/javascript; charset=utf-8",
+                            ".svg": "image/svg+xml",
+                            ".ico": "image/x-icon",
+                            ".png": "image/png"}
             tipo_static = tipos_static.get(os.path.splitext(nombre)[1].lower(),
                                            "application/octet-stream")
             with open(ruta_static, "rb") as archivo:
@@ -173,8 +176,6 @@ class Manejador(BaseHTTPRequestHandler):
             self.ejecutar(lambda: indice.buscar(q))
         elif url.path == "/archivo":
             self.enviar_archivo(parametro("id"), parametro("raiz"), parametro("ruta"))
-        elif url.path == "/favicon.ico":
-            self.enviar(204, b"", "image/x-icon")
         else:
             self.enviar(404, b"No encontrado", "text/plain")
 

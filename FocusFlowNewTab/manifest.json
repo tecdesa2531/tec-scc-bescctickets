@@ -5,5 +5,11 @@
   "description": "Reemplaza la pestana nueva con la herramienta Focus Flow local.",
   "chrome_url_overrides": {
     "newtab": "newtab.html"
+  },
+  "icons": {
+    "16": "icono-16.png",
+    "32": "icono-32.png",
+    "48": "icono-48.png",
+    "128": "icono-128.png"
   }
 }
