@@ -845,6 +845,8 @@ td {
 .at-hijos-foco  { background: var(--foco-solido); border-color: var(--foco-solido); color: var(--foco-sobre-solido); }
 
 .at-cabecera { flex-shrink: 0; font-family: var(--fuente-mono); font-size: 14px; font-weight: 400; color: var(--texto); }
+.at-mono { font-family: var(--fuente-mono); }
+.at-no-mono { font-family: inherit; }
 .at-temporal {
   flex-shrink: 0;
   font-size: 11px;
@@ -2054,7 +2056,7 @@ a:hover { opacity: 0.8; }
 .hist-grupo-fila td {
   padding: 7px 14px;
   background: var(--card2);
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--texto-medio);
   border-bottom: 1px solid var(--borde);

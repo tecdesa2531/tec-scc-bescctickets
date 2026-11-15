@@ -100,13 +100,15 @@ function htmlFila(a, nivel, mapa, idFoco) {
     '<span class="at-tiempo">' + esc(duracion(a.segundos || 0)) + "</span>" +
   "</div>";
 
-  // Primera linea: "PROYECTO | titulo"
-  var linea1 = '<span class="at-cabecera">' + (proj ? esc(proj) + " | " : "") + esc(a.titulo) + "</span>" +
+  // Primera linea: tracking code en at-cabecera (mono) + titulo en at-cabecera sin mono
+  var titCls = a.estado === "descartado" ? "at-cabecera at-no-mono at-tachado ell" : "at-cabecera at-no-mono ell";
+  var linea1 = (proj ? '<span class="at-cabecera">' + esc(proj) + " | </span>" : "") +
+    '<span class="' + titCls + '">' + esc(a.titulo) + "</span>" +
     (a.temporal ? '<span class="at-temporal">Temporal</span>' : "");
 
-  // Segunda linea: "TRACKING_ID - entornos"
-  var refCls = a.estado === "descartado" ? "at-ref at-tachado ell" : "at-ref ell";
-  var linea2 = '<span class="' + refCls + '">' + esc(idTexto) +
+  // Segunda linea: tracking ID en at-ref + at-mono (mono, mismo tamanio y color)
+  var refMonoCls = a.estado === "descartado" ? "at-ref at-mono at-tachado ell" : "at-ref at-mono ell";
+  var linea2 = '<span class="' + refMonoCls + '">' + esc(idTexto) +
     (env ? " - " + esc(env.toLowerCase()) : "") +
     (a.npl_pendiente_cierre ? ' <span class="at-badge-cierre">Pendiente de cerrar</span>' : "") + "</span>";
 
