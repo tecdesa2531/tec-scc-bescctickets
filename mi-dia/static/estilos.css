@@ -846,7 +846,7 @@ td {
 
 .at-cabecera { flex-shrink: 0; font-family: var(--fuente-mono); font-size: 14px; font-weight: 400; color: var(--texto); }
 .at-mono { font-family: var(--fuente-mono); }
-.at-no-mono { font-family: inherit; }
+.at-no-mono { font-family: inherit; flex-shrink: 1; min-width: 0; }
 .at-temporal {
   flex-shrink: 0;
   font-size: 11px;
@@ -1986,6 +1986,7 @@ a:hover { opacity: 0.8; }
   white-space: nowrap;
   user-select: none;
 }
+
 .hist-th-titulo { width: 99%; }
 
 .hist-th-txt { margin-right: 4px; }

@@ -103,7 +103,7 @@ function htmlFila(a, nivel, mapa, idFoco) {
   // Primera linea: tracking code en at-cabecera (mono) + titulo en at-cabecera sin mono
   var titCls = a.estado === "descartado" ? "at-cabecera at-no-mono at-tachado ell" : "at-cabecera at-no-mono ell";
   var linea1 = (proj ? '<span class="at-cabecera">' + esc(proj) + " | </span>" : "") +
-    '<span class="' + titCls + '">' + esc(a.titulo) + "</span>" +
+    '<span class="' + titCls + '" data-titulo="' + esc(a.titulo) + '">' + esc(a.titulo) + "</span>" +
     (a.temporal ? '<span class="at-temporal">Temporal</span>' : "");
 
   // Segunda linea: tracking ID en at-ref + at-mono (mono, mismo tamanio y color)
@@ -513,3 +513,16 @@ async function descartarIdea(id) {
     await cargarIdeas();
   } catch (error) { mostrarError(error); }
 }
+
+(function () {
+  var lista = document.getElementById("lista-atenciones");
+  if (!lista) return;
+  lista.addEventListener("mouseover", function (e) {
+    var span = e.target.closest(".at-no-mono.ell[data-titulo]");
+    if (span) mostrarTooltipBuscar(span);
+  });
+  lista.addEventListener("mouseout", function (e) {
+    var span = e.target.closest(".at-no-mono.ell[data-titulo]");
+    if (span && (!e.relatedTarget || !span.contains(e.relatedTarget))) ocultarTooltipBuscar();
+  });
+})();
