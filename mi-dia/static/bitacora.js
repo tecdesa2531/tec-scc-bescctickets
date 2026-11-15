@@ -12,6 +12,103 @@ function urlEtiqueta(urlEsc) {
   }
 }
 
+
+var SVG_PRE_COPY = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+var SVG_PRE_OK   = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>';
+
+var HL_LANGS = (function () {
+  var C1  = { cls: "hl-c", re: /#[^\n]*/  };
+  var C2  = { cls: "hl-c", re: /\/\/[^\n]*/ };
+  var C3  = { cls: "hl-c", re: /\/\*[\s\S]*?\*\// };
+  var S1  = { cls: "hl-s", re: /"(?:[^"\\]|\\.)*"/ };
+  var S2  = { cls: "hl-s", re: /'(?:[^'\\]|\\.)*'/ };
+  var SBT = { cls: "hl-s", re: /`(?:[^`\\]|\\.)*`/ };
+  var SP3 = { cls: "hl-s", re: /"""[\s\S]*?"""/ };
+  var SP4 = { cls: "hl-s", re: /'''[\s\S]*?'''/ };
+  var NUM = { cls: "hl-n", re: /-?\b\d+\.?\d*(?:[eE][+-]?\d+)?\b/ };
+
+  function kw(w) { return { cls: "hl-k", re: new RegExp("\\b(?:" + w.join("|") + ")\\b") }; }
+  function bi(w) { return { cls: "hl-b", re: new RegExp("\\b(?:" + w.join("|") + ")\\b") }; }
+
+  var JS_KW = kw(["const","let","var","function","return","if","else","for","while","do","switch","case","break","continue","new","delete","typeof","instanceof","class","extends","import","export","default","async","await","try","catch","finally","throw","this","super","of","in","yield","from","static","get","set","void","null","undefined","true","false"]);
+  var JS_BI = bi(["console","Math","JSON","Object","Array","String","Number","Boolean","Promise","fetch","setTimeout","setInterval","clearTimeout","clearInterval","document","window","process","require","module","exports"]);
+  var TS_KW = kw(["const","let","var","function","return","if","else","for","while","do","switch","case","break","continue","new","delete","typeof","instanceof","class","extends","implements","interface","type","enum","import","export","default","async","await","try","catch","finally","throw","this","super","of","in","yield","from","static","get","set","void","null","undefined","true","false","public","private","protected","readonly","abstract","declare","namespace","as","keyof","never","any","unknown","string","number","boolean"]);
+
+  var BASH = [C1, S1, S2,
+    { cls: "hl-v", re: /\$\{?[\w]+\}?/ },
+    kw(["if","then","else","elif","fi","for","do","done","while","until","case","esac","in","function","return","export","local","source","unset"]),
+    bi(["echo","exit","cd","ls","mkdir","rm","cp","mv","grep","sed","awk","cat","chmod","sudo","python","python3","git","curl","wget","touch","find"])
+  ];
+
+  var JSON_T = [
+    { cls: "hl-k", re: /"(?:[^"\\]|\\.)*"(?=\s*:)/ },
+    S1, NUM,
+    { cls: "hl-b", re: /\b(?:true|false|null)\b/ }
+  ];
+
+  var PY = [C1, SP3, SP4, S1, S2,
+    { cls: "hl-d", re: /@\w+/ },
+    kw(["def","class","if","elif","else","for","while","try","except","finally","with","as","import","from","return","yield","pass","break","continue","raise","and","or","not","in","is","lambda","async","await","global","nonlocal","del","assert"]),
+    { cls: "hl-b", re: /\b(?:True|False|None)\b/ },
+    bi(["print","len","range","type","str","int","float","list","dict","set","tuple","bool","open","super","enumerate","zip","map","filter","sorted","any","all","min","max","sum","abs","round"])
+  ];
+
+  var JS = [C3, C2, SBT, S1, S2, JS_KW, JS_BI, NUM];
+  var TS = [C3, C2, SBT, S1, S2, TS_KW, JS_BI, NUM];
+  var MD = [
+    { cls: "hl-k", re: /^#{1,3} .+/m },
+    { cls: "hl-s", re: /`[^`\n]+`/ },
+    { cls: "hl-b", re: /\*\*[^*\n]+\*\*/ },
+    { cls: "hl-c", re: /\*[^*\n]+\*/ }
+  ];
+
+  return {
+    bash: BASH, sh: BASH,
+    json: JSON_T,
+    python: PY, py: PY,
+    js: JS, javascript: JS, nodejs: JS, node: JS,
+    ts: TS, typescript: TS,
+    md: MD, markdown: MD
+  };
+})();
+
+function hlCode(raw, lang) {
+  var rules = HL_LANGS[lang] || null;
+  if (!rules) return esc(raw);
+  var out = "";
+  var i = 0;
+  while (i < raw.length) {
+    var hit = null;
+    for (var r = 0; r < rules.length; r++) {
+      var re = new RegExp(rules[r].re.source, "g");
+      re.lastIndex = i;
+      var m = re.exec(raw);
+      if (m && m.index === i) { hit = { cls: rules[r].cls, text: m[0] }; break; }
+    }
+    if (hit) {
+      out += '<span class="' + hit.cls + '">' + esc(hit.text) + '</span>';
+      i += hit.text.length;
+    } else {
+      var c = raw[i];
+      out += c === "&" ? "&amp;" : c === "<" ? "&lt;" : c === ">" ? "&gt;" : c === '"' ? "&quot;" : c;
+      i++;
+    }
+  }
+  return out;
+}
+
+function copiarBloque(btn) {
+  var bloque = btn.closest(".md-pre-bloque");
+  var code = bloque ? bloque.querySelector("code") : null;
+  if (!code) return;
+  navigator.clipboard.writeText(code.textContent).then(function () {
+    var orig = btn.innerHTML;
+    btn.innerHTML = SVG_PRE_OK;
+    btn.disabled = true;
+    setTimeout(function () { btn.innerHTML = orig; btn.disabled = false; }, 1500);
+  }).catch(function () {});
+}
+
 function mdInline(s) {
   s = esc(s);
   s = s.replace(/`([^`\n]+)`/g,         '<code class="md-c">$1</code>');
@@ -32,10 +129,11 @@ function mdInline(s) {
 
 function mdToHtml(texto) {
   if (!texto) return "";
-  var out  = [];
-  var bloq = null;   // null = fuera de un bloque de codigo; array = lineas del bloque
-  var ul   = false;
-  var ol   = false;
+  var out      = [];
+  var bloq     = null;   // null = fuera de un bloque de codigo; array = lineas del bloque
+  var bloqLang = "";
+  var ul       = false;
+  var ol       = false;
 
   function cerrar() {
     if (ul) { out.push("</ul>"); ul = false; }
@@ -43,18 +141,35 @@ function mdToHtml(texto) {
   }
 
   function cerrarBloque() {
-    // Conserva saltos de linea e indentacion tal cual; escapa sin modificar
-    out.push('<pre class="md-pre"><code>' + bloq.join("\n") + "</code></pre>");
+    out.push(
+      '<div class="md-pre-bloque">' +
+      '<div class="md-pre-cab">' +
+      '<label class="md-pre-sw-wrap" title="Ajustar linea">' +
+      '<input type="checkbox" class="md-pre-toggle">' +
+      '<span class="md-pre-switch"></span>' +
+      '</label>' +
+      '<button class="md-pre-copiar" onclick="copiarBloque(this)" aria-label="Copiar">' + SVG_PRE_COPY + '</button>' +
+      '</div>' +
+      '<pre class="md-pre"><code>' + hlCode(bloq.join("\n"), bloqLang) + "</code></pre>" +
+      "</div>"
+    );
     bloq = null;
+    bloqLang = "";
   }
 
   texto.split("\n").forEach(function (l) {
     if (/^```/.test(l.trimStart())) {
-      if (bloq !== null) { cerrarBloque(); }    // cierra el bloque abierto
-      else { cerrar(); bloq = []; }             // abre; ignora el lenguaje tras ```
+      if (bloq !== null) {
+        cerrarBloque();
+      } else {
+        cerrar();
+        var mLang = l.trimStart().match(/^```(\w*)/);
+        bloqLang = mLang && mLang[1] ? mLang[1].toLowerCase() : "";
+        bloq = [];
+      }
       return;
     }
-    if (bloq !== null) { bloq.push(esc(l)); return; }
+    if (bloq !== null) { bloq.push(l); return; }  // lineas en bruto para el resaltador
     if (!l.trim())     { cerrar(); out.push('<div class="md-gap"></div>'); return; }
 
     if (l.startsWith("### ")) { cerrar(); out.push('<h3 class="md-h">' + mdInline(l.slice(4)) + "</h3>"); return; }
@@ -127,8 +242,10 @@ async function salirDetalle() {
   detalle = null;
   limpiarRedactor();
   document.title = "Focus Flow";
-  document.getElementById("vista-atencion").hidden = true;
-  document.getElementById("vista-inicio").hidden   = false;
+  document.getElementById("vista-atencion").hidden  = true;
+  document.getElementById("vista-historico").hidden = true;
+  document.getElementById("buscar-zona").classList.remove("buscar-zona-invisible");
+  document.getElementById("vista-inicio").hidden    = false;
   await cargarAtenciones();
   await cargarFoco();
   await cargarIdeas();
@@ -578,9 +695,20 @@ function cancelarEdicionDetalle() { pintarDetalle(); }
 // -- Interrupcion (tipo npl)
 function pintarAdjuntosInterrupcion(entrada) {
   var cont = document.getElementById("npl-adjuntos");
+  var procesada = detalle && detalle.procesada;
+  var cerrada   = detalle && detalle.datos && detalle.datos.estado === "atendido" &&
+                  !(detalle.datos.npl || {}).pendiente_cierre;
+  var cancelada = detalle && detalle.datos && detalle.datos.estado === "descartado";
+  var puedeEditar = !procesada && !cerrada && !cancelada;
   var caps = (entrada.capturas || []).map(function (c, i) {
-    return '<button type="button" class="npl-adj" onclick="abrirVisor(\'' + entrada.id + '\',' + i + ',this)">' +
-      '<img src="' + urlArchivo(c.raiz, c.ruta) + '" alt=""></button>';
+    var btnQuitar = puedeEditar
+      ? '<button type="button" class="npl-adj-quitar" title="Quitar" data-ruta="' + esc(c.ruta) +
+          '" onclick="quitarCapturaInterrupcion(this.dataset.ruta)">&#x2715;</button>'
+      : "";
+    return '<span class="npl-adj-wrap">' +
+      '<button type="button" class="npl-adj" onclick="abrirVisor(\'' + entrada.id + '\',' + i + ',this)">' +
+      '<img src="' + urlArchivo(c.raiz, c.ruta) + '" alt=""></button>' +
+      btnQuitar + '</span>';
   });
   var arch = (entrada.archivos || []).map(function (a) {
     return '<a class="npl-adj npl-adj-arch" href="' + urlArchivo(a.raiz, a.ruta) + '" target="_blank" rel="noopener">' +
@@ -588,6 +716,42 @@ function pintarAdjuntosInterrupcion(entrada) {
   });
   var items = caps.concat(arch);
   cont.innerHTML = items.length ? items.join("") : '<p class="suave" style="margin:0">Sin adjuntos aun.</p>';
+}
+
+async function quitarCapturaInterrupcion(ruta) {
+  try {
+    await enviar("/api/interrupcion/quitar-captura", { id: detalle.id, ruta: ruta });
+    await recargarDetalle();
+  } catch (error) { mostrarError(error); }
+}
+
+function actualizarVistaNpl() {
+  var ta    = document.getElementById("npl-notas");
+  var vista = document.getElementById("npl-notas-vista");
+  if (!ta || !vista) return;
+  var texto = ta.value.trim();
+  vista.innerHTML = texto
+    ? mdToHtml(texto)
+    : '<span class="suave">Haz clic para agregar notas...</span>';
+}
+
+function enfocarNotasNpl() {
+  var ta    = document.getElementById("npl-notas");
+  var vista = document.getElementById("npl-notas-vista");
+  if (!ta || ta.disabled) return;
+  vista.hidden = true;
+  ta.hidden = false;
+  autosizeTexto(ta);
+  ta.focus();
+}
+
+function salirEdicionNotasNpl() {
+  var ta    = document.getElementById("npl-notas");
+  var vista = document.getElementById("npl-notas-vista");
+  if (!ta || !vista) return;
+  actualizarVistaNpl();
+  ta.hidden = true;
+  vista.hidden = false;
 }
 
 function pintarInterrupcion() {
@@ -614,8 +778,14 @@ function pintarInterrupcion() {
   }
 
   // Notas
-  document.getElementById("npl-notas").value    = entrada.texto || "";
-  document.getElementById("npl-notas").disabled = procesada;
+  var taNotas = document.getElementById("npl-notas");
+  taNotas.value    = entrada.texto || "";
+  taNotas.disabled = procesada;
+  autosizeTexto(taNotas);
+  taNotas.hidden = true;
+  actualizarVistaNpl();
+  var vista = document.getElementById("npl-notas-vista");
+  vista.classList.toggle("npl-notas-vista-editable", !procesada && !cerrada && !cancelada);
   document.getElementById("npl-guardado").textContent = "";
 
   // Padre + proyecto (heredado si hay padre)

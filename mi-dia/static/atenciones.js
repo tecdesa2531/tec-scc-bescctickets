@@ -100,13 +100,14 @@ function htmlFila(a, nivel, mapa, idFoco) {
     '<span class="at-tiempo">' + esc(duracion(a.segundos || 0)) + "</span>" +
   "</div>";
 
-  // Primera linea: "PROYECTO | TRACKING_ID" destacado y "- entornos" en minuscula
-  var linea1 = '<span class="at-id">' + (proj ? esc(proj) + " | " : "") + esc(idTexto) + "</span>" +
-    (env ? '<span class="at-env">- ' + esc(env.toLowerCase()) + "</span>" : "") +
+  // Primera linea: "PROYECTO | titulo"
+  var linea1 = '<span class="at-cabecera">' + (proj ? esc(proj) + " | " : "") + esc(a.titulo) + "</span>" +
     (a.temporal ? '<span class="at-temporal">Temporal</span>' : "");
 
-  var tituloCls = a.estado === "descartado" ? "at-titulo at-tachado ell" : "at-titulo ell";
-  var linea2 = '<span class="' + tituloCls + '" title="' + esc(a.titulo) + '">' + esc(a.titulo) +
+  // Segunda linea: "TRACKING_ID - entornos"
+  var refCls = a.estado === "descartado" ? "at-ref at-tachado ell" : "at-ref ell";
+  var linea2 = '<span class="' + refCls + '">' + esc(idTexto) +
+    (env ? " - " + esc(env.toLowerCase()) : "") +
     (a.npl_pendiente_cierre ? ' <span class="at-badge-cierre">Pendiente de cerrar</span>' : "") + "</span>";
 
   var accion = enFoco

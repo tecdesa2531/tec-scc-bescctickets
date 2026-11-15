@@ -745,6 +745,28 @@ def guardar_notas_interrupcion(parametros):
         escribir_json(bitacora.ruta_bitacora(registro), datos_bitacora)
 
 
+def quitar_captura_interrupcion(parametros):
+    with config.BLOQUEO:
+        registro = buscar_atencion(parametros.get("id", ""))
+        if atencion_procesada(registro):
+            raise ErrorUsuario("Esta interrupcion ya fue procesada; ya no se puede editar")
+        carpeta_trabajo, carpeta_proceso = carpetas_de(registro)
+        datos_bitacora = bitacora.leer_bitacora(registro)
+        entrada = _entrada_interrupcion(datos_bitacora)
+        ruta_quitar = str(parametros.get("ruta", "")).strip()
+        capturas_finales = []
+        for captura in entrada.get("capturas", []):
+            if captura["ruta"] == ruta_quitar:
+                base = carpeta_trabajo if captura["raiz"] == "trabajo" else carpeta_proceso
+                ruta_abs = ruta_segura(base, captura["ruta"])
+                if os.path.isfile(ruta_abs):
+                    os.remove(ruta_abs)
+            else:
+                capturas_finales.append(captura)
+        entrada["capturas"] = capturas_finales
+        escribir_json(bitacora.ruta_bitacora(registro), datos_bitacora)
+
+
 def agregar_adjunto_interrupcion(parametros):
     with config.BLOQUEO:
         registro = buscar_atencion(parametros.get("id", ""))
@@ -909,6 +931,7 @@ def resumen_atenciones():
             "segundos": tiempos.get(registro["id"], 0),
             "pendientes": pendientes,
             "actualizado": datos.get("actualizado", ""),
+            "creado": datos.get("creado", "") or datos.get("actualizado", ""),
         })
     orden_estado = {"reabierto": 0, "en_curso": 1, "en_espera": 2, "atendido": 3, "descartado": 4}
     lista.sort(key=lambda a: a["actualizado"], reverse=True)

@@ -23,8 +23,10 @@ var NOMBRES_ENTRADA = { solicitud: "Solicitud", asignacion: "Asignacion", avance
 // -- Tema
 function aplicarTema(tema) {
   document.documentElement.setAttribute("data-tema", tema);
-  var btn = document.getElementById("btn-tema");
-  if (btn) btn.textContent = tema === "oscuro" ? "Modo claro" : "Modo oscuro";
+  var sol = document.getElementById("icono-tema-sol");
+  var luna = document.getElementById("icono-tema-luna");
+  if (sol) sol.style.display = tema === "oscuro" ? "block" : "none";
+  if (luna) luna.style.display = tema === "oscuro" ? "none" : "block";
   try { localStorage.setItem("focus-flow-tema", tema); } catch (e) {}
 }
 
